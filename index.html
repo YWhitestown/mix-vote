@@ -22,14 +22,13 @@
             overflow-x: hidden;
         }
 
-        /* 動く背景エフェクト */
         .bg-blob {
             position: fixed;
             width: 500px;
             height: 500px;
             background: radial-gradient(circle, var(--accent-glow) 0%, rgba(2, 6, 23, 0) 70%);
             border-radius: 50%;
-            z-10: -1;
+            z-index: -1;
             filter: blur(80px);
             animation: move 20s infinite alternate;
         }
@@ -87,21 +86,16 @@
             box-shadow: 0 4px 15px var(--accent-glow);
         }
 
-        /* Datetime inputのカスタマイズ */
         input[type="datetime-local"]::-webkit-calendar-picker-indicator {
             filter: invert(1) sepia(100%) saturate(500%) hue-rotate(150deg);
             cursor: pointer;
             padding: 5px;
             border-radius: 4px;
         }
-        input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
-            background: rgba(255,255,255,0.1);
-        }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- 背景装飾 -->
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
 
@@ -112,17 +106,14 @@
                 <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/50">
                     <i class="fas fa-shield-alt text-slate-900 text-xl"></i>
                 </div>
-                <h2 class="text-3xl font-extrabold tracking-tight">利用規約への同意</h2>
+                <h2 class="text-3xl font-extrabold tracking-tight text-white">利用規約への同意</h2>
             </div>
             <div class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-400">
-                <p class="mb-4">Mix Voteへようこそ。最高のコミュニティを維持するため、以下のルールにご同意ください。</p>
-                <h4 class="font-bold text-slate-100 mt-6 mb-2 text-lg">第1条（目的）</h4>
-                <p>本規約は、健全な意見交換とエンターテインメントを提供するためのガイドラインです。</p>
-                <h4 class="font-bold text-slate-100 mt-6 mb-2 text-lg">第2条（行動指針）</h4>
+                <p class="mb-4">Mix Voteへようこそ。以下のルールにご同意ください。</p>
+                <h4 class="font-bold text-slate-100 mt-6 mb-2 text-lg">行動指針</h4>
                 <ul class="list-none space-y-3">
                     <li class="flex gap-2"><i class="fas fa-check text-cyan-500 mt-1"></i> 他者の意見を尊重し、建設的な議論を心がけましょう。</li>
-                    <li class="flex gap-2"><i class="fas fa-check text-cyan-500 mt-1"></i> 差別、嫌がらせ、公序良俗に反する内容は禁止します。</li>
-                    <li class="flex gap-2"><i class="fas fa-check text-cyan-500 mt-1"></i> 不正な投票操作は行わないでください。</li>
+                    <li class="flex gap-2"><i class="fas fa-check text-cyan-500 mt-1"></i> 不適切な投稿や操作は禁止します。</li>
                 </ul>
             </div>
             <button id="agreeTosBtn" class="btn-glow w-full mt-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-900 font-extrabold py-4 rounded-2xl transition-all shadow-xl shadow-cyan-500/20 active:scale-95">
@@ -131,28 +122,26 @@
         </div>
     </div>
 
-    <!-- メインコンテンツ -->
+    <!-- メインUI -->
     <div id="appUI" class="hidden">
-        <!-- ヘッダー -->
         <header class="sticky top-0 z-50 glass border-b border-white/5 px-6 py-5">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
                 <div class="flex items-center gap-4 cursor-pointer group" onclick="goHome()">
-                    <div class="bg-gradient-to-br from-cyan-400 to-blue-600 p-2.5 rounded-xl shadow-lg group-hover:rotate-12 transition-transform">
+                    <div class="bg-gradient-to-br from-cyan-400 to-blue-600 p-2.5 rounded-xl">
                         <i class="fas fa-bolt text-slate-900 text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-black tracking-tighter text-white leading-none">MIX <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">VOTE</span></h1>
-                        <p class="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-1">Next-Gen Polling</p>
+                        <h1 class="text-2xl font-black tracking-tighter text-white">MIX <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">VOTE</span></h1>
                     </div>
                 </div>
                 <div id="authArea" class="flex items-center gap-4">
-                    <button id="loginBtn" class="glass hover:bg-white/10 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 border border-white/10 transition-all active:scale-95">
+                    <button id="loginBtn" class="glass hover:bg-white/10 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 border border-white/10 transition-all">
                         <i class="fab fa-google text-cyan-400"></i> <span class="hidden sm:inline">Sign In</span>
                     </button>
-                    <div id="userInfo" class="hidden flex items-center gap-4">
-                        <div class="text-right">
+                    <div id="userInfo" class="hidden flex items-center gap-4 text-right">
+                        <div>
                             <p id="userName" class="text-sm font-black text-slate-200"></p>
-                            <button id="logoutBtn" class="text-[10px] text-slate-500 hover:text-cyan-400 transition-colors uppercase font-bold">Logout</button>
+                            <button id="logoutBtn" class="text-[10px] text-slate-500 hover:text-cyan-400 uppercase font-bold">Logout</button>
                         </div>
                     </div>
                 </div>
@@ -160,156 +149,76 @@
         </header>
 
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 mt-10">
-            <!-- サイドバー -->
             <aside class="lg:col-span-3 space-y-8">
-                <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 font-black py-5 rounded-3xl shadow-2xl shadow-cyan-500/30 flex items-center justify-center gap-3 transition-all hover:-translate-y-1 active:scale-95">
+                <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 font-black py-5 rounded-3xl flex items-center justify-center gap-3">
                     <i class="fas fa-plus-circle text-xl"></i> 新規アンケート
                 </button>
-                
                 <div class="glass rounded-3xl p-6 border border-white/5">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Categories</h3>
-                        <i class="fas fa-th-large text-slate-600 text-xs"></i>
-                    </div>
-                    <nav id="categoryNav" class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 custom-scrollbar">
-                        <!-- カテゴリがここに動的に生成されます -->
-                    </nav>
-                </div>
-
-                <div class="hidden lg:block glass rounded-3xl p-6 border border-white/5">
-                    <div class="flex items-center gap-3 text-cyan-500 mb-3">
-                        <i class="fas fa-info-circle"></i>
-                        <span class="text-xs font-bold uppercase">Guide</span>
-                    </div>
-                    <p class="text-xs text-slate-400 leading-relaxed font-medium">
-                        アンケートを作成して世界中のユーザーと意見を共有しましょう。クイズ機能を使って知識を試すことも可能です。
-                    </p>
+                    <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6">Categories</h3>
+                    <nav id="categoryNav" class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 custom-scrollbar"></nav>
                 </div>
             </aside>
 
-            <!-- メインエリア -->
             <main class="lg:col-span-9 space-y-16 pb-32">
-                <!-- フロントページ -->
                 <div id="view-home" class="space-y-14">
                     <section>
-                        <div class="flex items-center justify-between mb-8">
-                            <div class="flex items-center gap-3">
-                                <div class="w-1.5 h-8 bg-cyan-500 rounded-full shadow-[0_0_15px_var(--accent-glow)]"></div>
-                                <h2 class="text-2xl font-black text-white italic">LATEST <span class="text-slate-500 font-normal not-italic">POLLS</span></h2>
-                            </div>
-                        </div>
-                        <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Poll Cards -->
-                        </div>
+                        <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter">Latest <span class="text-slate-500 font-normal not-italic">Polls</span></h2>
+                        <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </section>
-
                     <section>
-                        <div class="flex items-center justify-between mb-8">
-                            <div class="flex items-center gap-3">
-                                <div class="w-1.5 h-8 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.4)]"></div>
-                                <h2 class="text-2xl font-black text-white italic">TRENDING <span class="text-slate-500 font-normal not-italic">NOW</span></h2>
-                            </div>
-                        </div>
-                        <div id="popularPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Poll Cards -->
-                        </div>
+                        <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter">Trending <span class="text-slate-500 font-normal not-italic">Now</span></h2>
+                        <div id="popularPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </section>
                 </div>
 
-                <!-- 詳細ページ -->
-                <div id="view-detail" class="hidden space-y-10 animate-in slide-in-from-bottom-5 duration-700">
-                    <button onclick="goHome()" class="group flex items-center gap-3 text-slate-500 hover:text-white transition-all font-bold">
-                        <div class="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                            <i class="fas fa-chevron-left"></i>
-                        </div>
+                <div id="view-detail" class="hidden space-y-10">
+                    <button onclick="goHome()" class="group flex items-center gap-3 text-slate-500 hover:text-white font-bold">
+                        <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-white"><i class="fas fa-chevron-left"></i></div>
                         一覧へ戻る
                     </button>
-
-                    <div id="pollDetailContent" class="glass rounded-[40px] p-8 md:p-14 border border-white/10 shadow-2xl space-y-12">
-                        <!-- 詳細内容 -->
-                    </div>
-
-                    <!-- コメントセクション -->
+                    <div id="pollDetailContent" class="glass rounded-[40px] p-8 md:p-14 border border-white/10 shadow-2xl space-y-12"></div>
                     <div class="glass rounded-[40px] p-8 md:p-12 border border-white/10">
-                        <div class="flex items-center justify-between mb-10">
-                            <h3 class="text-2xl font-black text-white flex items-center gap-3">
-                                <i class="far fa-comment-dots text-cyan-400"></i> DISCUSSION
-                            </h3>
-                            <div id="commentCharCount" class="text-[10px] font-black text-slate-500 tracking-widest uppercase">Max 100 characters</div>
+                        <h3 class="text-2xl font-black text-white mb-10 uppercase tracking-widest"><i class="far fa-comment-dots text-cyan-400"></i> Discussion</h3>
+                        <div id="commentInputArea" class="hidden mb-12 relative">
+                            <textarea id="commentText" maxlength="100" class="w-full bg-slate-950/50 border border-white/10 rounded-3xl p-6 text-white outline-none focus:ring-2 focus:ring-cyan-500/50" rows="3" placeholder="意見を書き込む..."></textarea>
+                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 px-8 py-3 rounded-2xl font-black uppercase text-xs">Send</button>
                         </div>
-                        
-                        <div id="commentInputArea" class="hidden mb-12">
-                            <div class="relative group">
-                                <textarea id="commentText" maxlength="100" class="w-full bg-slate-950/50 border border-white/10 rounded-3xl p-6 text-white focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 outline-none transition-all placeholder:text-slate-700" rows="3" placeholder="あなたの意見を書き込む..."></textarea>
-                                <div class="absolute bottom-4 right-4">
-                                    <button id="postCommentBtn" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 px-8 py-3 rounded-2xl font-black text-sm transition-all hover:scale-105 active:scale-95 shadow-xl shadow-cyan-500/20">
-                                        SEND <i class="fas fa-paper-plane ml-1"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div id="commentLoginNotice" class="text-center p-12 bg-white/5 rounded-[30px] border border-dashed border-white/10 text-slate-500 font-bold mb-10">
-                            ログインするとディスカッションに参加できます。
-                        </div>
-
-                        <div id="commentsList" class="space-y-6">
-                            <!-- Comments -->
-                        </div>
+                        <div id="commentLoginNotice" class="text-center p-12 bg-white/5 rounded-[30px] text-slate-500 font-bold mb-10">ログインすると参加できます</div>
+                        <div id="commentsList" class="space-y-6"></div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- モーダル (Create/Edit) -->
+    <!-- モーダル -->
     <div id="createModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
         <div class="glass max-w-xl w-full rounded-[40px] p-10 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <h2 id="modalTitle" class="text-3xl font-black mb-8 text-white italic">CREATE <span class="text-cyan-400">POLL</span></h2>
+            <h2 id="modalTitle" class="text-3xl font-black mb-8 text-white italic tracking-tighter uppercase">Create <span class="text-cyan-400">Poll</span></h2>
             <div class="space-y-6">
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Poll Title</label>
-                    <input type="text" id="pollTitleInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Description (Optional)</label>
-                    <textarea id="pollDescInput" rows="2" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all"></textarea>
-                </div>
+                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Poll Title</label>
+                <input type="text" id="pollTitleInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white"></div>
+                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Description</label>
+                <textarea id="pollDescInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white" rows="2"></textarea></div>
                 <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Category</label>
-                        <select id="pollCategoryInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all">
-                            <!-- Categories -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Deadline</label>
-                        <!-- 視覚的にクリックしやすいコンテナ -->
-                        <div id="deadlinePickerContainer" class="relative group cursor-pointer bg-slate-950 border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:border-cyan-500/50 transition-all">
-                            <input type="datetime-local" id="pollDeadlineInput" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
-                            <span id="deadlineDisplay" class="text-white text-sm font-medium">Select date & time</span>
-                            <i class="far fa-calendar-alt text-cyan-400"></i>
-                        </div>
-                    </div>
+                    <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Category</label>
+                    <select id="pollCategoryInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white"></select></div>
+                    <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Deadline</label>
+                    <div id="deadlinePickerContainer" class="bg-slate-950 border border-white/10 rounded-2xl p-4 flex justify-between items-center cursor-pointer relative group">
+                        <input type="datetime-local" id="pollDeadlineInput" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+                        <span id="deadlineDisplay" class="text-sm font-medium">Select time</span><i class="far fa-calendar-alt text-cyan-400"></i>
+                    </div></div>
                 </div>
-                <div id="optionsContainer">
-                    <label id="optionsLabel" class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Options (One per line)</label>
-                    <textarea id="pollOptionsInput" rows="4" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all" placeholder="Enter options here..."></textarea>
-                </div>
-                <div id="quizFields" class="hidden bg-cyan-500/5 p-6 rounded-3xl border border-cyan-500/20 space-y-6">
-                    <div>
-                        <label class="block text-[10px] font-black text-cyan-400 mb-2 uppercase tracking-widest">Correct Answer</label>
-                        <select id="pollCorrectIndexInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-cyan-400 mb-2 uppercase tracking-widest">Explanation</label>
-                        <textarea id="pollExplanationInput" rows="2" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all"></textarea>
-                    </div>
+                <div id="optionsContainer"><label id="optionsLabel" class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Options</label>
+                <textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white" rows="4"></textarea></div>
+                <div id="quizFields" class="hidden bg-cyan-500/5 p-6 rounded-3xl border border-cyan-500/20 space-y-4">
+                    <select id="pollCorrectIndexInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white"></select>
+                    <textarea id="pollExplanationInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white" rows="2" placeholder="Explanation..."></textarea>
                 </div>
             </div>
             <div class="flex gap-4 mt-12">
-                <button id="cancelCreateBtn" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-black py-5 rounded-2xl transition-all active:scale-95">CANCEL</button>
-                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 font-black py-5 rounded-2xl transition-all shadow-xl shadow-cyan-500/20 active:scale-95">SAVE POLL</button>
+                <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-black py-5 rounded-2xl uppercase tracking-widest">Cancel</button>
+                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 font-black py-5 rounded-2xl uppercase tracking-widest">Save</button>
             </div>
         </div>
     </div>
@@ -319,29 +228,25 @@
         import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-        // --- Firebase Configuration (安全な取得) ---
+        // --- 安全な環境変数取得 ---
+        const safeGet = (v) => (typeof window[v] !== 'undefined' ? window[v] : null);
+        const configStr = safeGet('__firebase_config');
+        const token = safeGet('__initial_auth_token');
+        const appId = safeGet('__app_id') || 'mix-vote-v2';
+
         let firebaseConfig = {};
-        try {
-            // __firebase_config 変数が未定義の場合の ReferenceError を回避
-            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                firebaseConfig = JSON.parse(__firebase_config);
-            }
-        } catch (e) {
-            console.error("Firebase config parsing failed", e);
+        if (configStr) {
+            try { firebaseConfig = JSON.parse(configStr); } catch (e) { console.error("Config parse error"); }
         }
 
-        const app = initializeApp(firebaseConfig);
+        // Firebase初期化 (空の設定でもクラッシュしないようにガード)
+        const app = initializeApp(firebaseConfig.apiKey ? firebaseConfig : { apiKey: "fake-key", projectId: "fake-id" });
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        // appId の安全な取得
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mix-vote-v2';
 
-        // Collection Paths (Rule 1)
         const POLLS_PATH = `/artifacts/${appId}/public/data/polls`;
         const COMMENTS_PATH = `/artifacts/${appId}/public/data/comments`;
 
-        // --- State ---
         let currentUser = null;
         let categories = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
         let selectedCategory = "全て";
@@ -350,52 +255,40 @@
         let editMode = false;
         let editPollId = null;
 
-        // --- Utils: Name Masking ---
         const maskName = (name) => {
             if (!name) return 'Anonymous';
-            if (name.length <= 2) return '●●';
-            return '●●' + name.substring(2);
+            return name.length <= 2 ? '●●' : '●●' + name.substring(2);
         };
 
-        // --- Authentication (Rule 3) ---
         const initAuth = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                if (token) await signInWithCustomToken(auth, token);
+                else await signInAnonymously(auth);
             } catch (err) {
-                console.warn("Initial authentication fallback used", err);
-                await signInAnonymously(auth);
+                console.warn("Auth initialization failed, using anonymous fallback");
+                await signInAnonymously(auth).catch(() => {});
             }
         };
-        initAuth();
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
-            if (user && !user.isAnonymous) {
-                document.getElementById('loginBtn').classList.add('hidden');
-                document.getElementById('userInfo').classList.remove('hidden');
-                document.getElementById('userName').textContent = maskName(user.displayName);
-                document.getElementById('openCreateBtn').classList.remove('hidden');
-                const cia = document.getElementById('commentInputArea');
-                if (cia) cia.classList.remove('hidden');
-                const cln = document.getElementById('commentLoginNotice');
-                if (cln) cln.classList.add('hidden');
-            } else {
-                document.getElementById('loginBtn').classList.remove('hidden');
-                document.getElementById('userInfo').classList.add('hidden');
-                document.getElementById('openCreateBtn').classList.add('hidden');
-                const cia = document.getElementById('commentInputArea');
-                if (cia) cia.classList.add('hidden');
-                const cln = document.getElementById('commentLoginNotice');
-                if (cln) cln.classList.remove('hidden');
+            const isReg = user && !user.isAnonymous;
+            document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
+            document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
+            document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
+            if (isReg) document.getElementById('userName').textContent = maskName(user.displayName);
+            
+            const cia = document.getElementById('commentInputArea');
+            const cln = document.getElementById('commentLoginNotice');
+            if (cia) cia.classList.toggle('hidden', !isReg);
+            if (cln) cln.classList.toggle('hidden', isReg);
+
+            if (localStorage.getItem('mixvote_agreed')) {
+                document.getElementById('appUI').classList.remove('hidden');
+                loadApp();
             }
-            if (localStorage.getItem('mixvote_agreed')) loadApp();
         });
 
-        // --- Routing ---
         window.goHome = () => {
             window.location.hash = '';
             document.getElementById('view-home').classList.remove('hidden');
@@ -411,25 +304,10 @@
         };
 
         window.addEventListener('hashchange', () => {
-            const hash = window.location.hash;
-            if (hash.startsWith('#poll/')) {
-                goDetail(hash.replace('#poll/', ''));
-            } else {
-                goHome();
-            }
+            const h = window.location.hash;
+            if (h.startsWith('#poll/')) goDetail(h.replace('#poll/', ''));
+            else goHome();
         });
-
-        // --- Initial Load ---
-        const checkTOS = () => {
-            const tosModal = document.getElementById('tosModal');
-            const appUI = document.getElementById('appUI');
-            if (!localStorage.getItem('mixvote_agreed')) {
-                tosModal.classList.remove('hidden');
-            } else {
-                appUI.classList.remove('hidden');
-                loadApp();
-            }
-        };
 
         document.getElementById('agreeTosBtn').onclick = () => {
             localStorage.setItem('mixvote_agreed', 'true');
@@ -441,551 +319,207 @@
         const loadApp = () => {
             setupCategoryMenu();
             setupCreateModalFields();
-            if (window.location.hash.startsWith('#poll/')) {
-                goDetail(window.location.hash.replace('#poll/', ''));
-            } else {
-                loadPolls();
-            }
+            const h = window.location.hash;
+            if (h.startsWith('#poll/')) goDetail(h.replace('#poll/', ''));
+            else loadPolls();
         };
 
-        // --- Category Menu ---
         const setupCategoryMenu = () => {
             const nav = document.getElementById('categoryNav');
             const select = document.getElementById('pollCategoryInput');
             if (!nav || !select) return;
-            nav.innerHTML = '';
-            select.innerHTML = '';
-
-            const allCats = ["全て", ...categories];
-            allCats.forEach(cat => {
+            nav.innerHTML = ''; select.innerHTML = '';
+            ["全て", ...categories].forEach(cat => {
                 const btn = document.createElement('button');
-                btn.className = `nav-link px-6 py-3 rounded-2xl text-xs font-black transition-all text-left uppercase tracking-widest ${selectedCategory === cat ? 'active' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`;
+                btn.className = `nav-link px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-left ${selectedCategory === cat ? 'active' : 'text-slate-500 hover:text-white'}`;
                 btn.textContent = cat;
-                btn.onclick = () => {
-                    selectedCategory = cat;
-                    setupCategoryMenu();
-                    loadPolls();
-                };
+                btn.onclick = () => { selectedCategory = cat; setupCategoryMenu(); loadPolls(); };
                 nav.appendChild(btn);
-
                 if (cat !== "全て") {
-                    const opt = document.createElement('option');
-                    opt.value = cat;
-                    opt.textContent = cat;
-                    select.appendChild(opt);
+                    const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt);
                 }
             });
         };
 
-        // --- Create Modal Logic ---
         document.getElementById('pollCategoryInput').onchange = (e) => {
-            const cat = e.target.value;
-            const quizFields = document.getElementById('quizFields');
-            const optionsTextarea = document.getElementById('pollOptionsInput');
-            const optionsLabel = document.getElementById('optionsLabel');
-
-            if (cat === "クイズ") {
-                quizFields.classList.remove('hidden');
-                updateCorrectOptionSelect();
-            } else {
-                quizFields.classList.add('hidden');
-            }
-
-            if (cat === "あるある") {
-                optionsTextarea.value = "あるある！\nいいね\n笑\n涙";
-                optionsTextarea.disabled = true;
-                optionsLabel.textContent = "選択肢 (固定)";
-            } else {
-                optionsTextarea.disabled = false;
-                optionsLabel.textContent = "選択肢 (改行で複数)";
-            }
+            const c = e.target.value;
+            const qf = document.getElementById('quizFields');
+            const oi = document.getElementById('pollOptionsInput');
+            qf.classList.toggle('hidden', c !== "クイズ");
+            if (c === "あるある") { oi.value = "あるある！\nいいね\n笑\n涙"; oi.disabled = true; }
+            else { oi.disabled = false; }
         };
-
-        const updateCorrectOptionSelect = () => {
-            const options = document.getElementById('pollOptionsInput').value.split('\n').filter(s => s.trim());
-            const select = document.getElementById('pollCorrectIndexInput');
-            if (!select) return;
-            select.innerHTML = '';
-            options.forEach((opt, i) => {
-                const o = document.createElement('option');
-                o.value = i;
-                o.textContent = `${i + 1}: ${opt}`;
-                select.appendChild(o);
-            });
-        };
-        document.getElementById('pollOptionsInput').oninput = updateCorrectOptionSelect;
 
         const setupCreateModalFields = () => {
-            const deadlineInput = document.getElementById('pollDeadlineInput');
-            const deadlineDisplay = document.getElementById('deadlineDisplay');
-            if (!deadlineInput) return;
-            const now = new Date();
-            const minDate = now.toISOString().slice(0, 16);
-            deadlineInput.min = minDate;
-
-            // インプットの値が変更されたら表示テキストを更新
-            deadlineInput.addEventListener('change', (e) => {
-                if (e.target.value && deadlineDisplay) {
-                    const date = new Date(e.target.value);
-                    deadlineDisplay.textContent = date.toLocaleString('ja-JP', {
-                        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                    });
-                } else if (deadlineDisplay) {
-                    deadlineDisplay.textContent = "Select date & time";
-                }
-            });
-
-            // コンテナをクリックした時に入力を開く（対応ブラウザのみ）
-            const dpc = document.getElementById('deadlinePickerContainer');
-            if (dpc) {
-                dpc.onclick = () => {
-                    try {
-                        if (typeof deadlineInput.showPicker === 'function') {
-                            deadlineInput.showPicker();
-                        } else {
-                            deadlineInput.focus();
-                        }
-                    } catch (err) {
-                        deadlineInput.focus();
-                    }
-                };
-            }
+            const di = document.getElementById('pollDeadlineInput');
+            const dd = document.getElementById('deadlineDisplay');
+            if (!di) return;
+            di.min = new Date().toISOString().slice(0, 16);
+            di.onchange = (e) => {
+                if (e.target.value) dd.textContent = new Date(e.target.value).toLocaleString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                else dd.textContent = "Select time";
+            };
+            document.getElementById('deadlinePickerContainer').onclick = () => { try { di.showPicker(); } catch (e) { di.focus(); } };
         };
 
-        // --- Firestore Data Fetching (Rule 2: JS Filtering) ---
         const loadPolls = async () => {
             if (!currentUser) return;
             try {
-                const pollsCol = collection(db, ...POLLS_PATH.split('/').filter(Boolean));
-                const snapshot = await getDocs(pollsCol);
-                let polls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(p => !p.deleted);
-
-                if (selectedCategory !== "全て") {
-                    polls = polls.filter(p => p.category === selectedCategory);
-                }
-
-                const latest = [...polls].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 6);
-                const popular = [...polls].sort((a, b) => {
-                    const vA = a.votes?.reduce((s, v) => s + v, 0) || 0;
-                    const vB = b.votes?.reduce((s, v) => s + v, 0) || 0;
-                    return vB - vA;
-                }).slice(0, 6);
-
+                const snapshot = await getDocs(collection(db, ...POLLS_PATH.split('/').filter(Boolean)));
+                let polls = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => !p.deleted);
+                if (selectedCategory !== "全て") polls = polls.filter(p => p.category === selectedCategory);
+                const latest = [...polls].sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,6);
+                const popular = [...polls].sort((a,b) => (b.votes?.reduce((s,v)=>s+v,0)||0)-(a.votes?.reduce((s,v)=>s+v,0)||0)).slice(0,6);
                 renderPollList('latestPolls', latest);
                 renderPollList('popularPolls', popular);
-            } catch (err) {
-                console.error("Polls load failed", err);
-            }
+            } catch (e) { console.error("Poll load err", e); }
         };
 
-        const renderPollList = (elementId, polls) => {
-            const container = document.getElementById(elementId);
-            if (!container) return;
-            container.innerHTML = polls.length ? '' : '<p class="text-slate-600 py-20 text-center col-span-2 font-black tracking-widest uppercase text-xs">No active polls found</p>';
-            
+        const renderPollList = (eid, polls) => {
+            const c = document.getElementById(eid); if (!c) return;
+            c.innerHTML = polls.length ? '' : '<p class="text-slate-600 py-10 font-black uppercase text-[10px]">No Data</p>';
             polls.forEach(p => {
-                const totalVotes = p.votes?.reduce((s, v) => s + v, 0) || 0;
-                const card = document.createElement('div');
-                card.className = "poll-card glass rounded-[32px] p-7 border border-white/5 cursor-pointer flex flex-col justify-between h-full";
-                card.onclick = () => goDetail(p.id);
-                
-                card.innerHTML = `
+                const div = document.createElement('div');
+                div.className = "poll-card glass rounded-[32px] p-7 cursor-pointer flex flex-col justify-between h-full";
+                div.onclick = () => goDetail(p.id);
+                div.innerHTML = `
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[9px] font-black px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 uppercase tracking-widest">${p.category}</span>
-                            <span class="text-[9px] text-slate-600 font-bold uppercase tracking-widest">${p.createdAt ? new Date(p.createdAt.seconds * 1000).toLocaleDateString() : 'New'}</span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[8px] font-black px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 uppercase tracking-widest">${p.category}</span>
+                            <span class="text-[8px] text-slate-600 font-bold">${p.createdAt?new Date(p.createdAt.seconds*1000).toLocaleDateString():'New'}</span>
                         </div>
-                        <h3 class="text-lg font-black text-slate-100 leading-snug line-clamp-2">${p.title}</h3>
-                        ${p.question ? `<p class="text-xs text-slate-500 line-clamp-1 font-medium">${p.question}</p>` : ''}
+                        <h3 class="text-lg font-black text-white line-clamp-2 leading-tight">${p.title}</h3>
                     </div>
-                    <div class="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[10px] text-slate-500">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <span class="text-[10px] text-slate-400 font-bold tracking-tight">${maskName(p.author)}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5 text-cyan-400 font-black text-xs uppercase tracking-tighter">
-                            <span>${totalVotes}</span>
-                            <span class="text-[9px] text-slate-600">Votes</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
+                    <div class="mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
+                        <span class="text-[9px] text-slate-500 font-bold italic">By ${maskName(p.author)}</span>
+                        <span class="text-cyan-400 font-black text-xs">${p.votes?.reduce((s,v)=>s+v,0)||0} Votes</span>
+                    </div>`;
+                c.appendChild(div);
             });
         };
 
-        // --- Detail View Logic ---
         const loadPollDetail = async (id) => {
             currentPollId = id;
             try {
-                const pollRef = doc(db, ...POLLS_PATH.split('/').filter(Boolean), id);
-                const pollDoc = await getDoc(pollRef);
-                
-                if (!pollDoc.exists()) {
-                    document.getElementById('pollDetailContent').innerHTML = '<p class="text-center py-20 text-slate-400 font-black">DATA NOT FOUND</p>';
-                    return;
-                }
+                const d = await getDoc(doc(db, ...POLLS_PATH.split('/').filter(Boolean), id));
+                if (!d.exists()) return;
+                const p = d.data();
+                const total = p.votes?.reduce((s,v)=>s+v,0)||0;
+                const hasVoted = p.votedUsers?.includes(currentUser.uid);
+                const isExp = p.deadline && new Date(p.deadline.seconds*1000) < new Date();
+                const showRes = hasVoted || isExp || (currentUser && currentUser.uid === p.authorID);
 
-                const poll = pollDoc.data();
-                const totalVotes = poll.votes?.reduce((s, v) => s + v, 0) || 0;
-                const hasVoted = poll.votedUsers?.includes(currentUser.uid);
-                const isExpired = poll.deadline && new Date(poll.deadline.seconds * 1000) < new Date();
-                const showResults = hasVoted || isExpired || (currentUser && currentUser.uid === poll.authorID && !currentUser.isAnonymous);
-
-                let contentHtml = `
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-10 border-b border-white/5">
+                let html = `
+                    <div class="flex flex-col lg:flex-row justify-between gap-8 pb-10 border-b border-white/5">
                         <div class="space-y-4">
-                            <div class="flex items-center gap-3">
-                                <span class="bg-cyan-500 text-slate-950 font-black text-[10px] px-4 py-1.5 rounded-full uppercase tracking-widest">${poll.category}</span>
-                                <span class="text-slate-500 text-xs font-bold italic">By ${maskName(poll.author)}</span>
-                            </div>
-                            <h2 class="text-4xl md:text-5xl font-black text-white leading-[1.1] tracking-tight">${poll.title}</h2>
-                            ${poll.question ? `<p class="text-slate-400 text-xl font-medium leading-relaxed max-w-2xl">${poll.question}</p>` : ''}
+                            <span class="bg-cyan-500 text-slate-950 font-black text-[10px] px-4 py-1 rounded-full uppercase tracking-widest">${p.category}</span>
+                            <h2 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none">${p.title}</h2>
+                            <p class="text-slate-400 text-lg font-medium italic">Creator: ${maskName(p.author)}</p>
                         </div>
-                        ${isExpired ? `
-                            <div class="flex flex-col items-center gap-2 px-8 py-4 bg-red-500/10 border border-red-500/20 rounded-3xl shrink-0">
-                                <i class="fas fa-clock text-red-500 text-2xl"></i>
-                                <span class="text-red-500 text-[10px] font-black uppercase tracking-widest">Polling Ended</span>
-                            </div>
-                        ` : ''}
+                        ${isExp ? '<div class="text-red-500 font-black uppercase text-xs p-4 bg-red-500/10 rounded-2xl border border-red-500/20">Polling Ended</div>' : ''}
                     </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start py-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 py-6">
                         <div class="space-y-4">
-                            ${poll.options.map((opt, i) => {
-                                const count = poll.votes[i] || 0;
-                                const percent = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
-                                const isCorrect = poll.is_quiz && poll.correct_index === i;
-                                
-                                if (showResults) {
-                                    return `
-                                        <div class="relative overflow-hidden bg-slate-950 border border-white/5 rounded-3xl p-6 flex items-center justify-between group">
-                                            <div class="absolute inset-y-0 left-0 bg-cyan-500/10 transition-all duration-1000" style="width: ${percent}%"></div>
-                                            <div class="z-10 flex items-center gap-4">
-                                                <span class="font-black text-slate-600 text-sm group-hover:text-cyan-500 transition-colors">${String(i + 1).padStart(2, '0')}</span>
-                                                <span class="text-white font-bold text-lg">${opt}</span>
-                                                ${isCorrect ? '<i class="fas fa-check-circle text-emerald-500 text-xl ml-2 shadow-[0_0_10px_rgba(16,185,129,0.3)]"></i>' : ''}
-                                            </div>
-                                            <div class="z-10 text-right">
-                                                <div class="font-black text-white text-2xl tracking-tighter">${percent}<span class="text-xs text-slate-500 font-normal ml-0.5">%</span></div>
-                                                <div class="text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-1">${count} Votes</div>
-                                            </div>
-                                        </div>
-                                    `;
-                                } else {
-                                    return `
-                                        <button onclick="castVote(${i})" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl p-6 text-left transition-all hover:border-cyan-500/50 flex items-center gap-5 group active:scale-95 text-white">
-                                            <span class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center font-black text-slate-500 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all text-xl">${i + 1}</span>
-                                            <span class="font-black text-lg uppercase tracking-tight">${opt}</span>
-                                        </button>
-                                    `;
-                                }
+                            ${p.options.map((opt, i) => {
+                                const v = p.votes[i]||0; const per = total>0?Math.round(v/total*100):0;
+                                if (showRes) return `
+                                    <div class="relative overflow-hidden bg-slate-950 border border-white/5 rounded-3xl p-6 flex justify-between items-center group">
+                                        <div class="absolute inset-y-0 left-0 bg-cyan-500/10 transition-all duration-1000" style="width:${per}%"></div>
+                                        <span class="z-10 text-white font-bold text-lg">${opt}</span>
+                                        <div class="z-10 text-right"><div class="font-black text-white text-2xl tracking-tighter">${per}%</div><div class="text-[8px] text-slate-600 uppercase">${v} Votes</div></div>
+                                    </div>`;
+                                return `
+                                    <button onclick="castVote(${i})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-cyan-500 transition-all active:scale-95 group flex items-center gap-4">
+                                        <span class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center font-black text-slate-500 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all">${i+1}</span>
+                                        <span class="text-white font-black text-lg uppercase">${opt}</span>
+                                    </button>`;
                             }).join('')}
                         </div>
-
-                        <div class="flex flex-col items-center justify-center sticky top-28">
-                            ${showResults ? `
-                                <div class="w-full max-w-[340px] relative">
-                                    <canvas id="pollChart"></canvas>
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                        <span class="text-3xl font-black text-white">${totalVotes}</span>
-                                        <span class="text-[9px] text-slate-500 font-black uppercase tracking-widest">Total Votes</span>
-                                    </div>
-                                </div>
-                            ` : `
-                                <div class="text-center p-16 bg-white/5 rounded-[40px] border-2 border-dashed border-white/5 w-full flex flex-col items-center">
-                                    <div class="w-20 h-20 rounded-full glass flex items-center justify-center text-slate-600 text-3xl mb-6">
-                                        <i class="fas fa-fingerprint"></i>
-                                    </div>
-                                    <h4 class="text-white font-black mb-2 uppercase tracking-widest">Verification Required</h4>
-                                    <p class="text-slate-500 font-medium text-sm leading-relaxed max-w-[200px]">投票すると集計結果のロックが解除されます</p>
-                                </div>
-                            `}
+                        <div class="flex justify-center items-center">
+                            ${showRes ? '<div class="w-full max-w-[300px] relative"><canvas id="pollChart"></canvas></div>' : '<div class="text-center p-16 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-500 uppercase text-xs font-black tracking-widest">Vote to unlock results</div>'}
                         </div>
                     </div>
-
-                    ${isCorrectMessage(poll, showResults)}
-                    
-                    <div class="flex flex-wrap items-center gap-6 pt-10 border-t border-white/5">
-                        <div class="text-xs font-black text-slate-600 uppercase tracking-[0.2em]">Share results</div>
-                        <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(poll.title + ' | Vote now on Mix Vote!')}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-black border border-white/10 rounded-2xl text-[10px] font-black hover:bg-white/5 transition-all uppercase tracking-widest text-white">
-                            <i class="fab fa-x-twitter text-sm"></i> X (Twitter)
-                        </a>
-                        ${currentUser && poll.authorID === currentUser.uid ? `
-                            <div class="ml-auto flex items-center gap-6">
-                                <button onclick="openEditPoll('${id}')" class="text-[10px] font-black text-slate-500 hover:text-white transition-all uppercase tracking-widest underline decoration-2 underline-offset-4">Edit</button>
-                                <button onclick="deletePoll('${id}')" class="text-[10px] font-black text-red-500/50 hover:text-red-500 transition-all uppercase tracking-widest underline decoration-2 underline-offset-4">Delete</button>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                document.getElementById('pollDetailContent').innerHTML = contentHtml;
-                if (showResults) renderChart(poll);
+                    ${p.is_quiz && showRes ? `<div class="bg-emerald-500/5 border border-emerald-500/20 p-8 rounded-[32px] mt-8 animate-in zoom-in-95 duration-500 text-white"><h4 class="text-emerald-400 font-black uppercase text-xs mb-4 tracking-widest">Answer Key</h4><p class="text-xl font-black mb-4">Correct: ${p.options[p.correct_index]}</p><p class="text-slate-400 italic">${p.explanation||''}</p></div>` : ''}
+                    <div class="flex gap-6 pt-10 border-t border-white/5 items-center">
+                        <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(p.title)}" target="_blank" class="px-6 py-3 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10">Share on X</a>
+                        ${currentUser && p.authorID === currentUser.uid ? `<button onclick="openEditPoll('${id}')" class="text-[10px] text-slate-500 font-black uppercase underline ml-auto">Edit</button><button onclick="deletePoll('${id}')" class="text-[10px] text-red-500/50 font-black uppercase underline">Delete</button>` : ''}
+                    </div>`;
+                document.getElementById('pollDetailContent').innerHTML = html;
+                if (showRes) renderChart(p);
                 loadComments(id);
-            } catch (err) {
-                console.error("Poll detail load failed", err);
-            }
+            } catch (e) { console.error(e); }
         };
 
-        const isCorrectMessage = (poll, show) => {
-            if (!poll.is_quiz || !show) return '';
-            return `
-                <div class="bg-emerald-500/5 border border-emerald-500/20 p-8 rounded-[32px] mt-8 animate-in zoom-in-95 duration-500">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950 text-xs">
-                            <i class="fas fa-award"></i>
-                        </div>
-                        <h4 class="font-black text-emerald-400 uppercase tracking-widest">Quiz Explanation</h4>
-                    </div>
-                    <p class="text-white font-black text-xl mb-4">正解: ${poll.options[poll.correct_index]}</p>
-                    <p class="text-slate-400 text-lg leading-relaxed font-medium">${poll.explanation || '解説はありません。'}</p>
-                </div>
-            `;
-        };
-
-        window.castVote = async (index) => {
+        window.castVote = async (idx) => {
             if (!currentUser) return;
-            try {
-                const pollRef = doc(db, ...POLLS_PATH.split('/').filter(Boolean), currentPollId);
-                const pollDoc = await getDoc(pollRef);
-                const poll = pollDoc.data();
-
-                if (poll.votedUsers?.includes(currentUser.uid)) return;
-
-                const newVotes = [...poll.votes];
-                newVotes[index] = (newVotes[index] || 0) + 1;
-
-                await updateDoc(pollRef, {
-                    votes: newVotes,
-                    votedUsers: arrayUnion(currentUser.uid)
-                });
-                loadPollDetail(currentPollId);
-            } catch (err) {
-                console.error("Voting failed", err);
-            }
+            const ref = doc(db, ...POLLS_PATH.split('/').filter(Boolean), currentPollId);
+            const p = (await getDoc(ref)).data();
+            if (p.votedUsers?.includes(currentUser.uid)) return;
+            const v = [...p.votes]; v[idx] = (v[idx]||0)+1;
+            await updateDoc(ref, { votes: v, votedUsers: arrayUnion(currentUser.uid) });
+            loadPollDetail(currentPollId);
         };
 
-        const renderChart = (poll) => {
+        const renderChart = (p) => {
             const ctx = document.getElementById('pollChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
-                data: {
-                    labels: poll.options,
-                    datasets: [{
-                        data: poll.votes,
-                        backgroundColor: ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'],
-                        borderColor: '#020617',
-                        borderWidth: 10,
-                        hoverOffset: 20
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    cutout: '85%',
-                    plugins: { legend: { display: false } },
-                    animation: { animateScale: true, animateRotate: true }
-                }
+                data: { labels: p.options, datasets: [{ data: p.votes, backgroundColor: ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b'], borderWidth: 0, hoverOffset: 15 }] },
+                options: { cutout: '80%', plugins: { legend: { display: false } } }
             });
         };
 
-        // --- Comments ---
-        const loadComments = (pollId) => {
-            try {
-                const commentsCol = collection(db, ...COMMENTS_PATH.split('/').filter(Boolean));
-                const q = query(commentsCol, orderBy('createdAt', 'desc'));
-                
-                onSnapshot(q, (snapshot) => {
-                    const list = document.getElementById('commentsList');
-                    if (!list) return;
-                    list.innerHTML = '';
-                    const comments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(c => c.pollId === pollId);
-
-                    if (comments.length === 0) {
-                        list.innerHTML = '<p class="text-center text-slate-700 py-16 text-[10px] font-black uppercase tracking-[0.3em]">No discussions started yet</p>';
-                        return;
-                    }
-
-                    comments.forEach(c => {
-                        const div = document.createElement('div');
-                        div.className = "p-6 rounded-3xl bg-white/5 border border-white/5 space-y-3 relative group hover:bg-white/[0.08] transition-all";
-                        div.innerHTML = `
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-5 h-5 rounded-lg bg-cyan-500/20 flex items-center justify-center text-[8px] text-cyan-400">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <span class="text-xs font-black text-slate-200 uppercase tracking-tight">${maskName(c.author)}</span>
-                                </div>
-                                <span class="text-[9px] text-slate-600 font-black uppercase tracking-widest">${c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleString() : ''}</span>
-                            </div>
-                            <p class="text-slate-400 text-sm leading-relaxed font-medium">${c.text}</p>
-                            ${currentUser && c.authorID === currentUser.uid ? `
-                                <button onclick="deleteComment('${c.id}')" class="absolute top-6 right-6 text-[9px] text-red-500/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all font-black uppercase tracking-widest">Remove</button>
-                            ` : ''}
-                        `;
-                        list.appendChild(div);
-                    });
-                }, (err) => console.error("Comments subscription failed", err));
-            } catch (err) {
-                console.error("Comments setup failed", err);
-            }
+        const loadComments = (pid) => {
+            onSnapshot(query(collection(db, ...COMMENTS_PATH.split('/').filter(Boolean)), orderBy('createdAt', 'desc')), (s) => {
+                const list = document.getElementById('commentsList'); if (!list) return;
+                list.innerHTML = '';
+                const coms = s.docs.map(d=>({id:d.id,...d.data()})).filter(c=>c.pollId===pid);
+                if (!coms.length) { list.innerHTML='<p class="text-center text-slate-800 uppercase text-[9px] font-black py-10">Empty conversation</p>'; return; }
+                coms.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = "p-6 rounded-3xl bg-white/5 border border-white/5 flex justify-between items-start";
+                    div.innerHTML = `<div><div class="flex gap-2 items-center mb-2"><span class="text-[9px] font-black text-cyan-400 uppercase tracking-tighter">${maskName(c.author)}</span><span class="text-[7px] text-slate-700">${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleTimeString():''}</span></div><p class="text-slate-300 text-sm">${c.text}</p></div>
+                    ${currentUser && c.authorID === currentUser.uid ? `<button onclick="deleteComment('${c.id}')" class="text-[7px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest">Remove</button>` : ''}`;
+                    list.appendChild(div);
+                });
+            });
         };
 
         document.getElementById('postCommentBtn').onclick = async () => {
-            const text = document.getElementById('commentText').value.trim();
-            if (!text || !currentUser || currentUser.isAnonymous) return;
-
-            try {
-                const commentsCol = collection(db, ...COMMENTS_PATH.split('/').filter(Boolean));
-                await addDoc(commentsCol, {
-                    pollId: currentPollId,
-                    author: currentUser.displayName,
-                    authorID: currentUser.uid,
-                    text: text,
-                    createdAt: serverTimestamp()
-                });
-                document.getElementById('commentText').value = '';
-            } catch (err) {
-                console.error("Post comment failed", err);
-            }
+            const t = document.getElementById('commentText').value.trim();
+            if (!t || !currentUser || currentUser.isAnonymous) return;
+            await addDoc(collection(db, ...COMMENTS_PATH.split('/').filter(Boolean)), { pollId: currentPollId, author: currentUser.displayName, authorID: currentUser.uid, text: t, createdAt: serverTimestamp() });
+            document.getElementById('commentText').value = '';
         };
 
-        window.deleteComment = async (id) => {
-            if (!confirm("コメントを削除しますか？")) return;
-            try {
-                const ref = doc(db, ...COMMENTS_PATH.split('/').filter(Boolean), id);
-                await deleteDoc(ref);
-            } catch (err) {
-                console.error("Delete comment failed", err);
-            }
-        };
+        window.deleteComment = async (id) => { if (confirm("Delete comment?")) await deleteDoc(doc(db, ...COMMENTS_PATH.split('/').filter(Boolean), id)); };
 
-        // --- Poll Management ---
-        document.getElementById('openCreateBtn').onclick = () => {
-            editMode = false;
-            editPollId = null;
-            document.getElementById('modalTitle').innerHTML = 'CREATE <span class="text-cyan-400">POLL</span>';
-            document.getElementById('pollTitleInput').value = "";
-            document.getElementById('pollDescInput').value = "";
-            document.getElementById('pollOptionsInput').value = "";
-            document.getElementById('pollDeadlineInput').value = "";
-            const dd = document.getElementById('deadlineDisplay');
-            if (dd) dd.textContent = "Select date & time";
-            document.getElementById('createModal').classList.remove('hidden');
-        };
-
+        document.getElementById('openCreateBtn').onclick = () => { editMode=false; document.getElementById('modalTitle').innerHTML='Create <span class="text-cyan-400">Poll</span>'; document.getElementById('pollTitleInput').value=""; document.getElementById('pollOptionsInput').value=""; document.getElementById('createModal').classList.remove('hidden'); };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
-
         document.getElementById('savePollBtn').onclick = async () => {
-            const title = document.getElementById('pollTitleInput').value.trim();
-            const category = document.getElementById('pollCategoryInput').value;
-            const options = document.getElementById('pollOptionsInput').value.split('\n').filter(s => s.trim());
-            const deadlineInput = document.getElementById('pollDeadlineInput').value;
-            
-            if (!title || options.length < 2) {
-                alert("タイトルと2つ以上の選択肢が必要です。");
-                return;
-            }
-
-            const pollData = {
-                title,
-                question: document.getElementById('pollDescInput').value.trim(),
-                category,
-                options,
-                deadline: deadlineInput ? new Date(deadlineInput) : null,
-                is_quiz: category === "クイズ",
-                correct_index: category === "クイズ" ? parseInt(document.getElementById('pollCorrectIndexInput').value) : null,
-                explanation: document.getElementById('pollExplanationInput').value.trim(),
-                updatedAt: serverTimestamp()
-            };
-
-            try {
-                const pollsCol = collection(db, ...POLLS_PATH.split('/').filter(Boolean));
-                if (editMode) {
-                    const ref = doc(db, ...POLLS_PATH.split('/').filter(Boolean), editPollId);
-                    await updateDoc(ref, pollData);
-                } else {
-                    pollData.author = currentUser.displayName;
-                    pollData.authorID = currentUser.uid;
-                    pollData.createdAt = serverTimestamp();
-                    pollData.votes = new Array(options.length).fill(0);
-                    pollData.votedUsers = [];
-                    pollData.deleted = false;
-                    await addDoc(pollsCol, pollData);
-                }
-                document.getElementById('createModal').classList.add('hidden');
-                loadPolls();
-                if (editMode) loadPollDetail(editPollId);
-            } catch (err) {
-                console.error("Poll save failed", err);
-            }
+            const t = document.getElementById('pollTitleInput').value.trim(); const o = document.getElementById('pollOptionsInput').value.split('\n').filter(s=>s.trim());
+            const cat = document.getElementById('pollCategoryInput').value; const dl = document.getElementById('pollDeadlineInput').value;
+            if (!t || o.length < 2) return;
+            const data = { title:t, question: document.getElementById('pollDescInput').value, category:cat, options:o, deadline: dl?new Date(dl):null, is_quiz:cat==="クイズ", correct_index:cat==="クイズ"?parseInt(document.getElementById('pollCorrectIndexInput').value):null, explanation:document.getElementById('pollExplanationInput').value, updatedAt:serverTimestamp() };
+            if (editMode) await updateDoc(doc(db, ...POLLS_PATH.split('/').filter(Boolean), editPollId), data);
+            else { Object.assign(data, { author:currentUser.displayName, authorID:currentUser.uid, createdAt:serverTimestamp(), votes:new Array(o.length).fill(0), votedUsers:[], deleted:false }); await addDoc(collection(db,...POLLS_PATH.split('/').filter(Boolean)), data); }
+            document.getElementById('createModal').classList.add('hidden'); loadPolls(); if(editMode) loadPollDetail(editPollId);
         };
 
         window.openEditPoll = async (id) => {
-            editMode = true;
-            editPollId = id;
-            try {
-                const ref = doc(db, ...POLLS_PATH.split('/').filter(Boolean), id);
-                const d = await getDoc(ref);
-                const p = d.data();
-
-                document.getElementById('modalTitle').innerHTML = 'EDIT <span class="text-cyan-400">POLL</span>';
-                document.getElementById('pollTitleInput').value = p.title;
-                document.getElementById('pollDescInput').value = p.question || "";
-                document.getElementById('pollCategoryInput').value = p.category;
-                document.getElementById('pollOptionsInput').value = p.options.join('\n');
-                
-                if (p.deadline) {
-                    const date = new Date(p.deadline.seconds * 1000);
-                    const isoStr = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-                    document.getElementById('pollDeadlineInput').value = isoStr;
-                    const dd = document.getElementById('deadlineDisplay');
-                    if (dd) {
-                        dd.textContent = date.toLocaleString('ja-JP', {
-                            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                        });
-                    }
-                } else {
-                    document.getElementById('pollDeadlineInput').value = "";
-                    const dd = document.getElementById('deadlineDisplay');
-                    if (dd) dd.textContent = "Select date & time";
-                }
-                
-                document.getElementById('pollCategoryInput').dispatchEvent(new Event('change'));
-                if (p.is_quiz) {
-                    setTimeout(() => {
-                        document.getElementById('pollCorrectIndexInput').value = p.correct_index;
-                        document.getElementById('pollExplanationInput').value = p.explanation || "";
-                    }, 100);
-                }
-                document.getElementById('createModal').classList.remove('hidden');
-            } catch (err) {
-                console.error("Poll edit setup failed", err);
-            }
+            editMode=true; editPollId=id; const p = (await getDoc(doc(db, ...POLLS_PATH.split('/').filter(Boolean), id))).data();
+            document.getElementById('modalTitle').innerHTML='Edit <span class="text-cyan-400">Poll</span>';
+            document.getElementById('pollTitleInput').value=p.title; document.getElementById('pollOptionsInput').value=p.options.join('\n');
+            document.getElementById('pollCategoryInput').value=p.category; document.getElementById('createModal').classList.remove('hidden');
         };
 
-        window.deletePoll = async (id) => {
-            if (!confirm("本当に削除しますか？")) return;
-            try {
-                const ref = doc(db, ...POLLS_PATH.split('/').filter(Boolean), id);
-                await updateDoc(ref, { deleted: true });
-                goHome();
-            } catch (err) {
-                console.error("Poll delete failed", err);
-            }
-        };
+        window.deletePoll = async (id) => { if (confirm("Delete poll?")) { await updateDoc(doc(db, ...POLLS_PATH.split('/').filter(Boolean), id), { deleted: true }); goHome(); } };
 
-        // --- Login ---
-        document.getElementById('loginBtn').onclick = () => {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider);
-        };
+        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
 
-        checkTOS();
+        initAuth(); checkTOS();
     </script>
 </body>
 </html>
