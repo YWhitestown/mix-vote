@@ -22,7 +22,6 @@
             overflow-x: hidden;
         }
 
-        /* 動く背景エフェクト */
         .bg-blob {
             position: fixed;
             width: 500px;
@@ -100,25 +99,26 @@
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
 
-    <!-- 利用規約モーダル -->
+    <!-- 利用規約モーダル (hiddenを外して制御) -->
     <div id="tosModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
         <div class="glass max-w-2xl w-full rounded-3xl p-8 shadow-2xl border border-cyan-500/20">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/50 text-slate-900">
-                    <i class="fas fa-shield-alt text-xl"></i>
+            <div class="flex items-center gap-3 mb-6 text-white">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/50">
+                    <i class="fas fa-shield-alt text-slate-900 text-xl"></i>
                 </div>
-                <h2 class="text-3xl font-extrabold tracking-tight text-white uppercase tracking-tighter">Agreement</h2>
+                <h2 class="text-3xl font-extrabold tracking-tight uppercase tracking-tighter">Agreement</h2>
             </div>
             <div class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-400">
-                <p class="mb-4">Mix Voteへようこそ。以下のルールにご同意ください。</p>
-                <h4 class="font-bold text-slate-100 mt-6 mb-2 text-lg">行動指針</h4>
-                <ul class="list-none space-y-3">
-                    <li class="flex gap-2"><i class="fas fa-check text-cyan-500 mt-1"></i> 他者の意見を尊重し、建設的な議論を心がけましょう。</li>
-                    <li class="flex gap-2"><i class="fas fa-check text-cyan-500 mt-1"></i> 不適切な投稿や操作は禁止します。</li>
+                <p class="mb-4">Mix Voteへようこそ。本サービスのご利用には以下のガイドラインへの同意が必要です。</p>
+                <h4 class="font-bold text-slate-100 mt-6 mb-2 text-lg italic underline decoration-cyan-500 underline-offset-8">行動指針</h4>
+                <ul class="list-none space-y-4 mt-4">
+                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1"></i> <span>他者の意見を尊重し、建設的な議論を心がけましょう。</span></li>
+                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1"></i> <span>誹謗中傷、差別的表現、公序良俗に反する投稿は固く禁止します。</span></li>
+                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1"></i> <span>システムを不正に操作する行為や、多重投票の試みは行わないでください。</span></li>
                 </ul>
             </div>
-            <button id="agreeTosBtn" class="btn-glow w-full mt-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-900 font-extrabold py-4 rounded-2xl transition-all shadow-xl shadow-cyan-500/20 active:scale-95 uppercase tracking-widest">
-                I Agree
+            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-cyan-500/30 active:scale-95 uppercase tracking-[0.2em]">
+                I Agree & Start
             </button>
         </div>
     </div>
@@ -127,10 +127,10 @@
     <div id="msgModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-white/10 shadow-2xl">
             <h3 id="msgTitle" class="text-xl font-black text-white mb-4 uppercase tracking-widest italic">Notification</h3>
-            <p id="msgBody" class="text-slate-400 text-sm mb-8 leading-relaxed"></p>
-            <div id="msgActions" class="flex gap-3 text-slate-900">
-                <button id="msgCloseBtn" class="flex-1 bg-white/5 text-white font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Close</button>
-                <button id="msgConfirmBtn" class="flex-1 bg-cyan-500 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest hidden">Confirm</button>
+            <p id="msgBody" class="text-slate-400 text-sm mb-8 leading-relaxed font-medium"></p>
+            <div id="msgActions" class="flex gap-3">
+                <button id="msgCloseBtn" class="flex-1 bg-white/10 text-white font-bold py-4 rounded-2xl uppercase text-[10px] tracking-widest hover:bg-white/20 transition-colors">Close</button>
+                <button id="msgConfirmBtn" class="flex-1 bg-cyan-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest hidden">Confirm</button>
             </div>
         </div>
     </div>
@@ -140,8 +140,8 @@
         <header class="sticky top-0 z-50 glass border-b border-white/5 px-6 py-5">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
                 <div class="flex items-center gap-4 cursor-pointer group" onclick="goHome()">
-                    <div class="bg-gradient-to-br from-cyan-400 to-blue-600 p-2.5 rounded-xl shadow-lg text-slate-900">
-                        <i class="fas fa-bolt text-xl"></i>
+                    <div class="bg-gradient-to-br from-cyan-400 to-blue-600 p-2.5 rounded-xl shadow-lg">
+                        <i class="fas fa-bolt text-slate-900 text-xl"></i>
                     </div>
                     <div>
                         <h1 class="text-2xl font-black tracking-tighter text-white uppercase tracking-tighter">Mix <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 uppercase">Vote</span></h1>
@@ -164,20 +164,20 @@
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 mt-10">
             <!-- サイドバー -->
             <aside class="lg:col-span-3 space-y-8">
-                <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-cyan-500/20 active:scale-95 transition-all uppercase tracking-widest">
-                    <i class="fas fa-plus-circle text-xl"></i> Create Poll
+                <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-cyan-500/20 active:scale-95 transition-all text-slate-900 uppercase tracking-widest text-xs">
+                    <i class="fas fa-plus-circle text-lg"></i> Create Poll
                 </button>
-                <div class="glass rounded-3xl p-6 border border-white/5">
+                <div class="glass rounded-3xl p-6 border border-white/5 text-white">
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6 italic">Categories</h3>
                     <nav id="categoryNav" class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 custom-scrollbar"></nav>
                 </div>
-                <div class="hidden lg:block glass rounded-3xl p-6 border border-white/5">
+                <div class="glass rounded-3xl p-6 border border-white/5">
                     <div class="flex items-center gap-3 text-cyan-500 mb-3 uppercase tracking-widest font-black text-[10px]">
                         <i class="fas fa-info-circle"></i>
                         <span>Guide</span>
                     </div>
                     <p class="text-[11px] text-slate-400 leading-relaxed font-medium">
-                        投票はどなたでも自由に参加できます。アンケートの作成やコメントの投稿にはGoogleアカウントでの登録をお願いしております。
+                        投票はどなたでも自由に参加できます（※同一アンケートへの複数投票は不可）。アンケートの作成やコメントの投稿にはGoogleアカウントでの登録をお願いしております。
                     </p>
                 </div>
             </aside>
@@ -191,39 +191,39 @@
                             <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
                                 <i class="fas fa-bullhorn text-xl"></i>
                             </div>
-                            <div>
-                                <h3 class="text-white font-black text-xs uppercase tracking-widest mb-1.5 italic">Information / ご利用にあたって</h3>
+                            <div class="text-white">
+                                <h3 class="font-black text-xs uppercase tracking-widest mb-1.5 italic text-cyan-400">Notice / ご利用案内</h3>
                                 <p class="text-slate-400 text-xs md:text-sm leading-relaxed font-medium">
-                                    Mix Voteへようこそ。本サイトでは<span class="text-cyan-400 font-bold">どなたでも投票に参加いただけます</span>（※同一のアンケートに対し複数回の投票はできません）。自分でもアンケートを作成したり、コメントで意見を共有したい場合は、右上のボタンからGoogleアカウントでの<span class="text-white font-bold underline decoration-cyan-500 decoration-2 underline-offset-4 cursor-pointer" onclick="document.getElementById('loginBtn').click()">サインイン（登録）</span>をお願いいたします。
+                                    Mix Voteをご利用いただきありがとうございます。本サイトでは<span class="text-white font-bold">どなたでも投票に参加いただけます</span>。なお、1つのアンケートにつき投票は1回までとなります。新規アンケートの作成やディスカッションへの参加を希望される場合は、右上の<span class="text-cyan-400 font-bold underline cursor-pointer" onclick="document.getElementById('loginBtn').click()">Sign In</span>より登録をお願いいたします。
                                 </p>
                             </div>
                         </div>
                     </div>
 
                     <section>
-                        <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter">Latest <span class="text-slate-500 font-normal not-italic">Polls</span></h2>
+                        <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter">Latest <span class="text-slate-500 font-normal not-italic text-white">Polls</span></h2>
                         <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </section>
                     <section>
-                        <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter">Trending <span class="text-slate-500 font-normal not-italic">Now</span></h2>
+                        <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter">Trending <span class="text-slate-500 font-normal not-italic text-white">Now</span></h2>
                         <div id="popularPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </section>
                 </div>
 
                 <!-- 詳細ページ -->
-                <div id="view-detail" class="hidden space-y-10 animate-in slide-in-from-bottom-4 duration-500">
-                    <button onclick="goHome()" class="group flex items-center gap-3 text-slate-500 hover:text-white font-black uppercase tracking-widest text-[10px]">
+                <div id="view-detail" class="hidden space-y-10 animate-in slide-in-from-bottom-4 duration-500 text-white">
+                    <button onclick="goHome()" class="group flex items-center gap-3 text-slate-500 hover:text-white font-black uppercase tracking-widest text-[10px] transition-all">
                         <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-white"><i class="fas fa-chevron-left"></i></div>
                         Back to List
                     </button>
                     <div id="pollDetailContent" class="glass rounded-[40px] p-8 md:p-14 border border-white/10 shadow-2xl space-y-12"></div>
                     <div class="glass rounded-[40px] p-8 md:p-12 border border-white/10">
-                        <h3 class="text-2xl font-black text-white mb-10 uppercase tracking-widest italic"><i class="far fa-comment-dots text-cyan-400"></i> Discussion</h3>
+                        <h3 class="text-2xl font-black text-white mb-10 uppercase tracking-widest italic"><i class="far fa-comment-dots text-cyan-400 text-cyan-400"></i> Discussion</h3>
                         <div id="commentInputArea" class="hidden mb-12 relative">
-                            <textarea id="commentText" maxlength="100" class="w-full bg-slate-950/50 border border-white/10 rounded-3xl p-6 text-white outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-700" rows="3" placeholder="あなたの意見を書き込む..."></textarea>
-                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl">Send</button>
+                            <textarea id="commentText" maxlength="100" class="w-full bg-slate-950/50 border border-white/10 rounded-3xl p-6 text-white outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-700 font-medium" rows="3" placeholder="あなたの意見を書き込む..."></textarea>
+                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all text-slate-900">Send</button>
                         </div>
-                        <div id="commentLoginNotice" class="text-center p-12 bg-white/5 rounded-[30px] text-slate-600 font-black uppercase tracking-widest text-[10px]">登録（ログイン）するとディスカッションに参加できます</div>
+                        <div id="commentLoginNotice" class="text-center p-12 bg-white/5 rounded-[30px] text-slate-600 font-black uppercase tracking-widest text-[10px] border border-dashed border-white/10">登録（サインイン）するとディスカッションに参加できます</div>
                         <div id="commentsList" class="space-y-6"></div>
                     </div>
                 </div>
@@ -234,33 +234,33 @@
     <!-- モーダル (作成/編集) -->
     <div id="createModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4">
         <div class="glass max-w-xl w-full rounded-[40px] p-10 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <h2 id="modalTitle" class="text-3xl font-black mb-8 text-white italic tracking-tighter uppercase">Create <span class="text-cyan-400">Poll</span></h2>
-            <div class="space-y-6">
+            <h2 id="modalTitle" class="text-3xl font-black mb-8 text-white italic tracking-tighter uppercase text-white">Create <span class="text-cyan-400 text-cyan-400">Poll</span></h2>
+            <div class="space-y-6 text-white">
                 <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Poll Title</label>
-                <input type="text" id="pollTitleInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none"></div>
-                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Description</label>
-                <textarea id="pollDescInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none" rows="2"></textarea></div>
+                <input type="text" id="pollTitleInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-bold"></div>
+                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Description (Optional)</label>
+                <textarea id="pollDescInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium" rows="2"></textarea></div>
                 <div class="grid grid-cols-2 gap-6">
                     <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Category</label>
-                    <select id="pollCategoryInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none"></select></div>
+                    <select id="pollCategoryInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-bold"></select></div>
                     <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Deadline</label>
                     <div id="deadlinePickerContainer" class="bg-slate-950 border border-white/10 rounded-2xl p-4 flex justify-between items-center cursor-pointer relative group hover:border-cyan-500 transition-all">
                         <input type="datetime-local" id="pollDeadlineInput" class="absolute inset-0 opacity-0 cursor-pointer z-10">
-                        <span id="deadlineDisplay" class="text-sm font-medium text-slate-400">Select time</span><i class="far fa-calendar-alt text-cyan-400"></i>
+                        <span id="deadlineDisplay" class="text-sm font-medium text-slate-400">Select time</span><i class="far fa-calendar-alt text-cyan-400 text-cyan-400 text-cyan-400"></i>
                     </div></div>
                 </div>
                 <div id="optionsContainer"><label id="optionsLabel" class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Options</label>
-                <textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none" rows="4" placeholder="Enter options (one per line)..."></textarea></div>
+                <textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium" rows="4" placeholder="Enter options (one per line)..."></textarea></div>
                 <div id="quizFields" class="hidden bg-cyan-500/5 p-6 rounded-3xl border border-cyan-500/20 space-y-4">
-                    <div><label class="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1 block">Correct Index</label>
+                    <div><label class="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1 block text-cyan-400">Correct Index</label>
                     <select id="pollCorrectIndexInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none"></select></div>
-                    <div><label class="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1 block">Explanation</label>
-                    <textarea id="pollExplanationInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none" rows="2" placeholder="Explanation..."></textarea></div>
+                    <div><label class="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1 block text-cyan-400 text-cyan-400">Explanation</label>
+                    <textarea id="pollExplanationInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium" rows="2" placeholder="Explanation..."></textarea></div>
                 </div>
             </div>
-            <div class="flex gap-4 mt-12 text-slate-900">
-                <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-white/10">Cancel</button>
-                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] shadow-xl shadow-cyan-500/20">Save</button>
+            <div class="flex gap-4 mt-12">
+                <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all">Cancel</button>
+                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] shadow-xl shadow-cyan-500/20 active:scale-95 transition-all text-slate-900">Save Poll</button>
             </div>
         </div>
     </div>
@@ -288,11 +288,11 @@
         const BASE_PATH = ['artifacts', appIdStr, 'public', 'data'];
         const POLLS_PATH = [...BASE_PATH, 'polls'];
 
-        // --- 「あるある」固定選択肢の定義 ---
+        // --- 定数定義 ---
         const ARUARU_OPTIONS_TEXT = "あるある！\nいいね\n笑\n涙";
+        const CATEGORIES = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
 
         let currentUser = null;
-        const categories = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
         let selectedCategory = "全て";
         let chartInstance = null;
         let currentPollId = null;
@@ -302,13 +302,14 @@
         // UI Utils
         const maskName = (name) => {
             if (!name) return 'Anonymous';
-            // 前3文字を消すように変更
             return name.length <= 3 ? '●●●' : '●●●' + name.substring(3);
         };
 
         const showMessage = (title, body, onConfirm = null) => {
             const modal = document.getElementById('msgModal');
             const confirmBtn = document.getElementById('msgConfirmBtn');
+            const closeBtn = document.getElementById('msgCloseBtn');
+            
             document.getElementById('msgTitle').textContent = title;
             document.getElementById('msgBody').textContent = body;
             
@@ -318,8 +319,10 @@
                     onConfirm();
                     modal.classList.add('hidden');
                 };
+                closeBtn.textContent = "Cancel";
             } else {
                 confirmBtn.classList.add('hidden');
+                closeBtn.textContent = "Close";
             }
             modal.classList.remove('hidden');
         };
@@ -354,9 +357,14 @@
             if (cia) cia.classList.toggle('hidden', !isReg);
             if (cln) cln.classList.toggle('hidden', isReg);
 
+            // 規約同意済みならUIを表示
             if (localStorage.getItem('mixvote_agreed')) {
                 document.getElementById('appUI').classList.remove('hidden');
+                document.getElementById('tosModal').classList.add('hidden');
                 loadApp();
+            } else {
+                document.getElementById('appUI').classList.add('hidden');
+                document.getElementById('tosModal').classList.remove('hidden');
             }
         });
 
@@ -401,7 +409,7 @@
             const select = document.getElementById('pollCategoryInput');
             if (!nav || !select) return;
             nav.innerHTML = ''; select.innerHTML = '';
-            ["全て", ...categories].forEach(cat => {
+            ["全て", ...CATEGORIES].forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = `nav-link px-6 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all text-left ${selectedCategory === cat ? 'active' : 'text-slate-600 hover:text-white'}`;
                 btn.textContent = cat;
@@ -474,7 +482,9 @@
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0;
                 const hasVoted = p.votedUsers?.includes(currentUser.uid);
                 const isExp = p.deadline && new Date(p.deadline.seconds*1000) < new Date();
-                const showRes = hasVoted || isExp || (currentUser && currentUser.uid === p.authorID);
+                
+                // 表示条件: 投票済み、または期間終了、または作成者（かつ既に何らかの票がある場合）
+                const showRes = hasVoted || isExp;
 
                 const shareUrl = window.location.href;
 
@@ -487,7 +497,7 @@
                         </div>
                         ${isExp ? '<div class="text-red-500 font-black uppercase text-xs p-4 bg-red-500/10 rounded-2xl border border-red-500/20 h-fit text-red-500">Polling Ended</div>' : ''}
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 py-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 py-6 text-white">
                         <div class="space-y-4">
                             ${p.options.map((opt, i) => {
                                 const v = p.votes[i]||0; const per = total>0?Math.round(v/total*100):0;
@@ -505,26 +515,23 @@
                             }).join('')}
                         </div>
                         <div class="flex justify-center items-center">
-                            ${showRes ? '<div class="w-full max-w-[300px] relative"><canvas id="pollChart"></canvas></div>' : '<div class="text-center p-20 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-700 uppercase text-xs font-black tracking-widest flex flex-col items-center gap-4 text-slate-600"><i class="fas fa-lock text-3xl"></i><span>Vote to unlock results</span></div>'}
+                            ${showRes ? '<div class="w-full max-w-[300px] relative"><canvas id="pollChart"></canvas></div>' : '<div class="text-center p-20 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-600 uppercase text-xs font-black tracking-widest flex flex-col items-center gap-4"><i class="fas fa-lock text-3xl"></i><span>Vote to unlock results</span></div>'}
                         </div>
                     </div>
                     ${p.is_quiz && showRes ? `<div class="bg-emerald-500/5 border border-emerald-500/20 p-8 rounded-[32px] mt-8 text-white"><h4 class="text-emerald-400 font-black uppercase text-xs mb-4 tracking-widest italic text-emerald-400">Result Details</h4><p class="text-xl font-black mb-4">Correct: ${p.options[p.correct_index]}</p><p class="text-slate-400 italic font-medium leading-relaxed">${p.explanation||'No explanation provided.'}</p></div>` : ''}
                     <div class="flex flex-wrap gap-4 pt-10 border-t border-white/5 items-center">
                         <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Share:</span>
                         
-                        <!-- X Share -->
                         <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(p.title)}&url=${encodeURIComponent(shareUrl)}" target="_blank" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all">
                             <i class="fab fa-x-twitter text-sm"></i>
                         </a>
 
-                        <!-- Facebook Share -->
                         <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}" target="_blank" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all">
                             <i class="fab fa-facebook-f text-sm text-blue-500"></i>
                         </a>
 
-                        <!-- Copy Link -->
                         <button onclick="handleCopyLink('${shareUrl}')" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all" title="Copy Link">
-                            <i class="fas fa-link text-sm text-cyan-400"></i>
+                            <i class="fas fa-link text-sm text-cyan-400 text-cyan-400"></i>
                         </button>
 
                         ${currentUser && p.authorID === currentUser.uid ? `<div class="ml-auto flex gap-6"><button onclick="openEditPoll('${id}')" class="text-[10px] text-slate-500 font-black uppercase underline decoration-2 underline-offset-4">Edit</button><button onclick="handleDeletePoll('${id}')" class="text-[10px] text-red-500/50 font-black uppercase underline decoration-2 underline-offset-4 text-red-500">Delete</button></div>` : ''}
@@ -535,19 +542,33 @@
             } catch (e) { console.error(e); }
         };
 
+        // --- 投票処理の修正 ---
         window.castVote = async (idx) => {
-            if (!currentUser) return;
-            const ref = doc(db, ...POLLS_PATH, currentPollId);
-            const d = await getDoc(ref);
-            if (!d.exists()) return;
-            const p = d.data();
-            if (p.votedUsers?.includes(currentUser.uid)) {
-                showMessage("Notice", "You have already voted on this poll.");
+            if (!currentUser) {
+                showMessage("Authentication Required", "Please sign in to vote.");
                 return;
             }
-            const v = [...p.votes]; v[idx] = (v[idx]||0)+1;
-            await updateDoc(ref, { votes: v, votedUsers: arrayUnion(currentUser.uid) });
-            loadPollDetail(currentPollId);
+            try {
+                const ref = doc(db, ...POLLS_PATH, currentPollId);
+                const d = await getDoc(ref);
+                if (!d.exists()) return;
+                const p = d.data();
+                
+                if (p.votedUsers?.includes(currentUser.uid)) {
+                    showMessage("Access Denied", "同一のアンケートに対して複数回の投票はできません。");
+                    return;
+                }
+                
+                const v = [...p.votes]; v[idx] = (v[idx]||0)+1;
+                await updateDoc(ref, { 
+                    votes: v, 
+                    votedUsers: arrayUnion(currentUser.uid) 
+                });
+                loadPollDetail(currentPollId);
+            } catch (err) {
+                console.error("Voting failed", err);
+                showMessage("Error", "投票処理に失敗しました。時間をおいて再度お試しください。");
+            }
         };
 
         const renderChart = (p) => {
@@ -569,8 +590,8 @@
                 if (!coms.length) { list.innerHTML='<p class="text-center text-slate-800 uppercase text-[9px] font-black py-16 tracking-[0.3em] text-slate-700">No discussions found</p>'; return; }
                 coms.forEach(c => {
                     const div = document.createElement('div');
-                    div.className = "p-7 rounded-[32px] bg-white/5 border border-white/5 flex justify-between items-start group hover:bg-white/[0.08] transition-all";
-                    div.innerHTML = `<div><div class="flex gap-3 items-center mb-3 text-white"><div class="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_var(--accent)]"></div><span class="text-[10px] font-black text-cyan-400 uppercase tracking-tighter text-cyan-400">${maskName(c.author)}</span><span class="text-[7px] text-slate-600 font-bold uppercase tracking-widest">${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleTimeString():''}</span></div><p class="text-slate-300 text-sm leading-relaxed font-medium text-slate-300">${c.text}</p></div>
+                    div.className = "p-7 rounded-[32px] bg-white/5 border border-white/5 flex justify-between items-start group hover:bg-white/[0.08] transition-all text-white";
+                    div.innerHTML = `<div><div class="flex gap-3 items-center mb-3 text-white"><div class="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_var(--accent)]"></div><span class="text-[10px] font-black text-cyan-400 uppercase tracking-tighter text-cyan-400">${maskName(c.author)}</span><span class="text-[7px] text-slate-600 font-bold uppercase tracking-widest">${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleTimeString():''}</span></div><p class="text-slate-300 text-sm leading-relaxed font-medium">${c.text}</p></div>
                     ${currentUser && c.userId === currentUser.uid ? `<button onclick="handleDeleteComment('${c.id}')" class="text-[8px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all text-red-500">Remove</button>` : ''}`;
                     list.appendChild(div);
                 });
@@ -616,7 +637,7 @@
         };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
         
-        // カテゴリー変更時のロジック (「あるある」対応を復元)
+        // カテゴリー変更時のロジック (「あるある」対応)
         document.getElementById('pollCategoryInput').onchange = (e) => {
             const cat = e.target.value;
             const qf = document.getElementById('quizFields');
@@ -690,7 +711,7 @@
         };
 
         window.handleDeletePoll = (id) => {
-            showMessage("Delete Poll", "This action will archive the poll. Proceed?", async () => {
+            showMessage("Delete Poll", "このアンケートを削除（アーカイブ）しますか？", async () => {
                 await updateDoc(doc(db, ...POLLS_PATH, id), { deleted: true });
                 goHome();
             });
@@ -699,13 +720,8 @@
         document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
 
-        initAuth().then(() => {
-            if (!localStorage.getItem('mixvote_agreed')) {
-                document.getElementById('tosModal').classList.remove('hidden');
-            } else {
-                document.getElementById('appUI').classList.remove('hidden');
-            }
-        });
+        // Start initialization
+        initAuth();
     </script>
 </body>
 </html>
