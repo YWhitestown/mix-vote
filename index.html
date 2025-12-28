@@ -1,0 +1,1307 @@
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mix Vote - SPA</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* --- フロントページ用スタイル --- */
+:root {--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4;--accent-2:#60a5fa;}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif;background:var(--bg);color:#e6eef6;}
+header{padding:20px;text-align:center;position:relative;z-index:10;}
+header h1{margin:0;font-size:32px;}
+header p{margin:4px;font-size:16px;color:var(--muted);}
+.info-text-header {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 16px auto 0;
+    padding: 8px 16px;
+    background: #1e293b;
+    border-radius: 8px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.app{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 100px);gap:20px;padding:20px;}
+.sidebar{background:#1e293b;padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; 
+    margin-bottom: 20px;
+    padding-bottom: 16px; 
+    border-bottom: 1px solid #334155; 
+}
+
+
+.create-btn{
+    display: block;
+    width: 100%; 
+    background: #36c7e6;
+    color: #041126;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s; 
+}
+.create-btn:hover {
+    background: #00bcd4; 
+}
+
+
+.section-title{font-size:13px;color:var(--muted);margin:8px 0;}
+ul.cat-list{list-style:none;padding:0;margin:0;}
+ul.cat-list li{padding:10px;border-radius:8px;cursor:pointer;color:#f0f0f0;}
+ul.cat-list li.active{background:rgba(255,255,255,0.05);color:#fff;}
+ul.cat-list li:hover{transform:translateY(-1px);background:rgba(255,255,255,0.08);}
+
+.main{}
+
+/* 最新/人気を横並びにする修正 */
+.content{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+.poll-list{background:var(--card);padding:12px;border-radius:12px;min-height:300px;overflow:auto;}
+.poll-item{padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.05);margin-bottom:10px;cursor:pointer;position:relative;}
+.poll-item h3{margin:0 0 6px;font-size:15px;}
+
+/* 7. 編集・削除ボタンのスタイル (最終決定版) */
+.edit-btn, .delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px; 
+    padding: 4px 8px;
+    font-size: 12px;
+    background: #334155; 
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: background 0.2s;
+    z-index: 5; 
+}
+
+/* 削除ボタンは右から70pxに移動し、編集ボタンと並べる */
+.delete-btn {
+    right: 70px; 
+    background: #ef4444;
+}
+
+.edit-btn:hover { background: #1e293b; }
+.delete-btn:hover { background: #b91c1c; }
+
+/* Googleログインボタンの修正 */
+.login-btn{
+    display: block; 
+    width: 100%; 
+    padding: 10px;
+    background:#3b82f6;
+    color:#fff;
+    text-align:center;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:700;
+    transition: background 0.2s; 
+}
+.login-btn:hover {
+    background: #2563eb; 
+}
+
+/* --- モーダル (共通スタイル) --- */
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:100;}
+.modal.show{display:flex;}
+.modal-card{background:#1e293b;padding:20px;border-radius:12px;width:90%;max-width:400px;box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+.modal-card h3{margin-top:0;}
+.modal-card label{display:block;margin:8px 0 4px;font-size:14px;color:var(--muted);}
+/* 修正: datetime-local の型を追加 */
+.modal-card input[type="text"], .modal-card textarea, .modal-card select, .modal-card input[type="datetime-local"]{width:calc(100% - 16px);padding:8px;border:1px solid #334155;border-radius:6px;background:#0f1724;color:#e6eef6;}
+.modal-card button{padding:8px 16px;border:none;border-radius:6px;background:#334155;color:#fff;cursor:pointer;}
+#saveCreate{background:var(--accent);}
+
+/* --- 詳細ページ用モーダルとスタイル --- */
+#detailModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:150;overflow-y:auto;padding-top:40px;}
+#detailModal.show{display:block;}
+.detail-content{max-width:600px;margin:20px auto;background:#1e293b;padding:20px;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,0.5);}
+#detailModal header{background:transparent;padding:16px 0;text-align:left;}
+#detailModal header h1{font-size:24px;}
+.detail-content button{cursor:pointer;padding:8px 12px;border:none;border-radius:8px;background:#06b6d4;color:#041126;margin:4px 0;}
+.option{display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;margin-bottom:8px;}
+.option button{margin:0;}
+.correct{margin-top:12px;font-weight:700;color:#22c55e;}
+.explanation{margin-top:4px;color:#94a3b8;font-size:14px;}
+.chart-switch{display:flex;justify-content:center;gap:8px;margin-top:12px;}
+#chartContainer{margin-top:16px;}
+#backBtn{display:block;width:100%;margin-top:20px;}
+
+/* --- 規約モーダル用スタイル (レイアウト修正済み) --- */
+#tosModal{z-index: 200; display: none; background: #0f1724; backdrop-filter: blur(5px);}
+#tosModal.show{display: flex;}
+#tosModal .modal-card{max-width: 600px; padding: 30px; max-height: 80vh; display: flex; flex-direction: column; opacity: 0; transition: opacity 0.3s;}
+#tosModal.show .modal-card{opacity: 1;}
+#tosContent{flex-grow: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; border: 1px solid #334155; padding: 15px; border-radius: 8px;}
+#tosContent h4{color: var(--accent); margin-top: 15px; margin-bottom: 5px;}
+#tosContent ol, #tosContent ul{margin-left: 20px; padding-left: 0;}
+#tosContent li{margin-bottom: 8px;}
+#agreeTos{background: #22c55e; color: #041126; font-weight: 700; width: 100%; padding: 12px;}
+
+
+/* --- 通常（PC）用スタイル --- */
+.button-group {
+    display: flex;
+    flex-direction: column; 
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.login-btn, .create-btn {
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+/* --- レスポンシブ対応（スマホ） --- */
+@media(max-width:768px){
+    .app {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .content {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+    }
+
+    .login-btn, .create-btn {
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .button-group {
+        flex-direction: row; 
+        gap: 12px; 
+        margin-bottom: 12px;
+    }
+    .login-btn, .create-btn {
+        width: 50%; 
+        margin: 0; 
+    }
+    ul.cat-list{display:flex;flex-wrap:nowrap; overflow-x: auto; padding-bottom: 8px;} 
+    ul.cat-list li{white-space:nowrap;margin-right:6px}
+}
+
+.poll-list { margin-bottom: 24px; }
+.poll-item { background: var(--card); padding: 12px; border-radius: 12px; margin-bottom: 12px; }
+.delete-btn { float: right; background: #f87171; color: #fff; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body> 
+
+<div class="modal" id="tosModal">
+    <div class="modal-card">
+        <h3>Mix Vote 利用規約への同意</h3>
+        <div id="tosContent">
+            <h4>第1条（本規約の適用）</h4>
+            <p>本規約は、投票サイト「Mix Vote」の利用に関する、利用者と当方との間の権利義務関係を定めることを目的とし、すべてのユーザーに適用されます。ユーザーは、本サービスを利用する前に、本規約のすべてを読み、同意しなければなりません。</p>
+
+            <h4>第2条（禁止事項） </h4>
+            <p>ユーザーは、本サービスの利用にあたり、以下の各行為を行ってはなりません。</p>
+            <ol>
+                <li>**法令・公序良俗に違反する行為:** 法令、公序良俗、本規約に違反する行為。犯罪行為またはこれを助長する行為。</li>
+                <li>**権利侵害・誹謗中傷:** 他のユーザーまたは第三者を**誹謗中傷**し、または名誉・信用を毀損する行為。差別的表現、脅迫、いやがらせに相当する情報を投稿する行為。</li>
+                <li>**個人情報・プライバシーの侵害:** 他のユーザーまたは第三者の**個人情報**（氏名、住所、電話番号など）、連絡先、プライベートな情報などを不正に収集、公開、漏洩、または投稿する行為。</li>
+                <li>**不適切な利用行為:** 本サービスが意図しない方法で利用する行為。投票結果やシステムを不正に操作する行為。当方または本サービスの運営を妨害する行為。</li>
+            </ol>
+            
+            <h4>第3条（投稿されたコンテンツの取扱い）</h4>
+            <p>ユーザーが投稿したコンテンツに関する著作権は、当該ユーザーに留保されます。ただし、当方に対し、本サービスの運営、プロモーションに必要な範囲で、当該コンテンツを利用することを許諾するものとします。</p>
+
+            <h4>第4条（利用停止・削除）</h4>
+            <p>当方は、ユーザーが本規約に違反した場合、事前の通知なしに、当該ユーザーによる本サービスの利用停止、または投稿コンテンツの削除を行うことができるものとします。</p>
+            
+            <p style="margin-top: 20px;">**Mix Voteをご利用いただくには、本規約への同意が必要です。**</p>
+        </div>
+        <button id="agreeTos">規約に同意してサイトを利用する</button>
+    </div>
+</div>
+
+<div id="frontPage">
+    
+    <header>
+        <h1>Mix Vote</h1>
+        <p>みんなで楽しむ投票サイト</p>
+        
+        <div class="info-text-header">
+            投票は誰でもできます。アンケートを作成をする場合、Googleでログイン後、アンケート作成ボタンをおしてください。
+        </div>
+    </header>
+
+    <div class="app">
+        
+        <aside class="sidebar">
+<div class="button-group">
+            <a id="googleLogin" class="login-btn"><i class="fa fa-google"></i> Googleでログイン</a>
+            <a class="create-btn" id="openCreate" style="display:none"><i class="fa fa-plus"></i> アンケート作成</a>
+ </div>        
+            <div class="section-title">カテゴリー</div>
+            <ul class="cat-list" id="categoryList"></ul>
+        </aside>
+
+        <main class="main">
+            <div class="content">
+                <section class="poll-list" id="latestPolls"><h3>最新アンケート</h3></section>
+                <section class="poll-list" id="popularPolls"><h3>人気アンケート</h3></section>
+
+            </div>
+        </main>
+        
+
+    </div>
+</div>
+
+
+<div class="modal" id="createModal">
+    <div class="modal-card">
+        <h3 id="modalTitle">アンケートを作成</h3>
+        
+<div><label>タイトル</label><input type="text" id="newTitle"></div>
+        <div><label>質問文 (任意)</label><textarea id="newQuestion" rows="2"></textarea></div>
+ 
+<div><label>カテゴリー</label>
+            <select id="newCategorySelect"></select>
+        </div>
+ 
+        <!-- 修正箇所: 選択肢入力フィールドのコンテナ。前回のメッセージ要素は削除し、シンプルに戻します -->
+        <div id="optionsField">
+            <!-- IDを追加してJSからラベルの内容を変更できるようにします -->
+            <label id="optionsLabel">選択肢（改行で複数）</label>
+            <textarea id="newOptions" rows="4"></textarea>
+        </div>
+
+ <div class="quiz-field" id="quizFields" style="display:none;">
+        <div><label>正解の選択肢</label>
+            <select id="newCorrectOptionSelect">
+                <option value="">選択肢を入力してください</option>
+            </select>
+        </div>
+            <div><label>解説</label><textarea id="newExplanation" rows="2"></textarea></div>
+        </div>
+
+<div>
+  <label>締切日時</label>
+  <input type="datetime-local" id="newDeadline">
+  <p style="font-size:12px; color:#94a3b8; margin-top:4px;">
+    ※作成日から最長1か月後まで設定可能
+  </p>
+</div>
+
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button id="cancelCreate">キャンセル</button>
+            <button id="saveCreate">保存</button>
+        </div>
+    </div>
+</div>
+
+<div id="detailModal">
+    <div class="detail-content">
+        <header>
+            <h1>アンケート詳細</h1>
+            <p>Mix Vote</p>
+        </header>
+
+        <p id="deadlineDisplay" style="margin-top: 10px; font-weight: bold; color: #e74c3c;"></p>
+
+        <div id="pollDetail"><p>読み込み中...</p></div>
+
+        <div class="social-share" style="margin: 20px 0; border-top: 1px solid #334155; padding-top: 15px;">
+            <h4 style="font-size: 16px; margin: 0 0 10px; color: #fff;">このアンケートをシェアする</h4>
+            <a id="shareX" target="_blank" class="share-btn x-btn" style="background:#000; color:#fff; padding: 8px 15px; border-radius: 6px; text-decoration: none; margin-right: 10px; display: none;">
+                <i class="fa-brands fa-x-twitter"></i> Xでシェア
+            </a>
+            <a id="shareFacebook" target="_blank" class="share-btn facebook-btn" style="background:#1877F2; color:#fff; padding: 8px 15px; border-radius: 6px; text-decoration: none; display: none;">
+                <i class="fa-brands fa-facebook-f"></i> Facebookでシェア
+            </a>
+        </div>
+        
+        <div class="chart-switch" style="display:none">
+            <button id="pieBtn">円グラフ</button>
+            <button id="barBtn">棒グラフ</button>
+        </div>
+        <div id="chartContainer">
+            <canvas id="pollChart" style="max-width:100%;"></canvas>
+        </div>
+        
+        <!-- --- 掲示板 (コメント) セクションの追加 --- -->
+        <div class="comment-section" style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #334155;">
+            <h4 style="font-size: 18px; margin: 0 0 15px; color: #fff;"><i class="fa fa-comments"></i> 掲示板 (コメント)</h4>
+            
+            <!-- コメント投稿フォーム (Googleログイン時のみ表示/有効化) -->
+            <div id="commentFormContainer">
+                <p id="commentLoginMsg" style="color: #fca5a5; font-size: 14px; text-align: center; margin-bottom: 10px;">
+                    コメントを投稿するにはGoogleログインが必要です。
+                </p>
+                <div id="commentInputArea" style="display: none;">
+                    <textarea id="commentInput" rows="3" placeholder="コメント (100文字まで)" style="width: 100%; box-sizing: border-box; resize: vertical; border-radius: 6px; padding: 8px; background: #0f1724; color: #e6eef6; border: 1px solid #334155;"></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                        <span id="commentCharCount" style="font-size: 12px; color: var(--muted);">0/100</span>
+                        <button id="postCommentBtn" style="background: var(--accent); color: #041126; font-weight: 700; padding: 6px 15px; border-radius: 6px;">投稿</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- コメントリスト -->
+            <div id="commentList" style="margin-top: 20px;">
+                <!-- コメントがここにJSで挿入されます -->
+            </div>
+        </div>
+        <!-- --- 掲示板 (コメント) セクションの終わり --- -->
+        
+        <button id="backBtn">← フロントページに戻る</button>
+    </div>
+</div>
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+// importにquery, orderByを追加
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, arrayUnion, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+// =================================================================================
+// 1. Firebase初期化とグローバル変数
+// =================================================================================
+
+
+const firebaseConfig = {apiKey:"AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE",authDomain:"mixvotesurvey.firebaseapp.com",projectId:"mixvotesurvey"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const pollsRef = collection(db,"polls");
+
+let currentUserId = null;
+let selectedCategory = null;
+let editMode=false, editPollId=null;
+let chartInstance = null;
+let currentPollId = null;
+
+// コメントリアルタイムリスナーのクリーンアップ用変数
+let currentCommentUnsubscribe = null; 
+
+// 要素の取得
+const bodyEl = document.body;
+const frontPageEl = document.getElementById("frontPage");
+const detailModalEl = document.getElementById("detailModal");
+const googleLoginBtn = document.getElementById("googleLogin");
+const openCreateBtn = document.getElementById("openCreate");
+const createModal = document.getElementById("createModal");
+const categoryList = document.getElementById("categoryList");
+const newCategorySelect = document.getElementById("newCategorySelect");
+const latestEl = document.getElementById("latestPolls");
+const popularEl = document.getElementById("popularPolls");
+const pollDetailEl = document.getElementById("pollDetail");
+const chartContainer = document.getElementById("chartContainer");
+const chartSwitch = document.querySelector("#detailModal .chart-switch");
+const pieBtn = document.getElementById("pieBtn");
+const barBtn = document.getElementById("barBtn");
+const shareX = document.getElementById("shareX");
+const shareFacebook = document.getElementById("shareFacebook");
+
+
+// 作成/編集モーダル内の新しいフィールド要素
+const newTitle = document.getElementById("newTitle");
+const newQuestion = document.getElementById("newQuestion"); 
+const newOptions = document.getElementById("newOptions"); 
+const newCorrectOptionSelect = document.getElementById("newCorrectOptionSelect");
+const newExplanation = document.getElementById("newExplanation");
+const newDeadline = document.getElementById("newDeadline"); 
+
+// 選択肢ラベル要素を取得
+const optionsField = document.getElementById("optionsField");
+const newOptionsLabel = document.getElementById("optionsLabel"); 
+
+// ★ 掲示板（コメント）関連の要素を取得
+const commentLoginMsg = document.getElementById("commentLoginMsg");
+const commentInputArea = document.getElementById("commentInputArea");
+const commentInput = document.getElementById("commentInput");
+const commentCharCount = document.getElementById("commentCharCount");
+const postCommentBtn = document.getElementById("postCommentBtn");
+const commentListEl = document.getElementById("commentList");
+
+let currentEditingCommentId = null; // 編集中のコメントIDを保持
+
+// あるあるの固定選択肢を定義
+const ARUARU_OPTIONS_TEXT = "あるある！\nいいね\n笑\n涙";
+
+// カテゴリー定義
+const CATEGORIES = ["ニュース","エンタメ","テクノロジー","生活","スポーツ","旅行","グルメ","教育","政治","趣味","クイズ","あるある"];
+
+// =================================================================================
+// 2. 認証処理
+// =================================================================================
+// Googleログイン
+googleLoginBtn.onclick = async ()=>{
+    if (!localStorage.getItem('mixvote_tos_agreed')) {
+        checkTOSAgreement();
+        return;
+    }
+    try{
+        const result = await signInWithPopup(auth, provider);
+        currentUserId = result.user.uid;
+        openCreateBtn.style.display="block";
+        googleLoginBtn.style.display="none"; 
+        console.log("ログイン成功！アンケート作成が可能になりました");
+    }catch(e){console.error(e);}
+};
+
+// 匿名認証とログイン状態のチェック
+onAuthStateChanged(auth, user=>{
+    if(user){
+        currentUserId = user.uid;
+        if (!user.isAnonymous) {
+             openCreateBtn.style.display="block";
+             googleLoginBtn.style.display="none";
+        } else {
+             googleLoginBtn.style.display="block";
+             openCreateBtn.style.display="none";
+        }
+    }
+    if(!user) signInAnonymously(auth);
+});
+
+
+// =================================================================================
+// 3. 利用規約ポップアップ処理
+// =================================================================================
+const tosModal = document.getElementById('tosModal');
+const agreeTosBtn = document.getElementById('agreeTos');
+frontPageEl.style.display = 'grid'; 
+detailModalEl.classList.remove('show');
+
+function initializeApplication() {
+    setupCategories();
+    loadPolls();
+    handleUrlHash();
+}
+
+
+function checkTOSAgreement() {
+    const agreed = localStorage.getItem('mixvote_tos_agreed') === 'true';
+
+    if (agreed) {
+        tosModal.classList.remove('show');
+        frontPageEl.style.display = 'grid';
+        bodyEl.style.overflow = 'auto';
+        // 初期化処理を呼び出す
+        initializeApplication();
+    } else {
+        tosModal.classList.add('show');
+        frontPageEl.style.display = 'none';
+        bodyEl.style.overflow = 'hidden';
+        detailModalEl.classList.remove('show');
+    }
+}
+
+agreeTosBtn.onclick = () => {
+    localStorage.setItem('mixvote_tos_agreed', 'true');
+    tosModal.classList.remove('show');
+    frontPageEl.style.display = 'grid';
+    bodyEl.style.overflow = 'auto';
+    initializeApplication();
+};
+// =================================================================================
+// 4. カテゴリー処理 (フロントページ)
+// =================================================================================
+function setupCategories() {
+    categoryList.innerHTML = '';
+    newCategorySelect.innerHTML = '';
+    
+    // 全てカテゴリ
+    const allLi=document.createElement("li"); allLi.textContent="全て"; allLi.classList.add("active");
+    allLi.onclick=()=>{
+        selectedCategory=null;
+        Array.from(categoryList.children).forEach(c=>c.classList.remove("active"));
+        allLi.classList.add("active");
+        loadPolls();
+    };
+    categoryList.appendChild(allLi);
+
+
+    CATEGORIES.forEach(cat=>{
+        const li=document.createElement("li"); li.textContent=cat;
+        li.onclick=()=>{
+            selectedCategory=cat;
+            Array.from(categoryList.children).forEach(c=>c.classList.remove("active"));
+            li.classList.add("active");
+            loadPolls();
+        };
+        categoryList.appendChild(li);
+        const opt=document.createElement("option"); opt.value=cat; opt.textContent=cat;
+        newCategorySelect.appendChild(opt);
+    });
+
+    // 選択肢の onchange イベント
+    newCategorySelect.onchange=()=>{
+        const category = newCategorySelect.value;
+        const isQuiz = category==="クイズ";
+        const isAruaru = category==="あるある";
+        
+        // クイズフィールドの表示切り替え
+        document.getElementById("quizFields").style.display = isQuiz ? "block" : "none";
+        
+        // --- あるある カテゴリーの処理 ---
+        if (isAruaru) {
+            // 選択肢を入力済みの状態にし、編集を不可にする
+            newOptionsLabel.textContent = "選択肢 (自動設定: 編集不可)";
+            newOptions.value = ARUARU_OPTIONS_TEXT;
+            newOptions.disabled = true; 
+            
+            // あるあるはクイズではないため、正解選択肢は非表示に
+            document.getElementById("quizFields").style.display = "none";
+        } else {
+            // 通常/クイズ カテゴリーの処理
+            newOptionsLabel.textContent = "選択肢（改行で複数）";
+            newOptions.disabled = false;
+            
+            // 「あるある」から切り替えた場合、選択肢をクリア（ただし編集モードの場合は保持）
+            if (!editMode && newOptions.value === ARUARU_OPTIONS_TEXT) {
+                newOptions.value = "";
+            }
+        }
+        
+        // クイズ選択時、選択肢ドロップダウンを強制的に更新
+        if (isQuiz) {
+            updateCorrectOptionSelect(newOptions.value);
+        }
+    };
+}
+
+
+// =================================================================================
+// 5. アンケートリスト表示処理 (フロントページ)
+// =================================================================================
+async function loadPolls(){
+    latestEl.innerHTML="<h3>最新アンケート</h3>";
+    popularEl.innerHTML="<h3>人気アンケート</h3>";
+    const snapshot = await getDocs(pollsRef);
+    let data = snapshot.docs.map(d=>({id:d.id,...d.data()}));
+    if(selectedCategory) data = data.filter(p=>p.category===selectedCategory);
+    data = data.filter(p=>!p.deleted);
+
+    const latest = data.sort((a,b)=>b.created-a.created).slice(0,5);
+    latest.forEach(p=>latestEl.appendChild(createPollItem(p)));
+
+    const popular = data.sort((a,b)=>(b.votes?.reduce((x,y)=>x+y,0) || 0) - (a.votes?.reduce((x,y)=>x+y,0) || 0)).slice(0,5);
+    popular.forEach(p=>popularEl.appendChild(createPollItem(p)));
+}
+
+function createPollItem(p){
+    const div=document.createElement("div");
+    div.className="poll-item";
+    
+    const questionHtml = p.question ? `<p style="font-size:14px; color:#ccc; margin: 4px 0 0;">${p.question}</p>` : '';
+    div.innerHTML=`<h3>${p.title}</h3>${questionHtml}<div>カテゴリー: ${p.category}</div>`;
+    
+  div.onclick=()=>{
+        // 1. URLのハッシュを #detail:pollId の形式に更新
+        history.pushState(null, null, `#detail:${p.id}`); 
+        // 2. ページロード処理を実行 (handleUrlHashが呼び出すのと同じ処理)
+        loadPage({id:p.id});
+    };
+
+
+    if(p.authorID === currentUserId){
+        const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.textContent="編集";
+        editBtn.onclick=(e)=>{ e.stopPropagation(); openEditModal(p); }; div.appendChild(editBtn);
+        
+        const delBtn=document.createElement("button"); delBtn.className="delete-btn"; delBtn.textContent="削除";
+        delBtn.onclick=async(e)=>{ e.stopPropagation(); 
+            if(confirm("削除しますか？")){ 
+            await updateDoc(doc(db,"polls",p.id), { deleted: true }); 
+            loadPolls(); 
+        } }; div.appendChild(delBtn);
+    }
+    return div;
+}
+
+// =================================================================================
+// 6. 作成/編集モーダル処理 (フロントページ)
+// =================================================================================
+
+/**
+ * 選択肢テキストエリアの内容が変更されたときに、正解選択肢ドロップダウンを更新する関数
+ */
+function updateCorrectOptionSelect(optionsText, correctIndex = null) {
+    const options = optionsText.split("\n").filter(o => o.trim());
+    newCorrectOptionSelect.innerHTML = '';
+    
+    if (options.length === 0) {
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "選択肢を入力してください";
+        newCorrectOptionSelect.appendChild(defaultOption);
+        return;
+    }
+
+    options.forEach((opt, index) => {
+        const optionEl = document.createElement("option");
+        optionEl.value = index; // valueはインデックス番号
+        optionEl.textContent = `${index + 1}. ${opt}`; // 表示は番号とテキスト
+        if (correctIndex !== null && index === correctIndex) {
+            optionEl.selected = true;
+        }
+        newCorrectOptionSelect.appendChild(optionEl);
+    });
+    
+    // 編集モードで正解が設定されていない場合や、新規作成時
+    if (correctIndex === null || correctIndex >= options.length) {
+        newCorrectOptionSelect.value = "0"; // デフォルトで最初の選択肢を選択
+    }
+}
+
+// 選択肢のテキストエリアに変更があったら、正解選択肢のドロップダウンを更新
+newOptions.addEventListener('input', () => {
+    // あるある選択時はdisabledなのでこのイベントは発火しない
+    if (newCategorySelect.value === "クイズ") {
+        updateCorrectOptionSelect(newOptions.value);
+    }
+});
+
+
+openCreateBtn.onclick=()=>{
+    if (!localStorage.getItem('mixvote_tos_agreed')) {
+        checkTOSAgreement();
+        return;
+    }
+    editMode=false;
+    editPollId=null; 
+    document.getElementById("modalTitle").textContent="アンケートを作成";
+    createModal.classList.add("show");
+    
+    newTitle.value="";
+    newQuestion.value="";
+    newOptions.value="";
+    newExplanation.value="";
+    newDeadline.value=""; 
+    
+    // 新規作成時の初期状態をリセット（通常カテゴリを想定）
+    newCategorySelect.value = CATEGORIES[0] || 'ニュース';
+    newOptionsLabel.textContent = "選択肢（改行で複数）";
+    newOptions.disabled = false;
+    document.getElementById("quizFields").style.display = "none";
+    updateCorrectOptionSelect(""); // 選択肢ドロップダウンをクリア
+};
+
+document.getElementById("cancelCreate").onclick=()=>createModal.classList.remove("show");
+
+
+document.getElementById("saveCreate").onclick=async()=>{
+    const title=newTitle.value;
+    const question=newQuestion.value;
+    const category=newCategorySelect.value;
+    let options; // optionsはカテゴリによって設定方法が変わる
+    
+    const isQuiz = category==="クイズ";
+    const isAruaru = category==="あるある";
+    
+    // 「あるある」の場合、optionsを自動設定
+    if(isAruaru) {
+        // DBに保存する選択肢を固定値で設定
+        options=["あるある！","いいね","笑","涙"];
+    } else {
+        // 通常/クイズの場合、入力欄の値を取得
+        options=newOptions.value.split("\n").filter(o=>o.trim());
+    }
+
+
+    // クイズの場合の処理
+    let correctIndex = null;
+    if (isQuiz) {
+        const selectedValue = newCorrectOptionSelect.value;
+        if (selectedValue === "" && options.length > 0) {
+            console.log("クイズの場合、正解の選択肢を選択してください。"); // alert 代替
+            return;
+        }
+        correctIndex = parseInt(selectedValue, 10);
+    }
+    
+    const explanation = newExplanation.value;
+
+    const deadlineValue = newDeadline.value ? new Date(newDeadline.value) : null;
+
+    if(newDeadline.value && (isNaN(deadlineValue?.getTime()) || deadlineValue?.getTime() < Date.now())){
+        console.log("締切日が不正です。現在日時より後の日時を設定してください。"); // alert 代替
+        return;
+    }
+
+    // 必須チェック（選択肢は、あるある以外の場合のみ長さチェック）
+    if(!title||!category||(!isAruaru && options.length<2)){ 
+        console.log("タイトル・カテゴリー・選択肢は必須です (あるあるは自動)"); 
+        return; 
+    } // alert 代替
+    
+    const authorName = (auth.currentUser && !auth.currentUser.isAnonymous) ? auth.currentUser.displayName || auth.currentUser.email : "匿名ユーザー";
+
+
+    if(editMode && editPollId){ 
+        // 編集モード
+        const updateData = {
+            title,
+            question,
+            category,
+            options,
+            is_quiz: isQuiz,
+            correct_index: isAruaru ? null : correctIndex, // あるあるは正解なし
+            explanation: isAruaru ? "" : explanation, // あるあるは解説なし
+            deadline: deadlineValue, 
+        };
+
+        await updateDoc(doc(db,"polls",editPollId), updateData); 
+        console.log("アンケートを編集しました！"); // alert 代替
+    }else{ 
+        // 新規作成
+        const pollData = {
+            title, question, category, options,
+            votes:Array(options.length).fill(0),
+            authorID: currentUserId, author: authorName,
+            agreeTerms: true, createdAt: new Date().toISOString(),
+            is_quiz: isQuiz, 
+            correct_index: isAruaru ? null : correctIndex, 
+            explanation: isAruaru ? "" : explanation,
+            created: Date.now(), deadline: deadlineValue, deleted: false,
+            votedUsers: [], likeCount: 0, laughCount: 0, cryCount: 0, sympathyCount: 0
+        };
+        await addDoc(collection(db, "polls"), pollData); 
+        console.log("新しい投票を作成しました！"); // alert 代替
+    }
+    
+    createModal.classList.remove("show"); loadPolls();
+}; 
+
+
+function openEditModal(p){
+    editMode=true; editPollId=p.id; 
+    document.getElementById("modalTitle").textContent="アンケートを編集"; 
+    
+    newTitle.value=p.title; 
+    newCategorySelect.value=p.category; 
+    newQuestion.value = p.question || "";
+    newExplanation.value = p.explanation || "";
+
+    const isQuiz = p.category==="クイズ";
+    const isAruaru = p.category==="あるある";
+
+    // 編集時にもあるあるの表示を切り替える
+    if (isAruaru) {
+        // あるあるの場合、固定値を表示し、編集不可
+        newOptionsLabel.textContent = "選択肢 (自動設定: 編集不可)";
+        newOptions.value = p.options.join("\n"); // 既存の自動選択肢を表示
+        newOptions.disabled = true;
+    } else {
+        // 通常/クイズの場合、既存の選択肢を表示し、編集可能
+        newOptionsLabel.textContent = "選択肢（改行で複数）";
+        newOptions.value=p.options.join("\n");
+        newOptions.disabled = false;
+    }
+
+    // クイズフィールドの表示切り替えと正解選択肢の更新
+    document.getElementById("quizFields").style.display = isQuiz ?"block":"none";
+    if (isQuiz) {
+        updateCorrectOptionSelect(newOptions.value, p.correct_index);
+    }
+
+
+    // 既存締切をフォームに反映
+    if (p.deadline && p.deadline.seconds) { 
+        const deadlineDate = new Date(p.deadline.seconds * 1000); 
+        
+        const year = deadlineDate.getFullYear();
+        const month = String(deadlineDate.getMonth() + 1).padStart(2, '0');
+        const day = String(deadlineDate.getDate()).padStart(2, '0');
+        const hour = String(deadlineDate.getHours()).padStart(2, '0');
+        const minute = String(deadlineDate.getMinutes()).padStart(2, '0');
+        
+        newDeadline.value = `${year}-${month}-${day}T${hour}:${minute}`;
+    } else {
+        newDeadline.value = "";
+    }
+
+    createModal.classList.add("show");
+}
+
+// =================================================================================
+// 7. 詳細ページ表示処理 (detail.html の機能)
+// =================================================================================
+
+function generateRandomColors(count) {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        // HSLカラーモデルを使用して、彩度の高いランダムな色を生成
+        const hue = Math.floor(Math.random() * 360);
+        colors.push(`hsl(${hue}, 70%, 50%)`);
+    }
+    return colors;
+}
+
+function drawChart(poll, type = 'pie') {
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+    const ctx = document.getElementById('pollChart').getContext('2d');
+    const colors = generateRandomColors(poll.options.length);
+
+    const data = {
+        labels: poll.options.map((opt, i) => `${i + 1}. ${opt}`),
+        datasets: [{
+            data: poll.votes,
+            backgroundColor: colors,
+            hoverOffset: 4
+        }]
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: '#e6eef6' 
+                }
+            },
+            title: {
+                display: true,
+                text: '投票結果',
+                color: '#e6eef6' 
+            }
+        }
+    };
+
+    chartInstance = new Chart(ctx, {
+        type: type,
+        data: data,
+        options: options
+    });
+}
+
+async function handleVote(pollId, optionIndex) {
+    if (!currentUserId) {
+        console.log("投票するにはログインが必要です。"); // alert 代替
+        return;
+    }
+
+    const docRef = doc(db, "polls", pollId);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return;
+    const poll = docSnap.data();
+
+    // 既に投票済みかチェック
+    if (poll.votedUsers && poll.votedUsers.includes(currentUserId)) {
+        console.log("あなたは既にこのアンケートに投票済みです。"); // alert 代替
+        return;
+    }
+
+    // 投票を増やす
+    const newVotes = [...poll.votes];
+    newVotes[optionIndex] = (newVotes[optionIndex] || 0) + 1;
+
+    // データベースを更新
+    await updateDoc(docRef, {
+        votes: newVotes,
+        votedUsers: arrayUnion(currentUserId)
+    });
+
+    // 詳細画面を再読み込みして結果を表示
+    loadPollDetail(pollId);
+}
+
+
+async function loadPollDetail(pollId){
+    if (!pollId) return;
+    if (!localStorage.getItem('mixvote_tos_agreed')) { return; }
+
+    detailModalEl.classList.add("show");
+    frontPageEl.style.display = 'none'; // フロントページを非表示
+    pollDetailEl.innerHTML = "<p>読み込み中...</p>";
+    chartSwitch.style.display="none";
+    currentPollId = pollId; // グローバル変数にIDを保存
+    
+    // ★ 既存のコメントリスナーを解除 (SPAのクリーンアップ)
+    if (currentCommentUnsubscribe) {
+        currentCommentUnsubscribe();
+        currentCommentUnsubscribe = null;
+    }
+
+    const docRef = doc(db,"polls",pollId);
+    const docSnap = await getDoc(docRef);
+
+    if(!docSnap.exists()){ 
+        pollDetailEl.innerHTML="<p>アンケートが見つかりません。</p>"; 
+        document.getElementById("deadlineDisplay").style.display = 'none'; 
+        return; 
+    }
+    const poll = docSnap.data();
+
+    // ------------------------------------------------------------------
+    // 【ソーシャルメディア共有ロジック】
+    // ------------------------------------------------------------------
+    const shareURL = `${window.location.origin}#detail:${pollId}`;
+    const pollTitle = poll.title;
+    const xText = encodeURIComponent(`「${pollTitle}」のアンケートに投票しませんか？ #MixVote`);
+    const xLink = `https://twitter.com/intent/tweet?text=${xText}&url=${encodeURIComponent(shareURL)}`;
+    shareX.href = xLink;
+    const fbLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareURL)}`;
+    shareFacebook.href = fbLink;
+    shareX.style.display = 'inline-block'; 
+    shareFacebook.style.display = 'inline-block';
+
+    // ------------------------------------------------------------------
+    // 【締切日の表示ロジック】
+    // ------------------------------------------------------------------
+    const deadlineDisplayEl = document.getElementById("deadlineDisplay");
+    
+    let isExpired = false;
+    if (poll.deadline && poll.deadline.seconds) {
+        const deadlineDate = new Date(poll.deadline.seconds * 1000);
+        isExpired = deadlineDate.getTime() < Date.now();
+        
+        const formattedDate = deadlineDate.toLocaleString('ja-JP', {
+            year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+        
+        if (isExpired) {
+            deadlineDisplayEl.textContent = `締切済み: ${formattedDate}`;
+            deadlineDisplayEl.style.color = '#7f8c8d'; 
+        } else {
+            deadlineDisplayEl.textContent = `締切: ${formattedDate}`;
+            deadlineDisplayEl.style.color = '#e74c3c'; 
+        }
+        deadlineDisplayEl.style.display = 'block';
+    } else {
+        deadlineDisplayEl.style.display = 'none';
+    }
+    // ------------------------------------------------------------------
+
+    const totalVotes = poll.votes.reduce((sum, v) => sum + v, 0);
+    const hasVoted = poll.votedUsers && poll.votedUsers.includes(currentUserId);
+    const showResults = hasVoted || isExpired || totalVotes > 0;
+
+    let html = `
+        <h2 style="margin:0 0 10px;">${poll.title}</h2>
+        ${poll.question ? `<p style="font-size:16px; color:#ccc;">${poll.question}</p>` : ''}
+        <p style="font-size:14px; color:#94a3b8; margin-bottom: 20px;">カテゴリー: ${poll.category} | 投稿者: ${poll.author}</p>
+        <div style="margin-bottom: 20px;">
+    `;
+
+    poll.options.forEach((option, index) => {
+        const percentage = totalVotes > 0 ? (poll.votes[index] / totalVotes * 100).toFixed(1) : 0;
+        const isCorrect = poll.is_quiz && poll.correct_index === index;
+        const resultClass = isCorrect ? 'border-green-500' : '';
+        const voteCountText = showResults ? ` (${poll.votes[index]} 票)` : '';
+
+        html += `
+            <div class="option ${resultClass}" style="position:relative; overflow:hidden;">
+                <div style="z-index:1; position:relative; width:100%;">
+                    <span>${index + 1}. ${option}</span>
+                    ${showResults ? `<span style="font-weight:bold; float:right;">${percentage}%${voteCountText}</span>` : ''}
+                </div>
+                ${showResults || isExpired ? 
+                    `<div style="position:absolute; top:0; left:0; height:100%; width:${percentage}%; background:rgba(6,182,212,0.3); border-radius:8px;"></div>`
+                    : `<button data-index="${index}" class="vote-btn">投票</button>`
+                }
+            </div>
+        `;
+    });
+
+    html += `</div>`;
+    
+    // クイズ結果表示ロジック
+    if (poll.is_quiz && showResults) {
+        const correctOption = poll.options[poll.correct_index];
+        html += `
+            <div class="correct" style="border-top: 1px dashed #334155; padding-top: 15px;">
+                正解: ${correctOption}
+            </div>
+            ${poll.explanation ? `<div class="explanation">${poll.explanation}</div>` : ''}
+        `;
+    } else if (!poll.is_quiz && hasVoted) {
+         html += `<p style="color: #60a5fa; font-weight: bold; margin-top: 15px;">投票ありがとうございました。</p>`;
+    } else if (!showResults && !isExpired) {
+         html += `<p style="color: #06b6d4; font-weight: bold; margin-top: 15px;">投票すると結果が見れます。</p>`;
+    }
+
+
+    pollDetailEl.innerHTML = html;
+
+    if (!showResults && !isExpired) {
+        // 投票ボタンのイベントリスナー設定
+        document.querySelectorAll('.vote-btn').forEach(button => {
+            button.onclick = () => handleVote(pollId, parseInt(button.dataset.index));
+        });
+        chartContainer.style.display = 'none';
+    } else {
+        // 結果表示の場合、チャートを表示
+        chartSwitch.style.display="flex";
+        chartContainer.style.display = 'block';
+        drawChart(poll, 'pie'); // デフォルトは円グラフ
+    }
+    
+    // ------------------------------------------------------------------
+    // 【掲示板/コメント欄のセットアップ】
+    // ------------------------------------------------------------------
+    const isGoogleLoggedIn = auth.currentUser && !auth.currentUser.isAnonymous;
+    
+    // コメント投稿フォームの表示/非表示切り替え
+    if (isGoogleLoggedIn) {
+        commentLoginMsg.style.display = 'none';
+        commentInputArea.style.display = 'block';
+    } else {
+        commentLoginMsg.style.display = 'block';
+        commentInputArea.style.display = 'none';
+    }
+    
+    // コメントのリアルタイムリスナー設定 (onSnapshot)
+    const commentsRef = collection(db, "polls", pollId, "comments");
+    // 作成日時で降順に並び替え
+    currentCommentUnsubscribe = onSnapshot(query(commentsRef, orderBy("createdAt", "desc")), (snapshot) => {
+        const comments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderComments(comments, pollId);
+    });
+    // ------------------------------------------------------------------
+}
+
+// =================================================================================
+// 8. コメント機能
+// =================================================================================
+
+/**
+ * コメントを削除する
+ */
+async function deleteComment(pollId, commentId) {
+    // alertの代わりにconfirmを使用
+    if (confirm("このコメントを削除しますか？")) {
+        try {
+            const commentRef = doc(db, "polls", pollId, "comments", commentId);
+            await deleteDoc(commentRef);
+            console.log("コメントを削除しました。");
+        } catch (error) {
+            console.error("コメント削除エラー:", error);
+        }
+    }
+}
+
+/**
+ * コメント編集モードに切り替える
+ */
+function openEditComment(commentId, text) {
+    currentEditingCommentId = commentId;
+    commentInput.value = text;
+    commentInput.focus();
+    commentCharCount.textContent = `${text.length}/100`;
+    postCommentBtn.textContent = "編集を保存";
+}
+
+
+/**
+ * コメントの文字数チェックとボタンの制御
+ */
+commentInput.addEventListener('input', () => {
+    const len = commentInput.value.length;
+    commentCharCount.textContent = `${len}/100`;
+    if (len > 100) {
+        commentCharCount.style.color = '#f87171';
+        postCommentBtn.disabled = true;
+    } else {
+        commentCharCount.style.color = '#94a3b8';
+        postCommentBtn.disabled = false;
+    }
+    // 編集モードで文字数がOKになったらボタンを有効化
+    if (currentEditingCommentId && len <= 100 && len > 0) {
+        postCommentBtn.textContent = "編集を保存";
+        postCommentBtn.disabled = false;
+    } else if (!currentEditingCommentId) {
+        postCommentBtn.textContent = "投稿";
+    }
+});
+
+
+/**
+ * コメントの投稿または編集を処理する
+ */
+postCommentBtn.onclick = async () => {
+    const text = commentInput.value.trim();
+    if (text.length === 0 || text.length > 100) {
+        console.log("コメントは1文字以上100文字以内で入力してください。");
+        return;
+    }
+
+    if (!auth.currentUser || auth.currentUser.isAnonymous) {
+        console.log("Googleアカウントでログインしてから投稿してください。");
+        return;
+    }
+
+    const userName = auth.currentUser.displayName || auth.currentUser.email;
+    const userId = auth.currentUser.uid;
+    const pollId = currentPollId; 
+    
+    // 編集モード
+    if (currentEditingCommentId) {
+        try {
+            const commentRef = doc(db, "polls", pollId, "comments", currentEditingCommentId);
+            await updateDoc(commentRef, { text, editedAt: new Date() }); // editedAtもTimestampに変更
+            console.log("コメントを編集しました。");
+        } catch (error) {
+            console.error("コメント編集エラー:", error);
+        }
+    } 
+    // 新規投稿モード
+    else {
+        try {
+            const commentsRef = collection(db, "polls", pollId, "comments");
+            await addDoc(commentsRef, {
+                pollId, userId, userName, text, createdAt: new Date() // ★修正: Date.now() から new Date() へ変更 (Timestamp型で保存)
+            });
+            console.log("コメントを投稿しました。");
+        } catch (error) {
+            console.error("コメント投稿エラー:", error);
+        }
+    }
+
+    // リセット
+    commentInput.value = "";
+    commentCharCount.textContent = "0/100";
+    currentEditingCommentId = null;
+    postCommentBtn.textContent = "投稿";
+};
+
+
+/**
+ * 取得したコメントリストをDOMにレンダリングする
+ */
+function renderComments(comments, pollId) {
+    commentListEl.innerHTML = '';
+
+    if (comments.length === 0) {
+        commentListEl.innerHTML = '<p style="color:var(--muted); font-size: 14px; text-align: center;">まだコメントはありません。</p>';
+        return;
+    }
+
+    comments.forEach(c => {
+        const commentDiv = document.createElement('div');
+        commentDiv.style.border = '1px solid #334155';
+        commentDiv.style.borderRadius = '8px';
+        commentDiv.style.padding = '12px';
+        commentDiv.style.marginBottom = '10px';
+        commentDiv.style.backgroundColor = '#0f1724';
+        commentDiv.style.position = 'relative';
+
+        // ★修正: Firestore Timestampオブジェクト (c.createdAt) から正確な日付を抽出
+        const timestampMs = c.createdAt && c.createdAt.seconds ? c.createdAt.seconds * 1000 : Date.now();
+        const date = new Date(timestampMs).toLocaleString('ja-JP', {
+            year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+
+        let buttonsHtml = '';
+        // 編集・削除は投稿者本人のみ可能（Googleログインが必要）
+        if (c.userId === currentUserId && !auth.currentUser.isAnonymous) {
+            buttonsHtml = `
+                <button class="edit-comment-btn" data-id="${c.id}" data-text="${c.text}" style="background: #3b82f6; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; transition: background 0.2s;">編集</button>
+                <button class="delete-comment-btn" data-id="${c.id}" style="background: #ef4444; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; transition: background 0.2s;">削除</button>
+            `;
+        }
+
+        commentDiv.innerHTML = `
+            <div style="font-size: 14px; font-weight: bold; color: var(--accent-2); display: flex; justify-content: space-between; align-items: center;">
+                <span>${c.userName}</span>
+                <div style="font-weight: normal; font-size: 12px; color: var(--muted);">${date}</div>
+            </div>
+            <p style="margin: 8px 0; white-space: pre-wrap; word-break: break-word;">${c.text}</p>
+            <div style="text-align: right;">${buttonsHtml}</div>
+        `;
+        commentListEl.appendChild(commentDiv);
+    });
+    
+    // イベントリスナーの再設定
+    commentListEl.querySelectorAll('.edit-comment-btn').forEach(btn => {
+        btn.onclick = () => openEditComment(btn.dataset.id, btn.dataset.text);
+    });
+    commentListEl.querySelectorAll('.delete-comment-btn').forEach(btn => {
+        btn.onclick = () => deleteComment(pollId, btn.dataset.id);
+    });
+}
+
+
+// =================================================================================
+// 9. SPA ルーティングとイベント
+// =================================================================================
+
+function loadPage(params = {}) {
+    const hash = window.location.hash;
+    
+    // 詳細ページ (ハッシュ #detail:pollId)
+    if (hash.startsWith('#detail:')) {
+        const pollId = hash.substring(8);
+        loadPollDetail(pollId);
+        frontPageEl.style.display = 'none';
+    } 
+    // フロントページ (ハッシュなし、または不正なハッシュ)
+    else {
+        detailModalEl.classList.remove('show');
+        frontPageEl.style.display = 'grid';
+        
+        // ★ コメントリスナーのクリーンアップ
+        if (currentCommentUnsubscribe) {
+            currentCommentUnsubscribe();
+            currentCommentUnsubscribe = null;
+        }
+    }
+}
+
+function handleUrlHash() {
+    loadPage();
+}
+
+window.addEventListener('popstate', handleUrlHash);
+document.getElementById("backBtn").onclick = () => {
+    history.pushState(null, null, '#');
+    loadPage();
+    loadPolls(); // フロントページに戻るたびにリストを更新
+};
+
+// チャート切り替えボタンのイベントリスナー
+pieBtn.onclick = () => {
+    if (currentPollId) {
+        getDoc(doc(db,"polls",currentPollId)).then(docSnap => {
+            if (docSnap.exists()) drawChart(docSnap.data(), 'pie');
+        });
+    }
+};
+
+barBtn.onclick = () => {
+    if (currentPollId) {
+        getDoc(doc(db,"polls",currentPollId)).then(docSnap => {
+            if (docSnap.exists()) drawChart(docSnap.data(), 'bar');
+        });
+    }
+};
+
+// =================================================================================
+// 10. アプリケーション起動
+// =================================================================================
+checkTOSAgreement(); // 規約チェックから全てが始まる
+</script>
+</html>
