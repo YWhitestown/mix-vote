@@ -109,15 +109,15 @@
                 <h2 class="text-3xl font-extrabold tracking-tight text-white uppercase tracking-tighter text-white">Agreement</h2>
             </div>
             <div class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-400">
-                <p class="mb-4">Mix Voteへようこそ。以下のルールにご同意ください。</p>
+                <p class="mb-4 text-slate-300">Mix Voteへようこそ。以下のルールにご同意ください。</p>
                 <h4 class="font-bold text-slate-100 mt-6 mb-2 text-lg italic underline decoration-cyan-500 underline-offset-8">行動指針</h4>
-                <ul class="list-none space-y-4 mt-4">
-                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1 text-cyan-500"></i> 他者の意見を尊重し、建設的な議論を心がけましょう。</li>
-                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1 text-cyan-500"></i> 誹謗中傷、差別的表現、公序良俗に反する投稿は固く禁止します。</li>
-                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1 text-cyan-500"></i> システムを不正に操作する行為や、多重投票の試みは行わないでください。</li>
+                <ul class="list-none space-y-4 mt-4 text-slate-300">
+                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1"></i> <span>他者の意見を尊重し、建設的な議論を心がけましょう。</span></li>
+                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1"></i> <span>誹謗中傷、差別的表現、公序良俗に反する投稿は固く禁止します。</span></li>
+                    <li class="flex gap-3"><i class="fas fa-check text-cyan-500 mt-1"></i> <span>システムを不正に操作する行為や、多重投票の試みは行わないでください。</span></li>
                 </ul>
             </div>
-            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-900 font-extrabold py-5 rounded-2xl transition-all shadow-xl shadow-cyan-500/20 active:scale-95 uppercase tracking-widest text-slate-900">
+            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-cyan-500/30 active:scale-95 uppercase tracking-widest text-slate-900">
                 I Agree & Start
             </button>
         </div>
@@ -128,7 +128,7 @@
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-white/10 shadow-2xl">
             <h3 id="msgTitle" class="text-xl font-black mb-4 uppercase tracking-widest italic text-white">Notification</h3>
             <p id="msgBody" class="text-slate-400 text-sm mb-8 leading-relaxed font-medium"></p>
-            <div id="msgActions" class="flex gap-3">
+            <div id="msgActions" class="flex gap-3 text-slate-900">
                 <button id="msgCloseBtn" class="flex-1 bg-white/10 text-white font-bold py-4 rounded-2xl uppercase text-[10px] tracking-widest hover:bg-white/20 transition-colors">Close</button>
                 <button id="msgConfirmBtn" class="flex-1 bg-cyan-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest hidden text-slate-950">Confirm</button>
             </div>
@@ -164,19 +164,19 @@
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 mt-10">
             <!-- サイドバー -->
             <aside class="lg:col-span-3 space-y-8">
-                <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-cyan-500/20 active:scale-95 transition-all text-slate-900 text-slate-900">
+                <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-cyan-500/20 active:scale-95 transition-all text-slate-900 uppercase tracking-widest text-xs">
                     <i class="fas fa-plus-circle text-xl"></i> 新規アンケート
                 </button>
                 <div class="glass rounded-3xl p-6 border border-white/5 text-white text-white">
-                    <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6 italic">Categories</h3>
+                    <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6 italic text-slate-500">Categories</h3>
                     <nav id="categoryNav" class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 custom-scrollbar"></nav>
                 </div>
-                <div class="glass rounded-3xl p-6 border border-white/5">
+                <div class="glass rounded-3xl p-6 border border-white/5 text-slate-400">
                     <div class="flex items-center gap-3 text-cyan-500 mb-3 text-cyan-500">
                         <i class="fas fa-info-circle"></i>
                         <span class="text-xs font-bold uppercase tracking-widest">Guide</span>
                     </div>
-                    <p class="text-[11px] text-slate-400 leading-relaxed font-medium">
+                    <p class="text-[11px] leading-relaxed font-medium">
                         投票はどなたでも自由に参加できます（※同一アンケートへの複数投票は不可）。アンケートの作成やコメントの投稿にはGoogleアカウントでの登録をお願いしております。
                     </p>
                 </div>
@@ -189,7 +189,7 @@
                     <div class="glass rounded-[32px] p-6 border-l-4 border-cyan-500 animate-in fade-in slide-in-from-top-4 duration-700">
                         <div class="flex items-start gap-5">
                             <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
-                                <i class="fas fa-bullhorn text-xl text-cyan-400 text-cyan-400"></i>
+                                <i class="fas fa-bullhorn text-xl"></i>
                             </div>
                             <div class="text-white">
                                 <h3 class="font-black text-xs uppercase tracking-widest mb-1.5 italic text-cyan-400 text-white text-white">Notice / ご利用案内</h3>
@@ -202,29 +202,29 @@
 
                     <section>
                         <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter text-white">Latest <span class="text-slate-500 font-normal not-italic text-white text-white">Polls</span></h2>
-                        <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-white text-white"></div>
+                        <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-white text-white text-white text-white"></div>
                     </section>
                     <section>
-                        <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter text-white">Trending <span class="text-slate-500 font-normal not-italic text-white text-white">Now</span></h2>
-                        <div id="popularPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-white text-white"></div>
+                        <h2 class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter text-white text-white">Trending <span class="text-slate-500 font-normal not-italic text-white text-white">Now</span></h2>
+                        <div id="popularPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-white text-white text-white"></div>
                     </section>
                 </div>
 
                 <!-- 詳細ページ -->
-                <div id="view-detail" class="hidden space-y-10 animate-in slide-in-from-bottom-4 duration-500 text-white text-white">
+                <div id="view-detail" class="hidden space-y-10 animate-in slide-in-from-bottom-4 duration-500 text-white text-white text-white">
                     <button onclick="goHome()" class="group flex items-center gap-3 text-slate-500 hover:text-white font-black uppercase tracking-widest text-[10px] transition-all text-slate-500">
-                        <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-white text-white"><i class="fas fa-chevron-left text-white"></i></div>
+                        <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-white text-white text-white"><i class="fas fa-chevron-left text-white text-white"></i></div>
                         Back to List
                     </button>
-                    <div id="pollDetailContent" class="glass rounded-[40px] p-8 md:p-14 border border-white/10 shadow-2xl space-y-12 text-white text-white"></div>
+                    <div id="pollDetailContent" class="glass rounded-[40px] p-8 md:p-14 border border-white/10 shadow-2xl space-y-12 text-white text-white text-white"></div>
                     <div class="glass rounded-[40px] p-8 md:p-12 border border-white/10 text-white">
-                        <h3 class="text-2xl font-black text-white mb-10 uppercase tracking-widest italic text-white text-white text-white"><i class="far fa-comment-dots text-cyan-400 text-cyan-400 text-cyan-400"></i> Discussion</h3>
+                        <h3 class="text-2xl font-black text-white mb-10 uppercase tracking-widest italic text-white text-white text-white text-white"><i class="far fa-comment-dots text-cyan-400 text-cyan-400 text-cyan-400"></i> Discussion</h3>
                         <div id="commentInputArea" class="hidden mb-12 relative text-white">
                             <textarea id="commentText" maxlength="100" class="w-full bg-slate-950/50 border border-white/10 rounded-3xl p-6 text-white outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-700 font-medium text-white" rows="3" placeholder="あなたの意見を書き込む..."></textarea>
-                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all text-slate-900 text-slate-900 text-slate-900">Send</button>
+                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all text-slate-900 text-slate-900 text-slate-900 text-slate-900">Send</button>
                         </div>
                         <div id="commentLoginNotice" class="text-center p-12 bg-white/5 rounded-[30px] text-slate-600 font-black uppercase tracking-widest text-[10px] border border-dashed border-white/10 text-slate-600">登録（サインイン）するとディスカッションに参加できます</div>
-                        <div id="commentsList" class="space-y-6 text-white text-white text-white text-white"></div>
+                        <div id="commentsList" class="space-y-6 text-white text-white text-white text-white text-white"></div>
                     </div>
                 </div>
             </main>
@@ -232,35 +232,35 @@
     </div>
 
     <!-- モーダル (作成/編集) -->
-    <div id="createModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4">
+    <div id="createModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 text-white">
         <div class="glass max-w-xl w-full rounded-[40px] p-10 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <h2 id="modalTitle" class="text-3xl font-black mb-8 text-white italic tracking-tighter uppercase text-white text-white text-white text-white">Create <span class="text-cyan-400 text-cyan-400">Poll</span></h2>
+            <h2 id="modalTitle" class="text-3xl font-black mb-8 text-white italic tracking-tighter uppercase text-white text-white text-white text-white text-white">Create <span class="text-cyan-400 text-cyan-400">Poll</span></h2>
             <div class="space-y-6 text-white text-white text-white text-white">
                 <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 text-slate-500">Poll Title</label>
-                <input type="text" id="pollTitleInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-bold text-white text-white"></div>
-                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 text-slate-500">Description (Optional)</label>
-                <textarea id="pollDescInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium text-white text-white" rows="2"></textarea></div>
-                <div class="grid grid-cols-2 gap-6 text-white text-white text-white text-white">
+                <input type="text" id="pollTitleInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-bold text-white text-white text-white"></div>
+                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 text-slate-500 text-slate-500">Description (Optional)</label>
+                <textarea id="pollDescInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium text-white text-white text-white" rows="2"></textarea></div>
+                <div class="grid grid-cols-2 gap-6 text-white text-white text-white text-white text-white text-white">
                     <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 text-slate-500">Category</label>
-                    <select id="pollCategoryInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-bold text-white text-white"></select></div>
-                    <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 text-slate-500 text-slate-500 text-slate-500">Deadline</label>
-                    <div id="deadlinePickerContainer" class="bg-slate-950 border border-white/10 rounded-2xl p-4 flex justify-between items-center cursor-pointer relative group hover:border-cyan-500 transition-all text-white text-white">
-                        <input type="datetime-local" id="pollDeadlineInput" class="absolute inset-0 opacity-0 cursor-pointer z-10 text-white text-white">
-                        <span id="deadlineDisplay" class="text-sm font-medium text-slate-400 text-slate-400">Select time</span><i class="far fa-calendar-alt text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400"></i>
+                    <select id="pollCategoryInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-bold text-white text-white text-white"></select></div>
+                    <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 text-slate-500 text-slate-500 text-slate-500 text-slate-500">Deadline</label>
+                    <div id="deadlinePickerContainer" class="bg-slate-950 border border-white/10 rounded-2xl p-4 flex justify-between items-center cursor-pointer relative group hover:border-cyan-500 transition-all text-white text-white text-white">
+                        <input type="datetime-local" id="pollDeadlineInput" class="absolute inset-0 opacity-0 cursor-pointer z-10 text-white text-white text-white">
+                        <span id="deadlineDisplay" class="text-sm font-medium text-slate-400 text-slate-400">Select time</span><i class="far fa-calendar-alt text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400"></i>
                     </div></div>
                 </div>
-                <div id="optionsContainer"><label id="optionsLabel" class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 text-slate-500 text-slate-500">Options</label>
-                <textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium text-white text-white" rows="4" placeholder="Enter options (one per line)..."></textarea></div>
-                <div id="quizFields" class="hidden bg-cyan-500/5 p-6 rounded-3xl border border-cyan-500/20 space-y-4 text-white text-white">
-                    <div><label class="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1 block text-cyan-400 text-cyan-400">Correct Index</label>
-                    <select id="pollCorrectIndexInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none text-white text-white"></select></div>
-                    <div><label class="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1 block text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400">Explanation</label>
-                    <textarea id="pollExplanationInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium text-white text-white" rows="2" placeholder="Explanation..."></textarea></div>
+                <div id="optionsContainer text-white text-white"><label id="optionsLabel" class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 text-slate-500 text-slate-500 text-slate-500">Options</label>
+                <textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium text-white text-white text-white" rows="4" placeholder="Enter options (one per line)..."></textarea></div>
+                <div id="quizFields" class="hidden bg-cyan-500/5 p-6 rounded-3xl border border-cyan-500/20 space-y-4 text-white text-white text-white text-white">
+                    <div><label class="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1 block text-cyan-400 text-cyan-400 text-cyan-400">Correct Index</label>
+                    <select id="pollCorrectIndexInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none text-white text-white text-white"></select></div>
+                    <div><label class="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1 block text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400">Explanation</label>
+                    <textarea id="pollExplanationInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-cyan-500 outline-none font-medium text-white text-white text-white text-white" rows="2" placeholder="Explanation..."></textarea></div>
                 </div>
             </div>
-            <div class="flex gap-4 mt-12 text-white text-white">
-                <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all text-white text-white">Cancel</button>
-                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] shadow-xl shadow-cyan-500/20 active:scale-95 transition-all text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">Save Poll</button>
+            <div class="flex gap-4 mt-12 text-white text-white text-white">
+                <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all text-white text-white text-white">Cancel</button>
+                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] shadow-xl shadow-cyan-500/20 active:scale-95 transition-all text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900 text-slate-900">Save Poll</button>
             </div>
         </div>
     </div>
@@ -440,7 +440,8 @@
                 const snapshot = await getDocs(collection(db, ...POLLS_PATH));
                 let polls = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => !p.deleted);
                 if (selectedCategory !== "全て") polls = polls.filter(p => p.category === selectedCategory);
-                const latest = [...polls].sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,6);
+                // 最新50件を取得
+                const latest = [...polls].sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,50);
                 const popular = [...polls].sort((a,b) => (b.votes?.reduce((s,v)=>s+v,0)||0)-(a.votes?.reduce((s,v)=>s+v,0)||0)).slice(0,6);
                 renderPollList('latestPolls', latest);
                 renderPollList('popularPolls', popular);
@@ -450,26 +451,49 @@
         const renderPollList = (eid, polls) => {
             const c = document.getElementById(eid); if (!c) return;
             c.innerHTML = polls.length ? '' : '<p class="text-slate-800 py-10 font-black uppercase text-[10px] tracking-widest text-slate-800">No Active Data</p>';
-            polls.forEach(p => {
+            
+            polls.forEach((p, index) => {
+                // 注文通り、LatestPollsの6個目以降（index >= 5）を小文字・スリム表示にする
+                const isSmall = eid === 'latestPolls' && index >= 5;
                 const div = document.createElement('div');
-                div.className = "poll-card glass rounded-[32px] p-7 cursor-pointer flex flex-col justify-between h-full border border-white/5 hover:border-cyan-500/50";
-                div.onclick = () => goDetail(p.id);
-                div.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center text-white">
-                            <span class="text-[8px] font-black px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 uppercase tracking-widest text-cyan-400">${p.category}</span>
-                            <span class="text-[8px] text-slate-700 font-black tracking-widest text-slate-600">${p.createdAt?new Date(p.createdAt.seconds*1000).toLocaleDateString():'New'}</span>
+                
+                if (isSmall) {
+                    // 6個目〜50個目: 小文字スリムスタイル
+                    div.className = "poll-card glass rounded-2xl p-4 cursor-pointer flex justify-between items-center border border-white/5 hover:border-cyan-500/50 transition-all text-white col-span-1 md:col-span-1";
+                    div.onclick = () => goDetail(p.id);
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <span class="text-[10px] font-black text-cyan-500/50 shrink-0 w-6">${index + 1}</span>
+                            <h3 class="text-xs font-bold text-slate-200 truncate uppercase tracking-tight">${p.title}</h3>
                         </div>
-                        <h3 class="text-lg font-black line-clamp-2 leading-tight tracking-tight text-white">${p.title}</h3>
-                        ${p.question ? `<p class="text-[10px] text-slate-500 line-clamp-2 leading-relaxed font-medium whitespace-pre-wrap">${p.question}</p>` : ''}
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
-                        <span class="text-[9px] text-slate-500 font-bold italic text-slate-500">By ${maskName(p.author)}</span>
-                        <div class="flex items-center gap-1 text-white text-white">
-                             <span class="text-cyan-400 font-black text-xs text-cyan-400">${p.votes?.reduce((s,v)=>s+v,0)||0}</span>
-                             <span class="text-[8px] text-slate-600 font-black uppercase text-slate-600">Votes</span>
+                        <div class="flex items-center gap-3 shrink-0 ml-4">
+                            <span class="text-[9px] text-slate-600 font-black uppercase tracking-widest">${p.category}</span>
+                            <div class="flex items-center gap-1">
+                                <span class="text-cyan-400 font-black text-[10px]">${p.votes?.reduce((s,v)=>s+v,0)||0}</span>
+                                <span class="text-[8px] text-slate-700 font-black">V</span>
+                            </div>
+                        </div>`;
+                } else {
+                    // 1個目〜5個目: 通常（大型）スタイル
+                    div.className = "poll-card glass rounded-[32px] p-7 cursor-pointer flex flex-col justify-between h-full border border-white/5 hover:border-cyan-500/50 text-white";
+                    div.onclick = () => goDetail(p.id);
+                    div.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[8px] font-black px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 uppercase tracking-widest text-cyan-400">${p.category}</span>
+                                <span class="text-[8px] text-slate-700 font-black tracking-widest text-slate-600">${p.createdAt?new Date(p.createdAt.seconds*1000).toLocaleDateString():'New'}</span>
+                            </div>
+                            <h3 class="text-lg font-black line-clamp-2 leading-tight tracking-tight text-white uppercase">${p.title}</h3>
+                            ${p.question ? `<p class="text-[10px] text-slate-500 line-clamp-2 leading-relaxed font-medium whitespace-pre-wrap">${p.question}</p>` : ''}
                         </div>
-                    </div>`;
+                        <div class="mt-8 pt-6 border-t border-white/5 flex justify-between items-center text-white">
+                            <span class="text-[9px] text-slate-500 font-bold italic text-slate-500">By ${maskName(p.author)}</span>
+                            <div class="flex items-center gap-1">
+                                 <span class="text-cyan-400 font-black text-xs text-cyan-400">${p.votes?.reduce((s,v)=>s+v,0)||0}</span>
+                                 <span class="text-[8px] text-slate-600 font-black uppercase text-slate-600">Votes</span>
+                            </div>
+                        </div>`;
+                }
                 c.appendChild(div);
             });
         };
@@ -480,7 +504,7 @@
                 const d = await getDoc(doc(db, ...POLLS_PATH, id));
                 if (!d.exists()) return;
                 const p = d.data();
-                currentPollData = p; // 現在のデータを保持
+                currentPollData = p; // グラフ切り替え用にデータを保持
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0;
                 const hasVoted = p.votedUsers?.includes(currentUser.uid);
                 const isExp = p.deadline && new Date(p.deadline.seconds*1000) < new Date();
@@ -490,13 +514,13 @@
 
                 let html = `
                     <div class="flex flex-col lg:flex-row justify-between gap-8 pb-10 border-b border-white/5 text-white">
-                        <div class="space-y-4 flex-1">
+                        <div class="space-y-4 flex-1 text-white text-white">
                             <span class="bg-cyan-500 text-slate-950 font-black text-[10px] px-4 py-1 rounded-full uppercase tracking-widest text-slate-900">${p.category}</span>
-                            <h2 class="text-4xl md:text-5xl font-black tracking-tighter leading-none text-white">${p.title}</h2>
-                            <p class="text-slate-500 text-sm font-bold italic">Author: ${maskName(p.author)}</p>
+                            <h2 class="text-4xl md:text-5xl font-black tracking-tighter leading-none text-white uppercase italic text-white">${p.title}</h2>
+                            <p class="text-slate-500 text-sm font-bold italic text-slate-500">Author: ${maskName(p.author)}</p>
                             
-                            <!-- 質問文 (Description) の表示を確実に改行反映させて配置 -->
-                            ${p.question ? `<p class="text-slate-300 text-lg leading-relaxed mt-6 font-medium border-l-4 border-cyan-500/30 pl-6 whitespace-pre-wrap">${p.question}</p>` : ''}
+                            <!-- Description (質問文) を確実に表示 -->
+                            ${p.question ? `<p class="text-slate-300 text-lg leading-relaxed mt-6 font-medium border-l-4 border-cyan-500/30 pl-6 whitespace-pre-wrap text-slate-300 text-white">${p.question}</p>` : ''}
                         </div>
                         ${isExp ? '<div class="text-red-500 font-black uppercase text-xs p-4 bg-red-500/10 rounded-2xl border border-red-500/20 h-fit text-red-500 text-red-500">Polling Ended</div>' : ''}
                     </div>
@@ -508,44 +532,44 @@
                                     <div class="relative overflow-hidden bg-slate-950 border border-white/5 rounded-3xl p-6 flex justify-between items-center group">
                                         <div class="absolute inset-y-0 left-0 bg-cyan-500/10 transition-all duration-1000" style="width:${per}%"></div>
                                         <span class="z-10 text-white font-bold text-lg">${opt}</span>
-                                        <div class="z-10 text-right text-white text-white"><div class="font-black text-white text-2xl tracking-tighter">${per}%</div><div class="text-[8px] text-slate-700 uppercase font-black tracking-widest">${v} Votes</div></div>
+                                        <div class="z-10 text-right text-white text-white text-white"><div class="font-black text-white text-2xl tracking-tighter">${per}%</div><div class="text-[8px] text-slate-700 uppercase font-black tracking-widest text-slate-600">${v} Votes</div></div>
                                     </div>`;
                                 return `
-                                    <button onclick="castVote(${i})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-cyan-500 transition-all active:scale-95 group flex items-center gap-4 text-white">
+                                    <button onclick="castVote(${i})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-cyan-500 transition-all active:scale-95 group flex items-center gap-4 text-white text-white">
                                         <span class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center font-black text-slate-500 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all italic text-xl font-black text-slate-500">${i+1}</span>
                                         <span class="font-black text-lg uppercase tracking-tight text-white">${opt}</span>
                                     </button>`;
                             }).join('')}
                         </div>
-                        <div class="flex flex-col justify-center items-center gap-8">
+                        <div class="flex flex-col justify-center items-center gap-8 text-white">
                             ${showRes ? `
-                                <div class="flex gap-2 p-1 bg-white/5 rounded-2xl border border-white/10">
+                                <div class="flex gap-2 p-1 bg-white/5 rounded-2xl border border-white/10 text-white">
                                     <button onclick="updateChartType('doughnut')" id="pieToggle" class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Pie</button>
                                     <button onclick="updateChartType('bar')" id="barToggle" class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Bar</button>
                                 </div>
-                                <div class="w-full max-w-[340px] relative">
+                                <div class="w-full max-w-[340px] relative text-white">
                                     <canvas id="pollChart"></canvas>
                                 </div>
                             ` : '<div class="text-center p-20 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-700 uppercase text-xs font-black tracking-widest flex flex-col items-center gap-4 text-slate-600"><i class="fas fa-lock text-3xl text-slate-600 text-slate-600"></i><span>Vote to unlock results</span></div>'}
                         </div>
                     </div>
-                    ${p.is_quiz && showRes ? `<div class="bg-emerald-500/5 border border-emerald-500/20 p-8 rounded-[32px] mt-8 text-white"><h4 class="text-emerald-400 font-black uppercase text-xs mb-4 tracking-widest italic text-emerald-400 text-emerald-400 text-emerald-400 text-emerald-400">Result Details</h4><p class="text-xl font-black mb-4">Correct: ${p.options[p.correct_index]}</p><p class="text-slate-400 italic font-medium leading-relaxed">${p.explanation||'No explanation provided.'}</p></div>` : ''}
-                    <div class="flex flex-wrap gap-4 pt-10 border-t border-white/5 items-center text-white text-white text-white">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Share:</span>
+                    ${p.is_quiz && showRes ? `<div class="bg-emerald-500/5 border border-emerald-500/20 p-8 rounded-[32px] mt-8 text-white text-white"><h4 class="text-emerald-400 font-black uppercase text-xs mb-4 tracking-widest italic text-emerald-400 text-emerald-400 text-emerald-400">Result Details</h4><p class="text-xl font-black mb-4 text-white">Correct: ${p.options[p.correct_index]}</p><p class="text-slate-400 italic font-medium leading-relaxed text-slate-400">${p.explanation||'No explanation provided.'}</p></div>` : ''}
+                    <div class="flex flex-wrap gap-4 pt-10 border-t border-white/5 items-center text-white text-white text-white text-white">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 text-slate-500">Share:</span>
                         
-                        <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(p.title)}&url=${encodeURIComponent(shareUrl)}" target="_blank" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all text-white">
+                        <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(p.title)}&url=${encodeURIComponent(shareUrl)}" target="_blank" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all text-white text-white">
                             <i class="fab fa-x-twitter text-sm"></i>
                         </a>
 
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}" target="_blank" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all text-blue-500">
-                            <i class="fab fa-facebook-f text-sm text-blue-500 text-blue-500 text-blue-500 text-blue-500"></i>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}" target="_blank" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all text-blue-500 text-blue-500">
+                            <i class="fab fa-facebook-f text-sm text-blue-500 text-blue-500"></i>
                         </a>
 
-                        <button onclick="handleCopyLink('${shareUrl}')" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all text-cyan-400" title="Copy Link">
+                        <button onclick="handleCopyLink('${shareUrl}')" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all text-cyan-400" title="Copy Link text-cyan-400 text-cyan-400">
                             <i class="fas fa-link text-sm text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400"></i>
                         </button>
 
-                        ${currentUser && p.authorID === currentUser.uid ? `<div class="ml-auto flex gap-6 text-white text-white text-white text-white text-white"><button onclick="openEditPoll('${id}')" class="text-[10px] text-slate-500 font-black uppercase underline decoration-2 underline-offset-4 text-slate-500">Edit</button><button onclick="handleDeletePoll('${id}')" class="text-[10px] text-red-500/50 font-black uppercase underline decoration-2 underline-offset-4 text-red-500 text-red-500 text-red-500">Delete</button></div>` : ''}
+                        ${currentUser && p.authorID === currentUser.uid ? `<div class="ml-auto flex gap-6 text-white text-white text-white text-white text-white text-white text-white"><button onclick="openEditPoll('${id}')" class="text-[10px] text-slate-500 font-black uppercase underline decoration-2 underline-offset-4 text-slate-500">Edit</button><button onclick="handleDeletePoll('${id}')" class="text-[10px] text-red-500/50 font-black uppercase underline decoration-2 underline-offset-4 text-red-500 text-red-500 text-red-500 text-red-500">Delete</button></div>` : ''}
                     </div>`;
                 document.getElementById('pollDetailContent').innerHTML = html;
                 if (showRes) renderChart(p, 'doughnut');
@@ -553,7 +577,7 @@
             } catch (e) { console.error(e); }
         };
 
-        // --- グラフ更新処理 ---
+        // --- グラフタイプ更新 ---
         window.updateChartType = (type) => {
             if (!currentPollData) return;
             renderChart(currentPollData, type);
@@ -563,12 +587,12 @@
             const ctx = document.getElementById('pollChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
 
-            // トグルボタンのデザイン更新
+            // トグルボタンの状態更新
             const pieBtn = document.getElementById('pieToggle');
             const barBtn = document.getElementById('barToggle');
             if (pieBtn && barBtn) {
-                pieBtn.className = type === 'doughnut' ? 'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-cyan-500 text-slate-900 shadow-lg shadow-cyan-500/20' : 'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all';
-                barBtn.className = type === 'bar' ? 'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-cyan-500 text-slate-900 shadow-lg shadow-cyan-500/20' : 'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all';
+                pieBtn.className = type === 'doughnut' ? 'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-cyan-500 text-slate-900 shadow-lg shadow-cyan-500/20 text-slate-900' : 'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all text-slate-500';
+                barBtn.className = type === 'bar' ? 'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-cyan-500 text-slate-900 shadow-lg shadow-cyan-500/20 text-slate-900' : 'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all text-slate-500';
             }
 
             const chartColors = ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#14b8a6'];
@@ -614,7 +638,6 @@
             });
         };
 
-        // --- 投票処理 ---
         window.castVote = async (idx) => {
             if (!currentUser) {
                 showMessage("Authentication Required", "Please sign in to vote.");
@@ -646,9 +669,9 @@
                 if (!coms.length) { list.innerHTML='<p class="text-center text-slate-800 uppercase text-[9px] font-black py-16 tracking-[0.3em] text-slate-700 text-slate-700">No discussions found</p>'; return; }
                 coms.forEach(c => {
                     const div = document.createElement('div');
-                    div.className = "p-7 rounded-[32px] bg-white/5 border border-white/5 flex justify-between items-start group hover:bg-white/[0.08] transition-all text-white text-white text-white";
-                    div.innerHTML = `<div><div class="flex gap-3 items-center mb-3 text-white"><div class="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_var(--accent)]"></div><span class="text-[10px] font-black text-cyan-400 uppercase tracking-tighter text-cyan-400 text-cyan-400 text-cyan-400">${maskName(c.author)}</span><span class="text-[7px] text-slate-600 font-bold uppercase tracking-widest text-slate-600">${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleTimeString():''}</span></div><p class="text-slate-300 text-sm leading-relaxed font-medium text-slate-300 text-slate-300">${c.text}</p></div>
-                    ${currentUser && c.userId === currentUser.uid ? `<button onclick="handleDeleteComment('${c.id}')" class="text-[8px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all text-red-500 text-red-500">Remove</button>` : ''}`;
+                    div.className = "p-7 rounded-[32px] bg-white/5 border border-white/5 flex justify-between items-start group hover:bg-white/[0.08] transition-all text-white text-white text-white text-white";
+                    div.innerHTML = `<div><div class="flex gap-3 items-center mb-3 text-white"><div class="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_var(--accent)]"></div><span class="text-[10px] font-black text-cyan-400 uppercase tracking-tighter text-cyan-400 text-cyan-400 text-cyan-400">${maskName(c.author)}</span><span class="text-[7px] text-slate-600 font-bold uppercase tracking-widest text-slate-600 text-slate-600">${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleTimeString():''}</span></div><p class="text-slate-300 text-sm leading-relaxed font-medium text-slate-300 text-slate-300 text-slate-300">${c.text}</p></div>
+                    ${currentUser && c.userId === currentUser.uid ? `<button onclick="handleDeleteComment('${c.id}')" class="text-[8px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all text-red-500 text-red-500 text-red-500">Remove</button>` : ''}`;
                     list.appendChild(div);
                 });
             });
@@ -685,7 +708,7 @@
 
         document.getElementById('openCreateBtn').onclick = () => { 
             editMode = false; 
-            document.getElementById('modalTitle').innerHTML = 'Create <span class="text-cyan-400 uppercase italic text-cyan-400 text-cyan-400">Poll</span>'; 
+            document.getElementById('modalTitle').innerHTML = 'Create <span class="text-cyan-400 uppercase italic text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400">Poll</span>'; 
             document.getElementById('pollTitleInput').value = ""; 
             document.getElementById('pollDescInput').value = ""; 
             document.getElementById('pollOptionsInput').value = ""; 
@@ -758,7 +781,7 @@
         window.openEditPoll = async (id) => {
             editMode = true; editPollId = id; 
             const p = (await getDoc(doc(db, ...POLLS_PATH, id))).data();
-            document.getElementById('modalTitle').innerHTML = 'Edit <span class="text-cyan-400 uppercase italic text-cyan-400 text-cyan-400 text-cyan-400">Poll</span>';
+            document.getElementById('modalTitle').innerHTML = 'Edit <span class="text-cyan-400 uppercase italic text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400 text-cyan-400">Poll</span>';
             document.getElementById('pollTitleInput').value = p.title; 
             document.getElementById('pollDescInput').value = p.question || "";
             document.getElementById('pollOptionsInput').value = p.options.join('\n');
