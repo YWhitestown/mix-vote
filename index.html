@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mix Vote - Next Gen Voting</title>
+    <title>Mix Vote - 次世代投票プラットフォーム</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -27,6 +27,7 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        /* 動く背景グラデーション */
         .bg-blob {
             position: fixed;
             width: 500px;
@@ -45,6 +46,7 @@
             to { transform: translate(100px, 100px) scale(1.2); }
         }
 
+        /* グラスモーフィズム */
         .glass { 
             background: var(--glass-bg); 
             backdrop-filter: blur(16px); 
@@ -68,6 +70,7 @@
             object-fit: cover;
             opacity: 0.6;
             transition: opacity 0.3s ease;
+            background: #1e293b;
         }
         .poll-card:hover .poll-card-img {
             opacity: 0.9;
@@ -190,7 +193,7 @@
                 <div id="authArea" class="flex items-center gap-3 md:gap-4">
                     <!-- カラーカスタマイザー -->
                     <div class="relative">
-                        <button id="themeToggleBtn" class="glass p-2.5 rounded-xl text-slate-400 hover:text-accent transition-all">
+                        <button id="themeToggleBtn" class="glass p-2.5 rounded-xl text-slate-400 hover:text-accent transition-all" title="Customize Theme">
                             <i class="fas fa-palette text-lg"></i>
                         </button>
                         <div id="themeMenu" class="absolute right-0 top-full mt-3 glass p-6 rounded-3xl hidden w-64 shadow-2xl z-[60] border border-white/10">
@@ -330,8 +333,8 @@
                         <button id="aiSuggestTagsBtn" onclick="window.suggestTags()" class="absolute right-2 bottom-2 bg-accent/20 text-accent px-3 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-accent hover:text-slate-950 transition-all">AI Suggest</button>
                     </div>
                     <div>
-                        <label id="labelVisual" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2">Image Keyword (e.g. Nature)</label>
-                        <input type="text" id="pollVisualInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold" placeholder="Visual keyword">
+                        <label id="labelVisual" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
+                        <input type="text" id="pollVisualInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold" placeholder="">
                     </div>
                 </div>
                 <div><label id="optionsLabel" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
@@ -355,7 +358,7 @@
         import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, arrayUnion, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-        // i18n Dictionary
+        // 多言語化設定
         const i18n = {
             ja: {
                 appName: "Mix Vote", signin: "サインイン", logout: "ログアウト", newPoll: "新規アンケート", categories: "カテゴリー", all: "全て",
@@ -376,7 +379,7 @@
                 aiAnalyzing: "AIが分析中...", aiInsightTitle: "AIインサイト", copied: "コピーしました", appearance: "外観設定",
                 accentPresets: "アクセントカラー", customColors: "カラーカスタマイズ", background: "背景色", mainText: "メイン文字色", reset: "デフォルトに戻す",
                 voteOrigin: "投票地域の分布", downloadCard: "結果カードをダウンロード", searchPlaceholder: "検索または#タグ...", labelTags: "ハッシュタグ (例: #Food #Travel)",
-                labelVisual: "画像キーワード (例: 宇宙, カフェ)"
+                labelVisual: "画像キーワード (日本語OK! 例: 宇宙, カフェ)"
             },
             en: {
                 appName: "Mix Vote", signin: "Sign In", logout: "Logout", newPoll: "New Poll", categories: "Categories", all: "All",
@@ -397,11 +400,9 @@
                 aiAnalyzing: "AI is analyzing...", aiInsightTitle: "AI Insight", copied: "Copied", appearance: "Appearance",
                 accentPresets: "Accent Presets", customColors: "Custom Colors", background: "Background", mainText: "Main Text", reset: "Reset Default",
                 voteOrigin: "Vote Origin Distribution", downloadCard: "Download Result Card", searchPlaceholder: "Search or #tags...", labelTags: "Hashtags (e.g. #Food #Travel)",
-                labelVisual: "Image Keyword (e.g. Space, Coffee)"
+                labelVisual: "Image Keyword (Japanese OK! e.g. Space, Coffee)"
             }
         };
-
-        const themes = { 'default': { accent: '#06b6d4', bg: '#020617', text: '#f1f5f9' } };
 
         const userLang = navigator.language || navigator.userLanguage;
         let currentLang = userLang.startsWith('ja') ? 'ja' : 'en';
@@ -431,7 +432,7 @@
             }
         };
 
-        // Firebase Setup
+        // Firebase 
         const firebaseConfig = JSON.parse('{"apiKey":"AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE","authDomain":"mixvotesurvey.firebaseapp.com","projectId":"mixvotesurvey","messagingSenderId":"352307389497","appId":"1:352307389497:web:0939fd29452d6c6afc59e8"}');
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -601,11 +602,13 @@
                 div.onclick = () => goDetail(p.id);
                 div.className = "poll-card glass rounded-[32px] cursor-pointer flex flex-col justify-between border border-white/5";
                 
+                // 画像取得ロジックの改善
+                const randomId = p.id.substring(0, 4);
                 const imgSrc = p.imageUrl || `https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=80`;
                 
                 div.innerHTML = `
                     <div class="relative w-full">
-                        <img src="${imgSrc}" class="poll-card-img" alt="Poll Image">
+                        <img src="${imgSrc}" class="poll-card-img" alt="Poll Image" onerror="this.src='https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=80'">
                         <div class="absolute bottom-4 left-4 right-4">
                              <span class="text-[10px] font-black px-3 py-1 rounded-full bg-accent text-slate-950 uppercase tracking-widest shadow-lg">${getCatName(p.category)}</span>
                         </div>
@@ -645,7 +648,7 @@
             let html = `<div class="mt-10 p-8 glass rounded-[32px] border border-white/5 w-full"><h4 class="text-[10px] font-black uppercase tracking-widest opacity-50 mb-6 text-center">${t('voteOrigin')}</h4><div class="space-y-4">`;
             sorted.forEach(([code, count]) => {
                 const per = Math.round(count/total*100);
-                html += `<div><div class="flex justify-between items-center mb-1.5 px-1"><span class="text-[10px] font-bold uppercase tracking-widest">${code}</span><span class="text-[10px] font-black text-accent">${per}%</span></div><div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: ${per}%"></div></div></div>`;
+                html += `<div><div class="flex justify-between items-center mb-1.5 px-1 text-current"><span class="text-[10px] font-bold uppercase tracking-widest">${code}</span><span class="text-[10px] font-black text-accent">${per}%</span></div><div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: ${per}%"></div></div></div>`;
             });
             return html + `</div></div>`;
         };
@@ -662,7 +665,7 @@
 
             detailEl.innerHTML = `
                 <div class="w-full h-64 relative">
-                    <img src="${imgSrc}" class="w-full h-full object-cover opacity-40">
+                    <img src="${imgSrc}" class="w-full h-full object-cover opacity-40" onerror="this.src='https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                     <div class="absolute bottom-8 left-8 right-8">
                         <div class="flex flex-wrap items-center gap-4 mb-4">
@@ -689,26 +692,25 @@
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
                         <div class="space-y-4 text-current">
-                            ${p.options.map((opt, idx)=>{const v=originalPollData.votes[idx]||0; const per=total>0?Math.round(v/total*100):0; if(hasVoted||isExp){return `<div class="relative overflow-hidden bg-slate-950/20 border border-white/5 rounded-3xl p-6 flex justify-between items-center group"><div class="absolute inset-y-0 left-0 bg-accent/10" style="width:${per}%"></div><span class="z-10 font-bold text-lg">${opt}</span><div class="z-10 text-right"><div class="font-black text-2xl tracking-tighter">${per}%</div><div class="text-[8px] uppercase font-black tracking-widest opacity-60">${v} ${t('votes')}</div></div></div>`}else if(isResultVisible){return `<button onclick="window.handleVote(${idx})" class="w-full relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all" style="width:${per}%"></div><div class="flex items-center gap-4 z-10"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight">${opt}</span></div><div class="z-10 text-right"><div class="font-black text-accent/40 group-hover:text-accent text-2xl tracking-tighter">${per}%</div></div></button>`}else{return `<button onclick="window.handleVote(${idx})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex items-center gap-4 text-current"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl text-current">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight">${opt}</span></button>`}}).join('')}
-                        </div>
-                        <div class="flex flex-col justify-center items-center">
-                            ${isResultVisible?`
-                            <div class="chart-container">
-                                <canvas id="pollChart"></canvas>
-                            </div>
-                            <div id="aiInsightContainer" class="w-full mt-8"></div>
-                            ${renderOriginStats(originalPollData.countries)}
-                            `:`<div class="text-center p-20 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-700 uppercase text-xs font-black tracking-widest flex flex-col items-center gap-4"><i class="fas fa-lock text-3xl"></i><span>${t('unlockResults')}</span></div>`}
-                        </div>
+                            ${p.options.map((opt, idx)=>{const v=originalPollData.votes[idx]||0; const per=total>0?Math.round(v/total*100):0; if(hasVoted||isExp){return `<div class="relative overflow-hidden bg-slate-950/20 border border-white/5 rounded-3xl p-6 flex justify-between items-center group"><div class="absolute inset-y-0 left-0 bg-accent/10" style="width:${per}%"></div><span class="z-10 font-bold text-lg text-current">${opt}</span><div class="z-10 text-right"><div class="font-black text-2xl tracking-tighter text-current">${per}%</div><div class="text-[8px] uppercase font-black tracking-widest opacity-60">${v} ${t('votes')}</div></div></div>`}else if(isResultVisible){return `<button onclick="window.handleVote(${idx})" class="w-full relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all" style="width:${per}%"></div><div class="flex items-center gap-4 z-10"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-current">${opt}</span></div><div class="z-10 text-right"><div class="font-black text-accent/40 group-hover:text-accent text-2xl tracking-tighter">${per}%</div></div></button>`}else{return `<button onclick="window.handleVote(${idx})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex items-center gap-4 text-current"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl text-current">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-current">${opt}</span></button>`}}).join('')}
                     </div>
-                    <div class="flex flex-wrap gap-4 pt-10 border-t border-white/5 items-center">
-                        <span class="text-[10px] font-black uppercase tracking-widest opacity-50 text-current">${t('share')}:</span>
-                        <button onclick="window.downloadShareCard()" class="px-6 py-2 glass rounded-xl text-accent font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-accent hover:text-slate-950 transition-all">
-                            <i class="fas fa-download"></i> ${t('downloadCard')}
-                        </button>
-                        <button onclick="window.copyUrl()" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-accent hover:opacity-70"><i class="fas fa-link"></i></button>
-                        ${user && originalPollData.authorID === user.uid?`<div class="ml-auto flex gap-6"><button onclick="window.handleEdit('${originalPollData.id}')" class="text-[10px] font-black uppercase underline decoration-2 underline-offset-4 opacity-50 hover:opacity-100 text-current">${t('edit')}</button><button onclick="window.handleDelete('${originalPollData.id}')" class="text-[10px] text-red-500/50 font-black uppercase underline decoration-2 underline-offset-4 hover:text-red-500 transition-all">${t('delete')}</button></div>`:''}
+                    <div class="flex flex-col justify-center items-center">
+                        ${isResultVisible?`
+                        <div class="chart-container">
+                            <canvas id="pollChart"></canvas>
+                        </div>
+                        <div id="aiInsightContainer" class="w-full mt-8"></div>
+                        ${renderOriginStats(originalPollData.countries)}
+                        `:`<div class="text-center p-20 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-700 uppercase text-xs font-black tracking-widest flex flex-col items-center gap-4"><i class="fas fa-lock text-3xl"></i><span>${t('unlockResults')}</span></div>`}
                     </div>
+                </div>
+                <div class="flex flex-wrap gap-4 pt-10 border-t border-white/5 items-center px-8 md:px-14 pb-14">
+                    <span class="text-[10px] font-black uppercase tracking-widest opacity-50 text-current">${t('share')}:</span>
+                    <button onclick="window.downloadShareCard()" class="px-6 py-2 glass rounded-xl text-accent font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-accent hover:text-slate-950 transition-all">
+                        <i class="fas fa-download"></i> ${t('downloadCard')}
+                    </button>
+                    <button onclick="window.copyUrl()" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-accent hover:opacity-70 transition-all"><i class="fas fa-link"></i></button>
+                    ${user && originalPollData.authorID === user.uid?`<div class="ml-auto flex gap-6"><button onclick="window.handleEdit('${originalPollData.id}')" class="text-[10px] font-black uppercase underline decoration-2 underline-offset-4 opacity-50 hover:opacity-100 text-current">${t('edit')}</button><button onclick="window.handleDelete('${originalPollData.id}')" class="text-[10px] text-red-500/50 font-black uppercase underline decoration-2 underline-offset-4 hover:text-red-500 transition-all">${t('delete')}</button></div>`:''}
                 </div>
             `;
             if (isResultVisible) renderChart(originalPollData);
@@ -727,21 +729,11 @@
             canvas.width = 1200; canvas.height = 630;
             const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
             const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-main').trim();
-
-            // 背景とメイン画像
             ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // アンケート画像を薄く背景に
             if (originalPollData.imageUrl) {
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.src = originalPollData.imageUrl;
-                await new Promise(r => img.onload = r);
-                ctx.globalAlpha = 0.3;
-                ctx.drawImage(img, 0, 0, 1200, 630);
-                ctx.globalAlpha = 1.0;
+                const img = new Image(); img.crossOrigin = "anonymous"; img.src = originalPollData.imageUrl;
+                try { await new Promise(r => { img.onload = r; img.onerror = r; }); ctx.globalAlpha = 0.3; ctx.drawImage(img, 0, 0, 1200, 630); ctx.globalAlpha = 1.0; } catch(e) {}
             }
-
             ctx.fillStyle = accent; ctx.globalAlpha = 0.1; ctx.beginPath(); ctx.arc(1200, 0, 400, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0;
             ctx.fillStyle = "#ffffff"; ctx.font = "bold 60px sans-serif";
             const title = originalPollData.title.toUpperCase(); ctx.fillText(title.length > 30 ? title.substring(0, 27) + '...' : title, 80, 150);
@@ -808,21 +800,17 @@
                 if(!coms.length) { list.innerHTML=`<p class="text-center opacity-40 uppercase text-[9px] font-black py-16 tracking-widest text-current">${currentLang==='ja'?'議論はまだありません':'No discussions yet'}</p>`; return; }
                 coms.forEach(c => {
                     const div = document.createElement('div'); div.className = "p-7 rounded-[32px] bg-white/5 border border-white/5 flex justify-between items-start group text-current";
-                    div.innerHTML = `<div><div class="flex gap-3 items-center mb-3"><span class="text-[10px] font-black text-accent uppercase tracking-tighter">${maskName(c.author)}</span><span class="text-[7px] font-bold uppercase tracking-widest opacity-40">${formatDate(c.createdAt)}</span></div><p class="text-sm leading-relaxed font-medium opacity-80">${c.text}</p></div>${user && c.userId===user.uid?`<button onclick="window.deleteComment('${c.id}')" class="text-[8px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100">${t('delete')}</button>`:''}`;
+                    div.innerHTML = `<div><div class="flex gap-3 items-center mb-3 text-current"><span class="text-[10px] font-black text-accent uppercase tracking-tighter">${maskName(c.author)}</span><span class="text-[7px] font-bold uppercase tracking-widest opacity-40">${formatDate(c.createdAt)}</span></div><p class="text-sm leading-relaxed font-medium opacity-80">${c.text}</p></div>${user && c.userId===user.uid?`<button onclick="window.deleteComment('${c.id}')" class="text-[8px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100">${t('delete')}</button>`:''}`;
                     list.appendChild(div);
                 });
             }, (err)=>{});
         };
 
         window.suggestTags = async () => {
-            const title = document.getElementById('pollTitleInput').value.trim();
-            if (!title) return;
+            const title = document.getElementById('pollTitleInput').value.trim(); if (!title) return;
             const btn = document.getElementById('aiSuggestTagsBtn'); btn.innerHTML = `<i class="fas fa-sync fa-spin"></i>`;
-            const prompt = `Based on poll title "${title}", suggest 3 relevant hashtags starting with #. Output ONLY the hashtags separated by spaces.`;
-            try {
-                const tags = await callGemini(prompt);
-                document.getElementById('pollTagsInput').value = tags.trim();
-            } catch (e) {}
+            const prompt = `Based on poll title "${title}", suggest 3 relevant hashtags starting with #. Output ONLY the hashtags separated by spaces. Works for both Japanese and English.`;
+            try { const tags = await callGemini(prompt); document.getElementById('pollTagsInput').value = tags.trim(); } catch (e) {}
             btn.innerHTML = "AI Suggest";
         };
 
@@ -839,7 +827,10 @@
             const tags = document.getElementById('pollTagsInput').value.split(' ').filter(s => s.startsWith('#'));
             if(!title||rawOptions.length<2) return showMessage(t('alertInvalid'), "");
             
-            const imageUrl = visual ? `https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80&${encodeURIComponent(visual)}` : null;
+            // 日本語キーワード対応の画像URL生成ロジック
+            // 特定のベースIDではなく、Unsplash Source (または検索APIライクなパラメータ) を使用
+            const sig = Math.floor(Math.random() * 1000);
+            const imageUrl = visual ? `https://source.unsplash.com/800x600/?${encodeURIComponent(visual)}&sig=${sig}` : null;
 
             const data = { title, question: document.getElementById('pollDescInput').value, category: cat, options: rawOptions, tags: tags, imageUrl: imageUrl, visualKeyword: visual, deadline: document.getElementById('pollDeadlineInput').value ? new Date(document.getElementById('pollDeadlineInput').value) : null, is_quiz: cat === "クイズ", correct_index: cat === "クイズ" ? parseInt(document.getElementById('pollCorrectIndexInput').value || 0) : null, explanation: document.getElementById('pollExplanationInput').value, updatedAt: serverTimestamp() };
             if(editMode){ await updateDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', editPollId), data); } 
