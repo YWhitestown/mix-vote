@@ -47,6 +47,7 @@
             to { transform: translate(100px, 100px) scale(1.2); }
         }
 
+        /* グラスモーフィズム */
         .glass { 
             background: var(--glass-bg); 
             backdrop-filter: blur(16px); 
@@ -94,6 +95,7 @@
             cursor: pointer;
         }
 
+        /* カラーピッカーの外観調整 */
         input[type="color"] {
             -webkit-appearance: none;
             border: none;
@@ -160,7 +162,7 @@
                 <h2 id="tosTitle" class="text-3xl font-extrabold tracking-tight text-white uppercase">Agreement</h2>
             </div>
             <div id="tosContent" class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-400"></div>
-            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-accent to-blue-600 text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-accent/40 active:scale-95 uppercase tracking-widest text-lg">
+            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-accent to-blue-600 text-white font-black py-6 rounded-2xl transition-all shadow-2xl shadow-accent/40 active:scale-95 uppercase tracking-widest text-lg md:text-xl border border-white/10">
                 I Agree & Start
             </button>
         </div>
@@ -179,7 +181,7 @@
                     </div>
                 </div>
                 <div id="authArea" class="flex items-center gap-3 md:gap-4">
-                    <!-- カラーカスタマイザー -->
+                    <!-- カラーカスタマイザー（アクセント ＋ 背景 ＋ 文字色） -->
                     <div class="relative">
                         <button id="themeToggleBtn" class="glass p-2.5 rounded-xl text-slate-400 hover:text-accent transition-all" title="Customize Theme">
                             <i class="fas fa-palette text-lg"></i>
@@ -193,7 +195,7 @@
                                 <button onclick="setAccent('#10b981')" class="w-6 h-6 rounded-full bg-[#10b981] border-2 border-transparent hover:border-white/50 transition-all"></button>
                                 <button onclick="setAccent('#8b5cf6')" class="w-6 h-6 rounded-full bg-[#8b5cf6] border-2 border-transparent hover:border-white/50 transition-all"></button>
                             </div>
-                            <h4 id="customColorsTitle" class="text-[9px] font-black uppercase tracking-widest mb-4 opacity-50 text-white">Custom Colors</h4>
+                            <h4 id="customColorsTitle" class="text-[9px] font-black uppercase tracking-widest mb-4 opacity-50 text-white">Custom UI Colors</h4>
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between">
                                     <span class="text-[10px] font-bold text-white/70">Background</span>
@@ -222,6 +224,7 @@
         </header>
 
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 mt-10">
+            <!-- サイドバー -->
             <aside class="lg:col-span-3 space-y-8">
                 <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-accent to-blue-600 text-white font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-accent/20 active:scale-95 transition-all uppercase tracking-widest text-xs">
                     <i class="fas fa-plus-circle text-xl"></i> New Poll
@@ -239,6 +242,7 @@
                 </div>
             </aside>
 
+            <!-- メイン -->
             <main class="lg:col-span-9 space-y-16 pb-32">
                 <!-- Home View -->
                 <div id="view-home" class="space-y-14">
@@ -250,10 +254,12 @@
                             <div class="w-full">
                                 <h3 id="noticeLabel" class="font-black text-xs uppercase tracking-widest mb-1.5 italic text-accent">Notice</h3>
                                 <p id="noticeText" class="text-xs md:text-sm leading-relaxed font-medium opacity-80 mb-2"></p>
-                                <!-- ブラウザ翻訳案内を追加 -->
-                                <div class="bg-accent/5 p-3 rounded-xl border border-accent/10 flex items-center gap-3">
-                                    <i class="fas fa-globe text-accent text-sm"></i>
-                                    <p id="translateGuide" class="text-[10px] font-bold opacity-70 italic text-current"></p>
+                                <!-- ブラウザ翻訳案内 -->
+                                <div class="bg-accent/5 p-4 rounded-2xl border border-accent/10 flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full glass flex items-center justify-center shrink-0">
+                                        <i class="fas fa-globe text-accent"></i>
+                                    </div>
+                                    <p id="translateGuide" class="text-[11px] font-bold opacity-70 italic text-current leading-relaxed"></p>
                                 </div>
                             </div>
                         </div>
@@ -277,7 +283,7 @@
                     <div id="pollDetailContent" class="glass rounded-[40px] p-8 md:p-14 border border-white/10 shadow-2xl space-y-12"></div>
                     
                     <div class="glass rounded-[40px] p-8 md:p-12 border border-white/10">
-                        <h3 id="discussionTitle" class="text-2xl font-black mb-10 uppercase tracking-widest italic"><i class="far fa-comment-dots text-accent"></i> Discussion</h3>
+                        <h3 id="discussionTitle" class="text-2xl font-black mb-10 uppercase tracking-widest italic text-current"><i class="far fa-comment-dots text-accent"></i> Discussion</h3>
                         <div id="commentInputArea" class="hidden mb-12 relative">
                             <textarea id="commentText" maxlength="200" class="w-full bg-black/20 border border-white/10 rounded-3xl p-6 text-current outline-none focus:ring-2 focus:ring-accent/50 placeholder:opacity-30 font-medium" rows="3"></textarea>
                             <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-accent to-blue-600 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">送信</button>
@@ -412,18 +418,18 @@
         let originalPollData = null;
         let translatedData = null;
 
-        // カラーテーマ制御
+        // カラーカスタマイズ制御
         window.setAccent = (color) => {
             document.documentElement.style.setProperty('--accent', color);
             const r = parseInt(color.slice(1,3), 16), g = parseInt(color.slice(3,5), 16), b = parseInt(color.slice(5,7), 16);
             document.documentElement.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.4)`);
             localStorage.setItem('mixvote_accent', color);
-            document.getElementById('themeMenu').classList.add('hidden');
         };
 
         window.setBgColor = (color) => {
             document.documentElement.style.setProperty('--bg-main', color);
             localStorage.setItem('mixvote_bg', color);
+            // 文字色とのコントラストのためのガラス質自動調整
             const isLight = (parseInt(color.slice(1,3), 16) + parseInt(color.slice(3,5), 16) + parseInt(color.slice(5,7), 16)) > 400;
             const glassBg = isLight ? 'rgba(255, 255, 255, 0.7)' : 'rgba(15, 23, 42, 0.6)';
             const glassBorder = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
@@ -615,7 +621,7 @@
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 py-6">
                     <div class="space-y-4">
-                        ${p.options.map((opt, idx)=>{const v=originalPollData.votes[idx]||0; const per=total>0?Math.round(v/total*100):0; if(hasVoted||isExp){return `<div class="relative overflow-hidden bg-slate-950/20 border border-white/5 rounded-3xl p-6 flex justify-between items-center group"><div class="absolute inset-y-0 left-0 bg-accent/10" style="width:${per}%"></div><span class="z-10 font-bold text-lg text-current">${opt}</span><div class="z-10 text-right"><div class="font-black text-2xl tracking-tighter text-current">${per}%</div><div class="text-[8px] uppercase font-black tracking-widest opacity-60">${v} ${t('votes')}</div></div></div>`}else if(isResultVisible){return `<button onclick="window.handleVote(${idx})" class="w-full relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all" style="width:${per}%"></div><div class="flex items-center gap-4 z-10"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-current">${opt}</span></div><div class="z-10 text-right"><div class="font-black text-accent/40 group-hover:text-accent text-2xl tracking-tighter">${per}%</div></div></button>`}else{return `<button onclick="window.handleVote(${idx})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex items-center gap-4"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl text-current">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-current">${opt}</span></button>`}}).join('')}
+                        ${p.options.map((opt, idx)=>{const v=originalPollData.votes[idx]||0; const per=total>0?Math.round(v/total*100):0; if(hasVoted||isExp){return `<div class="relative overflow-hidden bg-slate-950/20 border border-white/5 rounded-3xl p-6 flex justify-between items-center group"><div class="absolute inset-y-0 left-0 bg-accent/10" style="width:${per}%"></div><span class="z-10 font-bold text-lg text-current">${opt}</span><div class="z-10 text-right"><div class="font-black text-2xl tracking-tighter text-current">${per}%</div><div class="text-[8px] uppercase font-black tracking-widest opacity-60">${v} ${t('votes')}</div></div></div>`}else if(isResultVisible){return `<button onclick="window.handleVote(${idx})" class="w-full relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all" style="width:${per}%"></div><div class="flex items-center gap-4 z-10"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl text-current">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-current">${opt}</span></div><div class="z-10 text-right"><div class="font-black text-accent/40 group-hover:text-accent text-2xl tracking-tighter">${per}%</div></div></button>`}else{return `<button onclick="window.handleVote(${idx})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex items-center gap-4"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl text-current">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-current">${opt}</span></button>`}}).join('')}
                     </div>
                     <div class="flex flex-col justify-center items-center gap-8">
                         ${isResultVisible?`
@@ -641,8 +647,7 @@
             const container = document.getElementById('aiInsightContainer'); if(!container) return;
             container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/20 flex flex-col items-center gap-3"><i class="fas fa-sparkles ai-loading text-2xl"></i><p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${t('aiAnalyzing')}</p></div>`;
             const total = pollData.votes.reduce((s,v)=>s+v,0); const per = Math.round(pollData.votes[idx]/total*100);
-            const prompt = `Based on this poll result, give a short, encouraging 1-sentence comment in ${currentLang === 'ja' ? 'Japanese' : 'English'} to the user who chose "${pollData.options[idx]}".
-            Poll: ${pollData.title}, Category: ${pollData.category}, Stats: ${per}%. Be soulful and human. No robot talk.`;
+            const prompt = `Based on this poll result, give a short, encouraging 1-sentence comment in ${currentLang === 'ja' ? 'Japanese' : 'English'} to the user who chose "${pollData.options[idx]}". Poll: ${pollData.title}, Stats: ${per}%. Be soulful and human. No robot talk.`;
             try {
                 const insight = await callGemini(prompt);
                 container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/30 animate-in fade-in slide-in-from-bottom-2 duration-700 text-current">
@@ -658,7 +663,9 @@
             btn.innerHTML = `<i class="fas fa-sync fa-spin"></i> ${t('translating')}`; btn.disabled = true;
             try {
                 const target = currentLang === 'ja' ? 'Japanese' : 'English';
-                const prompt = `Translate this poll content (title, question, and all options) to ${target}: {title: "${originalPollData.title}", question: "${originalPollData.question||''}", options: ${JSON.stringify(originalPollData.options)}}. Return valid JSON only with properties 'title', 'question', and 'options' (array of strings).`;
+                const prompt = `Translate this poll content into ${target}. Output ONLY valid JSON: {"title": "translated string", "question": "translated string or empty", "options": ["translated option 1", "translated option 2", ...], "explanation": "translated explanation or empty"}. 
+                Data: Title: ${originalPollData.title}, Question: ${originalPollData.question || ""}, Options: ${JSON.stringify(originalPollData.options)}, Explanation: ${originalPollData.explanation || ""}`;
+                
                 const data = await callGemini(prompt, true);
                 if (data && data.title) {
                     translatedData = { ...originalPollData, ...data };
