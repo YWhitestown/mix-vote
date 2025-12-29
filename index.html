@@ -105,6 +105,26 @@
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
 
+    <!-- Initial Loading State with Troubleshooting Help -->
+    <div id="loadingOverlay" class="fixed inset-0 z-[300] bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+        <h2 class="text-xl font-black text-white italic uppercase tracking-widest mb-2">Initializing Core</h2>
+        <p class="text-slate-500 text-xs mb-8" data-i18n="loading_desc">Connecting to MixVote securely...</p>
+        
+        <!-- Troubleshooting Section (Hidden by default, shown after delay) -->
+        <div id="troubleshootingHint" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-1000 max-w-sm">
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 text-left">
+                <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i> <span data-i18n="trouble_title">読み込みが終わらない場合</span>
+                </h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-4" data-i18n="trouble_desc">ブラウザの追跡防止機能やサードパーティCookieの制限により、認証がブロックされている可能性があります。</p>
+                <button onclick="showTroubleshooting()" class="w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest transition-all">
+                    <i class="fas fa-tools mr-2"></i> <span data-i18n="view_solutions">解決策を表示</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOS Modal -->
     <div id="tosModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
         <div class="glass max-w-2xl w-full rounded-3xl p-8 shadow-2xl border border-cyan-500/20">
@@ -131,6 +151,28 @@
             <button id="agreeTosBtn" class="btn-glow w-full mt-8 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-xl transition-all shadow-lg shadow-cyan-500/20 active:scale-95 uppercase tracking-widest text-xs" data-i18n="tos_agree">
                 同意して入室する
             </button>
+        </div>
+    </div>
+
+    <!-- Troubleshooting Detailed Modal -->
+    <div id="troubleModal" class="fixed inset-0 z-[400] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4">
+        <div class="glass max-w-lg w-full rounded-[32px] p-8 border border-white/10 shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
+            <h2 class="text-2xl font-black text-white italic uppercase tracking-tighter mb-6" data-i18n="solutions_title">トラブル解決の手順</h2>
+            <div class="space-y-6 text-sm text-slate-300">
+                <section>
+                    <h3 class="text-cyan-400 font-bold mb-2">1. Microsoft Edge をお使いの場合</h3>
+                    <p class="mb-3 text-xs leading-relaxed" data-i18n="edge_fix_1">アドレスバー左側の 🛡️（盾）または 🔒（鍵）アイコンをクリックし、「このサイトの追跡防止」をオフにしてください。</p>
+                    <p class="text-xs leading-relaxed" data-i18n="edge_fix_2">設定 ＞ Cookie とサイトのアクセス許可 ＞ 「サードパーティの Cookie をブロックする」をオフにすることでも改善します。</p>
+                </section>
+                <section>
+                    <h3 class="text-cyan-400 font-bold mb-2">2. Google Chrome で試す</h3>
+                    <p class="text-xs leading-relaxed" data-i18n="chrome_check">Chromeでは比較的標準設定で動作しやすいため、Edgeで止まる場合はChromeをお試しください。</p>
+                </section>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <p class="text-[10px] text-slate-500 font-bold italic" data-i18n="fundamental_fix">根本的な解決: Firebase Hosting等、同一ドメインでの配信を推奨します。</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('troubleModal').classList.add('hidden')" class="w-full mt-8 bg-slate-800 text-white font-bold py-4 rounded-xl text-xs uppercase tracking-widest hover:bg-slate-700 transition-colors" data-i18n="close">閉じる</button>
         </div>
     </div>
 
@@ -401,7 +443,14 @@
                 no_data: "データが見つかりませんでした", no_polls: "まだアンケートを作成していません", no_comments: "まだコメントはありません",
                 ended: "終了", active: "実施中", report: "通報", copy: "結果をコピー", votes: "投票", unlock: "投票して結果を表示",
                 voted_notice: "すでに投票済みです。", auth_required: "サインインが必要です。", error_missing: "タイトルと2つ以上の選択肢が必要です。",
-                delete_confirm: "このアンケートをアーカイブ（削除）しますか？", delete_comment_confirm: "コメントを削除しますか？"
+                delete_confirm: "このアンケートをアーカイブ（削除）しますか？", delete_comment_confirm: "コメントを削除しますか？",
+                loading_desc: "安全に接続中...", trouble_title: "読み込みが終わらない場合", 
+                trouble_desc: "ブラウザの追跡防止機能により認証がブロックされている可能性があります。",
+                view_solutions: "解決策を表示", solutions_title: "トラブル解決の手順",
+                edge_fix_1: "アドレスバー左側の 🛡️ または 🔒 アイコンから「このサイトの追跡防止」をオフにしてください。",
+                edge_fix_2: "「Cookie とサイトのアクセス許可」でサードパーティCookieを許可することでも改善します。",
+                chrome_check: "Edgeで動作しない場合は Chrome での閲覧をお試しください。",
+                fundamental_fix: "根本解決: Firebase Hosting等、同一ドメインでの配信を推奨します。"
             },
             en: {
                 signin: "Sign In", home: "Home", mypage: "My Page", create_btn: "New Poll", category_title: "Categories",
@@ -419,7 +468,14 @@
                 no_data: "No data found", no_polls: "You haven't created any polls yet", no_comments: "No comments yet",
                 ended: "Ended", active: "Active", report: "Report", copy: "Copy Results", votes: "Votes", unlock: "Vote to unlock results",
                 voted_notice: "Already voted.", auth_required: "Sign in required.", error_missing: "Title and at least 2 options are required.",
-                delete_confirm: "Archive this poll?", delete_comment_confirm: "Delete comment?"
+                delete_confirm: "Archive this poll?", delete_comment_confirm: "Delete comment?",
+                loading_desc: "Securely connecting...", trouble_title: "Stuck on loading?", 
+                trouble_desc: "Browser tracking prevention might be blocking the authentication.",
+                view_solutions: "View Solutions", solutions_title: "Troubleshooting Steps",
+                edge_fix_1: "Click the 🛡️ or 🔒 icon in the address bar and turn off 'Tracking prevention for this site'.",
+                edge_fix_2: "Enabling 'Third-party cookies' in browser settings may also help.",
+                chrome_check: "If Edge fails, please try using Google Chrome.",
+                fundamental_fix: "Fundamental fix: Serving from the same domain (Firebase Hosting) is recommended."
             }
         };
 
@@ -443,10 +499,10 @@
             });
 
             // HTML based translation
-            document.getElementById('latest_polls_label').innerHTML = t.latest_polls_html;
-            document.getElementById('trending_label').innerHTML = t.trending_html;
-            document.getElementById('globalSearch').placeholder = t.search_placeholder;
-            document.getElementById('langLabel').textContent = currentLang === 'ja' ? 'EN' : 'JP';
+            const lp = document.getElementById('latest_polls_label'); if(lp) lp.innerHTML = t.latest_polls_html;
+            const tr = document.getElementById('trending_label'); if(tr) tr.innerHTML = t.trending_html;
+            const gs = document.getElementById('globalSearch'); if(gs) gs.placeholder = t.search_placeholder;
+            const ll = document.getElementById('langLabel'); if(ll) ll.textContent = currentLang === 'ja' ? 'EN' : 'JP';
 
             setupCategoryMenu();
             if (window.location.hash.startsWith('#poll/')) loadPollDetail(currentPollId);
@@ -459,14 +515,13 @@
             localStorage.setItem('mixvote_lang', currentLang);
             applyLanguage();
         };
-        document.getElementById('langToggleBtn').onclick = toggleLanguage;
+        const ltb = document.getElementById('langToggleBtn'); if(ltb) ltb.onclick = toggleLanguage;
 
         // --- Utils ---
         const maskName = (name) => name ? '●●●' : 'Anonymous';
 
         const showMessage = (title, body, onConfirm = null) => {
-            const modal = document.getElementById('msgModal');
-            if (!modal) return;
+            const modal = document.getElementById('msgModal'); if (!modal) return;
             document.getElementById('msgTitle').textContent = title;
             document.getElementById('msgBody').textContent = body;
             const confirmBtn = document.getElementById('msgConfirmBtn');
@@ -484,13 +539,28 @@
 
         const isAnonymous = () => !currentUser || currentUser.isAnonymous;
 
+        window.showTroubleshooting = () => {
+            document.getElementById('troubleModal').classList.remove('hidden');
+        };
+
         // --- Auth ---
         const initAuth = async () => {
+            // Show troubleshooting hint after 5 seconds of loading
+            const timer = setTimeout(() => {
+                const hint = document.getElementById('troubleshootingHint');
+                if (hint) hint.classList.remove('hidden');
+            }, 5000);
+
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else { await signInAnonymously(auth); }
-            } catch (err) { if (!auth.currentUser) await signInAnonymously(auth).catch(() => {}); }
+                clearTimeout(timer);
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            } catch (err) { 
+                console.error("Auth initialization failed:", err);
+                if (!auth.currentUser) await signInAnonymously(auth).catch(() => {});
+            }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -504,7 +574,10 @@
             if (userInfo) userInfo.style.display = authenticated ? 'flex' : 'none';
             if (openCreateBtn) openCreateBtn.style.display = authenticated ? 'flex' : 'none';
             if (navMyPageBtn) navMyPageBtn.classList.toggle('hidden', !authenticated);
-            if (authenticated) document.getElementById('userName').textContent = maskName(user.displayName);
+            if (authenticated) {
+                const un = document.getElementById('userName'); if(un) un.textContent = maskName(user.displayName);
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
             const cia = document.getElementById('commentInputArea'), cln = document.getElementById('commentLoginNotice');
             if (cia) cia.classList.toggle('hidden', !authenticated);
             if (cln) cln.classList.toggle('hidden', authenticated);
@@ -522,24 +595,24 @@
         // --- Navigation ---
         window.goHome = () => {
             window.location.hash = '';
-            document.getElementById('view-home').classList.remove('hidden');
-            document.getElementById('view-detail').classList.add('hidden');
-            document.getElementById('view-mypage').classList.add('hidden');
+            const vh = document.getElementById('view-home'); if(vh) vh.classList.remove('hidden');
+            const vd = document.getElementById('view-detail'); if(vd) vd.classList.add('hidden');
+            const vm = document.getElementById('view-mypage'); if(vm) vm.classList.add('hidden');
             loadPolls();
         };
         const goDetail = (id) => {
             window.location.hash = `poll/${id}`;
-            document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-detail').classList.remove('hidden');
-            document.getElementById('view-mypage').classList.add('hidden');
+            const vh = document.getElementById('view-home'); if(vh) vh.classList.add('hidden');
+            const vd = document.getElementById('view-detail'); if(vd) vd.classList.remove('hidden');
+            const vm = document.getElementById('view-mypage'); if(vm) vm.classList.add('hidden');
             loadPollDetail(id);
         };
         window.goMyPage = () => {
             if (isAnonymous()) return;
             window.location.hash = 'mypage';
-            document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-detail').classList.add('hidden');
-            document.getElementById('view-mypage').classList.remove('hidden');
+            const vh = document.getElementById('view-home'); if(vh) vh.classList.add('hidden');
+            const vd = document.getElementById('view-detail'); if(vd) vd.classList.add('hidden');
+            const vm = document.getElementById('view-mypage'); if(vm) vm.classList.remove('hidden');
             loadMyPolls();
         };
         window.addEventListener('hashchange', () => {
@@ -548,7 +621,8 @@
             else if (h === '#mypage') goMyPage();
             else goHome();
         });
-        document.getElementById('agreeTosBtn').onclick = () => {
+        const atb = document.getElementById('agreeTosBtn');
+        if(atb) atb.onclick = () => {
             localStorage.setItem('mixvote_agreed', 'true');
             document.getElementById('tosModal').classList.add('hidden');
             document.getElementById('appUI').classList.remove('hidden');
@@ -577,7 +651,8 @@
             });
         };
 
-        document.getElementById('globalSearch').oninput = (e) => { searchTerm = e.target.value.toLowerCase(); loadPolls(); };
+        const gs = document.getElementById('globalSearch');
+        if(gs) gs.oninput = (e) => { searchTerm = e.target.value.toLowerCase(); loadPolls(); };
 
         // --- Data Handling ---
         const loadPolls = async () => {
@@ -633,8 +708,7 @@
         };
 
         const loadMyPolls = async () => {
-            const list = document.getElementById('myPollsList');
-            if (!list) return;
+            const list = document.getElementById('myPollsList'); if (!list) return;
             list.innerHTML = '<div class="text-center py-20"><div class="animate-spin w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full mx-auto"></div></div>';
             try {
                 const snapshot = await getDocs(collection(db, ...POLLS_PATH));
@@ -663,8 +737,7 @@
                         <div class="flex items-center gap-3">
                             <button onclick="openEditPoll('${p.id}')" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold uppercase tracking-widest transition-all">Edit</button>
                             <button onclick="handleDeletePoll('${p.id}')" class="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 text-[10px] font-bold uppercase tracking-widest transition-all">Delete</button>
-                        </div>
-                    `;
+                        </div>`;
                     list.appendChild(div);
                 });
             } catch (e) { console.error(e); }
@@ -815,7 +888,8 @@
             }, (err) => console.error(err));
         };
 
-        document.getElementById('postCommentBtn').onclick = async () => {
+        const pcb = document.getElementById('postCommentBtn');
+        if(pcb) pcb.onclick = async () => {
             if (isAnonymous()) return;
             const t = document.getElementById('commentText').value.trim(); if (!t) return;
             try {
@@ -831,15 +905,18 @@
         };
 
         // --- Create/Edit ---
-        document.getElementById('openCreateBtn').onclick = () => { 
+        const ocb = document.getElementById('openCreateBtn');
+        if(ocb) ocb.onclick = () => { 
             if (isAnonymous()) return;
             editMode = false; document.getElementById('modalTitle').textContent = UI_TEXT[currentLang].modal_create_title;
             document.getElementById('pollTitleInput').value = ""; document.getElementById('pollOptionsInput').value = "";
             document.getElementById('pollDescInput').value = ""; document.getElementById('pollOptionsInput').disabled = false;
             document.getElementById('createModal').classList.remove('hidden'); 
         };
-        document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
-        document.getElementById('savePollBtn').onclick = async () => {
+        const ccb = document.getElementById('cancelCreateBtn');
+        if(ccb) ccb.onclick = () => document.getElementById('createModal').classList.add('hidden');
+        const spb = document.getElementById('savePollBtn');
+        if(spb) spb.onclick = async () => {
             if (isAnonymous()) return;
             const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').filter(s=>s.trim());
             const catKey = document.getElementById('pollCategoryInput').value, dl = document.getElementById('pollDeadlineInput').value;
@@ -877,7 +954,6 @@
                 document.getElementById('pollCorrectIndexInput').value = p.correct_index || 0;
                 document.getElementById('pollExplanationInput').value = p.explanation || "";
             }
-            // Trigger UI update for category specific fields
             const event = new Event('change'); document.getElementById('pollCategoryInput').dispatchEvent(event);
             document.getElementById('createModal').classList.remove('hidden'); 
         };
@@ -895,7 +971,6 @@
                 document.getElementById('quizFields').classList.toggle('hidden', cat !== "quiz");
                 if(cat === "aruaru") { oi.value = ARUARU_OPTIONS_TEXT; oi.disabled = true; }
                 else { if(oi.value === ARUARU_OPTIONS_TEXT) oi.value = ""; oi.disabled = false; }
-                // Update quiz correct options select
                 if (cat === "quiz") {
                     const sel = document.getElementById('pollCorrectIndexInput'); sel.innerHTML = '';
                     const opts = oi.value.split('\n').filter(s=>s.trim());
@@ -908,8 +983,9 @@
 
         const dpc = document.getElementById('deadlinePickerContainer');
         if (dpc) dpc.onclick = () => document.getElementById('pollDeadlineInput').showPicker();
-        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
-        document.getElementById('logoutBtn').onclick = () => auth.signOut();
+        
+        const lb = document.getElementById('loginBtn'); if(lb) lb.onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
+        const lob = document.getElementById('logoutBtn'); if(lob) lob.onclick = () => auth.signOut();
         
         initAuth();
     </script>
