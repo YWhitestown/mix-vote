@@ -56,34 +56,6 @@
             box-shadow: 0 0 20px var(--accent-glow);
         }
 
-        .btn-glow {
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-glow::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg);
-            transition: 0.5s;
-        }
-        .btn-glow:hover::after {
-            left: 120%;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        
-        .nav-link.active {
-            background: linear-gradient(90deg, var(--accent), #3b82f6);
-            color: #020617;
-        }
-
         .chart-container {
             position: relative;
             width: 100%;
@@ -104,6 +76,15 @@
         .ai-loading {
             animation: pulse-accent 1.5s infinite;
             color: var(--accent);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--accent), #3b82f6);
+            color: #020617;
         }
 
         .text-accent { color: var(--accent); }
@@ -130,7 +111,7 @@
 
     <!-- 利用規約モーダル -->
     <div id="tosModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
-        <div class="glass max-w-2xl w-full rounded-3xl p-8 shadow-2xl border border-cyan-500/20">
+        <div class="glass max-w-2xl w-full rounded-3xl p-8 shadow-2xl border border-white/10">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/50">
                     <i class="fas fa-shield-alt text-slate-900 text-xl"></i>
@@ -138,8 +119,8 @@
                 <h2 id="tosTitle" class="text-3xl font-extrabold tracking-tight text-white uppercase">Agreement</h2>
             </div>
             <div id="tosContent" class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-400"></div>
-            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-accent to-blue-500 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-accent/30 active:scale-95 uppercase tracking-widest">
-                同意して開始
+            <button id="agreeTosBtn" class="w-full mt-10 bg-gradient-to-r from-accent to-blue-500 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-accent/30 active:scale-95 uppercase tracking-widest">
+                I Agree & Start
             </button>
         </div>
     </div>
@@ -157,12 +138,12 @@
                     </div>
                 </div>
                 <div id="authArea" class="flex items-center gap-3 md:gap-4">
-                    <!-- カラーカスタマイザー -->
-                    <div class="relative group">
-                        <button class="glass p-2.5 rounded-xl text-slate-400 hover:text-accent transition-all">
+                    <!-- カラーカスタマイザー（クリック式メニューに改善） -->
+                    <div class="relative">
+                        <button id="themeToggleBtn" class="glass p-2.5 rounded-xl text-slate-400 hover:text-accent transition-all">
                             <i class="fas fa-palette text-lg"></i>
                         </button>
-                        <div class="absolute right-0 top-full mt-3 glass p-4 rounded-2xl hidden group-hover:block w-48 shadow-2xl z-[60]">
+                        <div id="themeMenu" class="absolute right-0 top-full mt-3 glass p-4 rounded-2xl hidden w-48 shadow-2xl z-[60] border border-white/10">
                             <div class="grid grid-cols-5 gap-2">
                                 <button onclick="setTheme('#06b6d4')" class="w-6 h-6 rounded-full bg-[#06b6d4] hover:scale-110 transition-transform" title="Cyber Blue"></button>
                                 <button onclick="setTheme('#ec4899')" class="w-6 h-6 rounded-full bg-[#ec4899] hover:scale-110 transition-transform" title="Neon Pink"></button>
@@ -174,12 +155,12 @@
                     </div>
                     <button id="langToggle" class="glass text-[10px] font-black uppercase tracking-widest px-3 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all">JP / EN</button>
                     <button id="loginBtn" class="glass hover:bg-white/10 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 border border-white/10 transition-all uppercase text-[10px] tracking-widest">
-                        <i class="fab fa-google text-accent"></i> サインイン
+                        <i class="fab fa-google text-accent"></i> Sign In
                     </button>
                     <div id="userInfo" class="hidden flex items-center gap-4 text-right">
                         <div>
                             <p id="userName" class="text-sm font-black text-slate-200"></p>
-                            <button id="logoutBtn" class="text-[10px] text-slate-500 hover:text-accent uppercase font-black tracking-widest">ログアウト</button>
+                            <button id="logoutBtn" class="text-[10px] text-slate-500 hover:text-accent uppercase font-black tracking-widest">Logout</button>
                         </div>
                     </div>
                 </div>
@@ -190,7 +171,7 @@
             <!-- サイドバー -->
             <aside class="lg:col-span-3 space-y-8">
                 <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-accent to-blue-600 text-slate-950 font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-accent/20 active:scale-95 transition-all uppercase tracking-widest text-xs">
-                    <i class="fas fa-plus-circle text-xl"></i> 新規アンケート
+                    <i class="fas fa-plus-circle text-xl"></i> New Poll
                 </button>
                 <div class="glass rounded-3xl p-6 border border-white/5">
                     <h3 id="catSidebarTitle" class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6 italic">Categories</h3>
@@ -207,7 +188,6 @@
 
             <!-- メインコンテンツ -->
             <main class="lg:col-span-9 space-y-16 pb-32">
-                <!-- ホームビュー -->
                 <div id="view-home" class="space-y-14">
                     <div class="glass rounded-[32px] p-6 border-l-4 border-accent">
                         <div class="flex items-start gap-5">
@@ -220,19 +200,16 @@
                             </div>
                         </div>
                     </div>
-
                     <section>
                         <h2 id="latestPollsTitle" class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter">Latest <span class="text-slate-500 font-normal not-italic">Polls</span></h2>
                         <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </section>
-                    
                     <section>
                         <h2 id="trendingPollsTitle" class="text-2xl font-black text-white italic mb-8 uppercase tracking-tighter">Trending <span class="text-slate-500 font-normal not-italic">Now</span></h2>
                         <div id="popularPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </section>
                 </div>
 
-                <!-- 詳細ビュー -->
                 <div id="view-detail" class="hidden space-y-10">
                     <button id="backToListBtn" onclick="goHome()" class="group flex items-center gap-3 text-slate-500 hover:text-white font-black uppercase tracking-widest text-[10px] transition-all">
                         <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-white"><i class="fas fa-chevron-left"></i></div>
@@ -254,7 +231,7 @@
         </div>
     </div>
 
-    <!-- 作成モーダル -->
+    <!-- モーダル -->
     <div id="createModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4">
         <div class="glass max-w-xl w-full rounded-[40px] p-10 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h2 id="modalTitle" class="text-3xl font-black mb-8 text-white italic tracking-tighter uppercase">Create <span class="text-accent">Poll</span></h2>
@@ -290,7 +267,6 @@
         import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, arrayUnion, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-        // i18n
         const i18n = {
             ja: {
                 appName: "Mix Vote", signin: "サインイン", logout: "ログアウト", newPoll: "新規アンケート", categories: "カテゴリー", all: "全て",
@@ -354,7 +330,7 @@
             }
         };
 
-        // Firebase 
+        // Firebase Setup
         const firebaseConfig = JSON.parse('{"apiKey":"AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE","authDomain":"mixvotesurvey.firebaseapp.com","projectId":"mixvotesurvey","messagingSenderId":"352307389497","appId":"1:352307389497:web:0939fd29452d6c6afc59e8"}');
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -372,13 +348,26 @@
         let originalPollData = null;
         let translatedData = null;
 
-        // カラーテーマ設定
+        // テーマ切替
         window.setTheme = (color) => {
             document.documentElement.style.setProperty('--accent', color);
             const r = parseInt(color.slice(1,3), 16), g = parseInt(color.slice(3,5), 16), b = parseInt(color.slice(5,7), 16);
             document.documentElement.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.4)`);
             localStorage.setItem('mixvote_theme', color);
+            // メニューを閉じる
+            document.getElementById('themeMenu').classList.add('hidden');
         };
+
+        // テーマメニューのトグル
+        document.getElementById('themeToggleBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('themeMenu').classList.toggle('hidden');
+        });
+
+        // 画面クリックでメニューを閉じる
+        document.addEventListener('click', () => {
+            document.getElementById('themeMenu').classList.add('hidden');
+        });
 
         const updateStaticUI = () => {
             document.getElementById('loginBtn').innerHTML = `<i class="fab fa-google text-accent"></i> ${t('signin')}`;
@@ -573,7 +562,7 @@
             const btn = document.getElementById('pollTranslateBtn'); const originalText = btn.innerHTML;
             btn.innerHTML = `<i class="fas fa-sync fa-spin"></i> ${t('translating')}`; btn.disabled = true;
             try {
-                const prompt = `Translate this poll to ${currentLang==='ja'?'Japanese':'English'}: {title: "${originalPollData.title}", question: "${originalPollData.question||''}", options: ${JSON.stringify(originalPollData.options)}}. Return valid JSON only.`;
+                const prompt = `Translate this poll content (title, question, and all options) to ${currentLang==='ja'?'Japanese':'English'}: {title: "${originalPollData.title}", question: "${originalPollData.question||''}", options: ${JSON.stringify(originalPollData.options)}}. Return valid JSON only with properties 'title', 'question', and 'options' (array of strings).`;
                 translatedData = await callGemini(prompt, true); renderPollDetailUI(translatedData);
             } catch (err) { btn.innerHTML = originalText; btn.disabled = false; }
         };
@@ -609,7 +598,7 @@
         document.getElementById('savePollBtn').onclick = async () => {
             const title = document.getElementById('pollTitleInput').value.trim(); const rawOptions = document.getElementById('pollOptionsInput').value.split('\n').filter(s=>s.trim()); const cat = document.getElementById('pollCategoryInput').value; const dl = document.getElementById('pollDeadlineInput').value;
             if(!title||rawOptions.length<2) return showMessage(t('alertInvalid'), "");
-            const data = { title, question: document.getElementById('pollDescInput').value, category: cat, options: rawOptions, deadline: dl?new Date(dl):null, is_quiz: cat==="クイズ", correct_index: cat==="クイズ"?parseInt(document.getElementById('pollCorrectIndexInput').value||0):null, explanation: document.getElementById('pollExplanationInput').value, updatedAt: serverTimestamp() };
+            const data = { title, question: document.getElementById('pollDescInput').value, category: cat, options: rawOptions, deadline: dl ? new Date(dl) : null, is_quiz: cat === "クイズ", correct_index: cat === "クイズ" ? parseInt(document.getElementById('pollCorrectIndexInput').value || 0) : null, explanation: document.getElementById('pollExplanationInput').value, updatedAt: serverTimestamp() };
             if(editMode){ await updateDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', editPollId), data); } 
             else { Object.assign(data, { author: user.displayName, authorID: user.uid, createdAt: serverTimestamp(), votes: new Array(rawOptions.length).fill(0), votedUsers: [], deleted: false }); await addDoc(POLLS_COLLECTION, data); }
             document.getElementById('createModal').classList.add('hidden'); loadPolls();
