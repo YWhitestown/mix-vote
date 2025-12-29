@@ -3,126 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mix Vote - 次世代投票プラットフォーム</title>
+    <title>Mix Vote - Next Gen Voting</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Noto+Sans+JP:wght@400;700&display=swap');
+    <style id="theme-style">
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;700&display=swap');
         
         :root {
             --accent: #06b6d4;
             --accent-glow: rgba(6, 182, 212, 0.4);
-            --bg-main: #020617;
+            --bg-dark: #020617;
             --text-main: #f1f5f9;
-            --glass-bg: rgba(15, 23, 42, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
         body { 
             font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif; 
-            background-color: var(--bg-main); 
+            background-color: var(--bg-dark); 
             color: var(--text-main);
             overflow-x: hidden;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* 動く背景グラデーション */
-        .bg-blob {
-            position: fixed;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(2, 6, 23, 0) 70%);
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(80px);
-            animation: move 20s infinite alternate;
-        }
-        .blob-1 { top: -100px; right: -100px; animation-duration: 25s; }
-        .blob-2 { bottom: -150px; left: -100px; background: radial-gradient(circle, var(--accent-glow) 0%, rgba(2, 6, 23, 0) 70%); animation-duration: 30s; opacity: 0.5; }
-
-        @keyframes move {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(100px, 100px) scale(1.2); }
-        }
+        .text-white { color: var(--text-main) !important; }
+        .bg-cyan-500 { background-color: var(--accent) !important; }
+        .text-cyan-400, .text-cyan-500 { color: var(--accent) !important; }
+        .border-cyan-500, .border-cyan-500\/20 { border-color: var(--accent) !important; }
 
         .glass { 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(16px); 
-            border: 1px solid var(--glass-border); 
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(24px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .poll-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: var(--glass-bg);
-            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .poll-card:hover {
             transform: translateY(-4px);
-            border-color: var(--accent);
-            box-shadow: 0 0 25px var(--accent-glow);
+            border-color: var(--accent) !important;
+            box-shadow: 0 20px 40px -20px var(--accent-glow);
         }
-
-        .poll-card-img {
-            height: 160px;
-            width: 100%;
-            object-fit: cover;
-            opacity: 0.6;
-            transition: opacity 0.3s ease;
-            background: #1e293b;
-        }
-        .poll-card:hover .poll-card-img {
-            opacity: 0.9;
-        }
-
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 340px;
-            margin: 0 auto;
-            height: 300px;
-        }
-
-        @keyframes pulse-accent {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .ai-loading {
-            animation: pulse-accent 1.5s infinite;
-            color: var(--accent);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        
-        .nav-link.active {
-            background: linear-gradient(90deg, var(--accent), #3b82f6);
-            color: #020617 !important;
-        }
-
-        input[type="color"] {
-            -webkit-appearance: none;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            cursor: pointer;
-            background: transparent;
-        }
-        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; }
-
-        .text-accent { color: var(--accent); }
-        .bg-accent { background-color: var(--accent); }
-        .border-accent { border-color: var(--accent); }
 
         .btn-glow {
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.3s;
         }
         .btn-glow::after {
             content: '';
@@ -133,636 +65,712 @@
             height: 200%;
             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
             transform: rotate(45deg);
-            transition: 0.5s;
+            transition: 0.6s;
         }
-        .btn-glow:hover::after {
-            left: 120%;
+        .btn-glow:hover::after { left: 120%; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        .nav-link.active {
+            background: var(--accent) !important;
+            color: var(--bg-dark) !important;
+            box-shadow: 0 10px 20px -5px var(--accent-glow);
+            border: none;
         }
 
-        #shareCanvas { display: none; }
+        input[type="checkbox"] {
+            accent-color: var(--accent);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade { animation: fadeIn 0.5s ease forwards; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen selection:bg-cyan-500 selection:text-slate-900">
 
-    <div class="bg-blob blob-1"></div>
-    <div class="bg-blob blob-2"></div>
-
-    <canvas id="shareCanvas"></canvas>
-
-    <!-- 通知モーダル -->
-    <div id="msgModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 text-center">
-        <div class="glass max-w-sm w-full rounded-[32px] p-8 border border-white/10 shadow-2xl">
-            <h3 id="msgTitle" class="text-xl font-black mb-4 uppercase tracking-widest italic text-white">Notification</h3>
-            <p id="msgBody" class="text-slate-400 text-sm mb-8 leading-relaxed font-medium"></p>
-            <div id="msgActions" class="flex gap-3">
-                <button id="msgCloseBtn" class="flex-1 bg-white/10 text-white font-bold py-4 rounded-2xl uppercase text-[10px] tracking-widest hover:bg-white/20 transition-colors">Close</button>
-                <button id="msgConfirmBtn" class="flex-1 bg-accent text-white font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest hidden">Confirm</button>
-            </div>
-        </div>
+    <!-- 認証ガードレイヤー -->
+    <div id="loadingLayer" class="fixed inset-0 z-[300] bg-slate-950 flex flex-col items-center justify-center gap-4">
+        <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+        <p id="loadingText" class="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-500">Initializing Core</p>
     </div>
 
     <!-- 利用規約モーダル -->
-    <div id="tosModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
-        <div class="glass max-w-2xl w-full rounded-3xl p-8 md:p-12 shadow-2xl border border-white/10 text-white">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/50">
-                    <i class="fas fa-shield-alt text-white text-xl"></i>
+    <div id="tosModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4">
+        <div class="glass max-w-xl w-full rounded-3xl p-8 shadow-2xl border border-cyan-500/20">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg text-slate-950">
+                    <i class="fas fa-shield-halved text-xl"></i>
                 </div>
-                <h2 id="tosTitle" class="text-3xl font-extrabold tracking-tight text-white uppercase">Agreement</h2>
+                <div>
+                    <h2 class="text-2xl font-black text-white uppercase italic" data-t="tos_title">Community Rules</h2>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Growth Edition v2.5</p>
+                </div>
             </div>
-            <div id="tosContent" class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-300">
-                <!-- i18nから注入 -->
+            <div class="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar text-sm text-slate-300 leading-relaxed">
+                <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <h4 class="font-bold text-cyan-400 mb-2 flex items-center gap-2 text-xs uppercase tracking-wider" data-t="tos_rule1_title"><i class="fas fa-handshake"></i> Respectful Discourse</h4>
+                    <p class="text-xs" data-t="tos_rule1_body">誹謗中傷、差別、攻撃的な内容は厳格に禁止されます。</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <h4 class="font-bold text-cyan-400 mb-2 flex items-center gap-2 text-xs uppercase tracking-wider" data-t="tos_rule2_title"><i class="fas fa-fingerprint"></i> Fairness First</h4>
+                    <p class="text-xs" data-t="tos_rule2_body">一人一票の原則を守りましょう。</p>
+                </div>
             </div>
-            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-accent to-blue-600 text-white font-black py-6 rounded-2xl transition-all shadow-2xl shadow-accent/40 active:scale-95 uppercase tracking-widest text-lg md:text-xl border border-white/10">
-                I Agree & Start
+            <button id="agreeTosBtn" class="btn-glow w-full mt-8 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-xl transition-all shadow-lg active:scale-95 uppercase tracking-widest text-xs" data-t="tos_accept">
+                Accept and Initialize
             </button>
         </div>
     </div>
 
-    <!-- メインレイアウト -->
-    <div id="appUI" class="hidden">
-        <header class="sticky top-0 z-50 glass border-b border-white/5 px-6 py-5 text-white">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-4 cursor-pointer group" onclick="goHome()">
-                    <div class="bg-gradient-to-br from-accent to-blue-600 p-2.5 rounded-xl shadow-lg">
-                        <i class="fas fa-bolt text-white text-xl"></i>
+    <!-- UIフィードバックモーダル -->
+    <div id="msgModal" class="fixed inset-0 z-[400] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass max-w-sm w-full rounded-3xl p-8 text-center border border-white/10 shadow-2xl relative overflow-hidden">
+            <h3 id="msgTitle" class="text-lg font-black mb-2 uppercase tracking-widest italic text-white">Message</h3>
+            <p id="msgBody" class="text-slate-400 text-xs mb-8 leading-relaxed"></p>
+            <div id="msgActions" class="flex flex-col gap-3">
+                <div class="flex gap-3">
+                    <button id="msgCloseBtn" class="flex-1 bg-white/5 text-white font-bold py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-white/10 transition-colors" data-t="btn_close">Close</button>
+                    <button id="msgConfirmBtn" class="flex-1 bg-cyan-500 text-slate-950 font-black py-3 rounded-xl uppercase text-[10px] tracking-widest hidden hover:bg-cyan-400 transition-colors" data-t="btn_confirm">Confirm</button>
+                </div>
+                <div id="extraActions" class="hidden flex flex-col gap-3 pt-3 border-t border-white/5">
+                    <button id="msgArchiveBtn" class="w-full bg-indigo-500/20 text-indigo-400 font-bold py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-indigo-500/30 transition-colors" data-t="btn_archive_only">Move to Archive</button>
+                    <button id="msgDeletePermanentBtn" class="w-full bg-red-500 text-white font-black py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-red-600 transition-colors" data-t="btn_delete_permanent">Permanent Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- テーマカスタマイズモーダル -->
+    <div id="themeModal" class="fixed inset-0 z-[400] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="glass max-w-sm w-full rounded-3xl p-8 border border-white/10 shadow-2xl">
+            <h3 class="text-lg font-black mb-6 uppercase tracking-widest italic text-white" data-t="theme_title">Customize Appearance</h3>
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400" data-t="theme_accent">Accent Color</label>
+                    <input type="color" id="themeAccentInput" class="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400" data-t="theme_bg">Background Color</label>
+                    <input type="color" id="themeBgInput" class="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400" data-t="theme_text">Text Color</label>
+                    <input type="color" id="themeTextInput" class="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer">
+                </div>
+            </div>
+            <div class="flex flex-col gap-3 mt-10">
+                <button id="resetThemeBtn" class="w-full bg-white/5 text-white font-bold py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-white/10 transition-colors border border-white/10" data-t="btn_reset_theme">Reset to Default</button>
+                <button onclick="document.getElementById('themeModal').classList.add('hidden')" class="w-full bg-cyan-500 text-slate-950 font-black py-3 rounded-xl uppercase text-[10px] tracking-widest transition-all" data-t="btn_close">Save & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div id="appUI" class="hidden flex flex-col min-h-screen">
+        <header class="sticky top-0 z-50 glass border-b border-white/5 px-6 py-4">
+            <div class="max-w-7xl mx-auto flex items-center justify-between gap-6">
+                <div class="flex items-center gap-3 cursor-pointer group shrink-0" onclick="goHome()">
+                    <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform text-slate-950">
+                        <i class="fas fa-bolt-lightning"></i>
                     </div>
-                    <div>
-                        <h1 class="text-2xl font-black tracking-tighter text-white uppercase">Mix <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-blue-400">Vote</span></h1>
+                    <div class="hidden md:block">
+                        <h1 class="text-xl font-black tracking-tighter text-white uppercase italic">Mix <span class="text-cyan-400">Vote</span></h1>
+                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.3em] leading-none">Growth v2.5</p>
                     </div>
                 </div>
-                <div id="authArea" class="flex items-center gap-3 md:gap-4">
-                    <!-- カラーカスタマイザー -->
-                    <div class="relative">
-                        <button id="themeToggleBtn" class="glass p-2.5 rounded-xl text-slate-400 hover:text-accent transition-all" title="Customize Theme">
-                            <i class="fas fa-palette text-lg"></i>
+
+                <div class="flex-1 max-w-xl relative">
+                    <input type="text" id="globalSearch" class="w-full bg-slate-950/50 border border-white/10 rounded-2xl py-2.5 pl-10 pr-4 text-xs text-white outline-none focus:border-cyan-500 focus:bg-slate-950 transition-all placeholder:text-slate-600" data-t-placeholder="search_placeholder">
+                    <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 text-xs"></i>
+                </div>
+
+                <div id="authArea" class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <button onclick="document.getElementById('themeModal').classList.remove('hidden')" class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Customize Theme">
+                            <i class="fas fa-palette text-sm"></i>
                         </button>
-                        <div id="themeMenu" class="absolute right-0 top-full mt-3 glass p-6 rounded-3xl hidden w-64 shadow-2xl z-[60] border border-white/10">
-                            <h4 id="accentPresetsTitle" class="text-[9px] font-black uppercase tracking-widest mb-4 opacity-50 text-white">Accent Presets</h4>
-                            <div class="grid grid-cols-5 gap-2 mb-6">
-                                <button onclick="setAccent('#06b6d4')" class="w-6 h-6 rounded-full bg-[#06b6d4] border-2 border-transparent hover:border-white/50 transition-all"></button>
-                                <button onclick="setAccent('#ec4899')" class="w-6 h-6 rounded-full bg-[#ec4899] border-2 border-transparent hover:border-white/50 transition-all"></button>
-                                <button onclick="setAccent('#f59e0b')" class="w-6 h-6 rounded-full bg-[#f59e0b] border-2 border-transparent hover:border-white/50 transition-all"></button>
-                                <button onclick="setAccent('#10b981')" class="w-6 h-6 rounded-full bg-[#10b981] border-2 border-transparent hover:border-white/50 transition-all"></button>
-                                <button onclick="setAccent('#8b5cf6')" class="w-6 h-6 rounded-full bg-[#8b5cf6] border-2 border-transparent hover:border-white/50 transition-all"></button>
-                            </div>
-                            <h4 id="customColorsTitle" class="text-[9px] font-black uppercase tracking-widest mb-4 opacity-50 text-white">Custom Colors</h4>
-                            <div class="space-y-4 text-white">
-                                <div class="flex items-center justify-between">
-                                    <span id="labelBg" class="text-[10px] font-bold opacity-70">Background</span>
-                                    <input type="color" id="bgPicker" oninput="setBgColor(this.value)">
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span id="labelText" class="text-[10px] font-bold opacity-70">Text Color</span>
-                                    <input type="color" id="textPicker" oninput="setTextColor(this.value)">
-                                </div>
-                            </div>
-                            <button onclick="resetTheme()" class="w-full mt-6 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] font-bold uppercase tracking-widest transition-all text-white">Reset Default</button>
+                        <div class="flex bg-slate-950/50 border border-white/10 rounded-xl p-1 shrink-0">
+                            <button onclick="switchLang('ja')" id="lang-ja" class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all">JP</button>
+                            <button onclick="switchLang('en')" id="lang-en" class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all">EN</button>
                         </div>
                     </div>
-                    <button id="langToggle" class="glass text-[10px] font-black uppercase tracking-widest px-3 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all text-white">JP / EN</button>
-                    <button id="loginBtn" class="glass hover:bg-white/10 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 border border-white/10 transition-all uppercase text-[10px] tracking-widest">
-                        <i class="fab fa-google text-accent"></i> Sign In
+
+                    <button id="loginBtn" class="glass hover:bg-white/10 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 border border-white/10 text-[10px] uppercase tracking-widest">
+                        <i class="fab fa-google text-cyan-400"></i> <span class="hidden sm:inline" data-t="btn_signin">Sign In</span>
                     </button>
-                    <div id="userInfo" class="hidden flex items-center gap-4 text-right">
-                        <div>
-                            <p id="userName" class="text-sm font-black text-slate-200"></p>
-                            <button id="logoutBtn" class="text-[10px] text-slate-500 hover:text-accent uppercase font-black tracking-widest text-slate-500">Logout</button>
+                    <div id="userInfo" class="hidden flex items-center gap-4">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-[8px] text-slate-500 font-black uppercase" data-t="active_user">Active User</p>
+                            <p id="userName" class="text-xs font-black text-white"></p>
                         </div>
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/20 cursor-pointer" onclick="goMyPage()">
+                            <i class="fas fa-user-ninja"></i>
+                        </div>
+                        <button id="logoutBtn" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-power-off text-sm"></i></button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 mt-10">
+        <div class="max-w-7xl mx-auto w-full px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 flex-grow">
             <!-- サイドバー -->
-            <aside class="lg:col-span-3 space-y-8">
-                <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-accent to-blue-600 text-white font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-accent/20 active:scale-95 transition-all uppercase tracking-widest text-xs text-white">
-                    <i class="fas fa-plus-circle text-xl"></i> New Poll
+            <aside class="lg:col-span-3 space-y-6">
+                <nav class="space-y-1">
+                    <button onclick="goHome()" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all flex items-center gap-3 text-sm font-bold group">
+                        <i class="fas fa-compass w-5 text-center group-hover:text-cyan-400"></i> <span data-t="nav_explore">Explore</span>
+                    </button>
+                    <button id="navMyPageBtn" onclick="goMyPage()" class="hidden w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all flex items-center gap-3 text-sm font-bold group">
+                        <i class="fas fa-layer-group w-5 text-center group-hover:text-cyan-400"></i> <span data-t="nav_mypage">My Polls</span>
+                    </button>
+                </nav>
+
+                <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-widest text-[10px]">
+                    <i class="fas fa-plus-circle text-sm"></i> <span data-t="btn_launch_poll">Launch New Poll</span>
                 </button>
 
-                <div class="glass rounded-3xl p-4 border border-white/5 flex items-center gap-3">
-                    <i class="fas fa-search text-accent opacity-50"></i>
-                    <input type="text" id="searchInput" class="bg-transparent border-none outline-none text-xs w-full font-bold placeholder:opacity-30 text-[#f1f5f9]" placeholder="Search polls or #tags...">
-                </div>
-
-                <div class="glass rounded-3xl p-6 border border-white/5">
-                    <h3 id="catSidebarTitle" class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6 italic text-slate-500">Categories</h3>
-                    <nav id="categoryNav" class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 custom-scrollbar"></nav>
-                </div>
-
-                <div class="glass rounded-3xl p-6 border border-white/5 opacity-70">
-                    <div class="flex items-center gap-3 text-accent mb-3 text-accent">
-                        <i class="fas fa-info-circle"></i>
-                        <span id="guideLabel" class="text-xs font-bold uppercase tracking-widest text-accent">Guide</span>
-                    </div>
-                    <p id="guideText" class="text-[11px] leading-relaxed font-medium text-[#f1f5f9]"></p>
+                <div class="glass rounded-3xl p-5">
+                    <h3 class="text-[9px] font-black uppercase tracking-[0.25em] text-slate-500 mb-4 px-2" data-t="discovery_label">Discovery</h3>
+                    <div id="categoryNav" class="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 custom-scrollbar"></div>
                 </div>
             </aside>
 
-            <!-- メイン -->
-            <main class="lg:col-span-9 space-y-16 pb-32">
-                <div id="view-home" class="space-y-14 text-[#f1f5f9]">
-                    <div class="glass rounded-[32px] p-6 border-l-4 border-accent">
-                        <div class="flex items-start gap-5">
-                            <div class="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shrink-0 text-accent">
-                                <i class="fas fa-bullhorn text-xl"></i>
-                            </div>
-                            <div class="w-full">
-                                <h3 id="noticeLabel" class="font-black text-xs uppercase tracking-widest mb-1.5 italic text-accent">Notice</h3>
-                                <p id="noticeText" class="text-xs md:text-sm leading-relaxed font-medium opacity-80 mb-2"></p>
-                                <div class="bg-accent/5 p-4 rounded-2xl border border-accent/10 flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full glass flex items-center justify-center shrink-0 text-accent text-accent">
-                                        <i class="fas fa-globe"></i>
-                                    </div>
-                                    <p id="translateGuide" class="text-[11px] font-bold opacity-70 italic leading-relaxed"></p>
-                                </div>
+            <main class="lg:col-span-9 pb-24">
+                <!-- ホームビュー -->
+                <div id="view-home" class="animate-fade space-y-12">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <div class="flex items-center gap-4">
+                            <h2 class="text-2xl font-black text-white italic uppercase tracking-tighter" id="latest_header">Latest Polls</h2>
+                            <div class="flex bg-slate-950/50 p-1 rounded-xl border border-white/5">
+                                <button onclick="switchSort('latest')" id="sort-latest" class="px-3 py-1 rounded-lg text-[8px] font-black uppercase transition-all">Latest</button>
+                                <button onclick="switchSort('trending')" id="sort-trending" class="px-3 py-1 rounded-lg text-[8px] font-black uppercase transition-all">Trending</button>
                             </div>
                         </div>
+                        <div class="flex items-center gap-2 text-[10px] font-black text-cyan-500 animate-pulse uppercase tracking-widest"><i class="fas fa-wifi text-[8px]"></i> <span data-t="sync_status">Synchronized</span></div>
                     </div>
-                    <section>
-                        <h2 id="latestPollsTitle" class="text-2xl font-black italic mb-8 uppercase tracking-tighter">Latest <span class="opacity-40 font-normal not-italic">Polls</span></h2>
-                        <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-                    </section>
-                    <section>
-                        <h2 id="popularPollsTitle" class="text-2xl font-black italic mb-8 uppercase tracking-tighter">Trending <span class="opacity-40 font-normal not-italic">Now</span></h2>
-                        <div id="popularPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-                    </section>
+
+                    <!-- 上位5件 -->
+                    <div id="topPolls" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+
+                    <!-- その他50件 -->
+                    <div class="pt-8 border-t border-white/5">
+                        <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 mb-6 px-1" data-t="sub_header">More Active Topics</h3>
+                        <div id="subPolls" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
                 </div>
 
-                <div id="view-detail" class="hidden space-y-10">
-                    <button id="backToListBtn" onclick="goHome()" class="group flex items-center gap-3 opacity-60 hover:opacity-100 font-black uppercase tracking-widest text-[10px] transition-all text-white">
-                        <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-white"><i class="fas fa-chevron-left"></i></div>
-                        一覧に戻る
+                <!-- 詳細ビュー -->
+                <div id="view-detail" class="hidden animate-fade space-y-8">
+                    <button onclick="goHome()" class="group flex items-center gap-3 text-slate-500 hover:text-white font-bold uppercase text-[10px] tracking-widest transition-all">
+                        <div class="w-8 h-8 rounded-full glass flex items-center justify-center group-hover:bg-white group-hover:text-slate-900 transition-colors"><i class="fas fa-arrow-left"></i></div>
+                        <span data-t="btn_return">Back</span>
                     </button>
-                    <div id="pollDetailContent" class="glass rounded-[40px] p-0 overflow-hidden border border-white/10 shadow-2xl space-y-0 text-[#f1f5f9]"></div>
-                    
-                    <div class="glass rounded-[40px] p-8 md:p-12 border border-white/10">
-                        <h3 id="discussionTitle" class="text-2xl font-black mb-10 uppercase tracking-widest italic text-white"><i class="far fa-comment-dots text-accent"></i> Discussion</h3>
-                        <div id="commentInputArea" class="hidden mb-12 relative text-white">
-                            <textarea id="commentText" maxlength="200" class="w-full bg-black/20 border border-white/10 rounded-3xl p-6 text-white outline-none focus:ring-2 focus:ring-accent/50 placeholder:opacity-30 font-medium" rows="3"></textarea>
-                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-accent to-blue-600 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">送信</button>
+                    <div id="pollDetailContent" class="glass rounded-[40px] p-10 shadow-2xl relative overflow-hidden"></div>
+                    <div class="glass rounded-[40px] p-10">
+                        <div class="flex items-center justify-between mb-8">
+                            <h3 class="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3"><span class="w-2 h-8 bg-cyan-500 rounded-full"></span> <span data-t="discourse_label">Discourse</span></h3>
+                            <span id="commentCount" class="text-[10px] font-black bg-white/5 px-3 py-1 rounded-full text-slate-500 uppercase tracking-widest">0 Comments</span>
                         </div>
-                        <div id="commentLoginNotice" class="text-center p-12 bg-white/5 rounded-[30px] opacity-40 font-black uppercase tracking-widest text-[10px] border border-dashed border-white/10 text-white"></div>
-                        <div id="commentsList" class="space-y-6 text-white"></div>
+                        <div id="commentInputArea" class="hidden mb-10 relative">
+                            <textarea id="commentText" maxlength="150" class="w-full bg-slate-950/50 border border-white/10 rounded-3xl p-6 text-sm text-white outline-none focus:ring-1 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all min-h-[120px]" data-t-placeholder="comment_placeholder"></textarea>
+                            <button id="postCommentBtn" class="absolute bottom-6 right-6 bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-8 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg active:scale-95" data-t="btn_send">Send</button>
+                        </div>
+                        <div id="commentsList" class="space-y-4"></div>
                     </div>
+                </div>
+
+                <!-- マイページ -->
+                <div id="view-mypage" class="hidden animate-fade space-y-10">
+                    <div class="flex items-center gap-6 mb-12">
+                        <div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl"><i class="fas fa-user-astronaut text-3xl"></i></div>
+                        <div><h2 class="text-4xl font-black text-white italic uppercase tracking-tighter" data-t="mypage_title">Creator Dashboard</h2></div>
+                    </div>
+                    <div id="myPollsList" class="grid grid-cols-1 gap-6"></div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- 作成モーダル -->
-    <div id="createModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 text-white">
-        <div class="glass max-w-xl w-full rounded-[40px] p-10 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <h2 id="modalTitle" class="text-3xl font-black mb-8 italic tracking-tighter uppercase text-white">Create <span class="text-accent">Poll</span></h2>
+    <!-- 投稿モーダル -->
+    <div id="createModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4">
+        <div class="glass max-w-2xl w-full rounded-[40px] p-10 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <h2 id="modalTitle" class="text-3xl font-black mb-8 text-white italic uppercase tracking-tighter">Launch <span class="text-cyan-400">Poll</span></h2>
             <div class="space-y-6">
-                <div><label id="labelTitle" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
-                <input type="text" id="pollTitleInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold"></div>
-                <div><label id="labelDesc" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
-                <textarea id="pollDescInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium" rows="2"></textarea></div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div><label id="labelCat" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
-                    <select id="pollCategoryInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent font-bold"></select></div>
-                    <div><label id="labelDeadline" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
-                    <input type="datetime-local" id="pollDeadlineInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium"></div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1" data-t="label_topic">Core Topic</label>
+                    <input type="text" id="pollTitleInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-5 text-white text-sm focus:border-cyan-500 outline-none transition-colors" data-t-placeholder="placeholder_topic">
                 </div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="relative">
-                        <label id="labelTags" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
-                        <input type="text" id="pollTagsInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold pr-24" placeholder="#Tags">
-                        <button id="aiSuggestTagsBtn" onclick="window.suggestTags()" class="absolute right-2 bottom-2 bg-accent/20 text-accent px-3 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-accent hover:text-slate-950 transition-all text-accent">AI Suggest</button>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label id="labelVisual" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
-                        <input type="text" id="pollVisualInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold" placeholder="keyword">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1" data-t="label_segment">Segment</label>
+                        <select id="pollCategoryInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-5 text-white text-sm focus:border-cyan-500 outline-none appearance-none"></select>
+                    </div>
+                    <div class="flex items-end pb-5">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="pollMultipleChoiceInput" class="w-5 h-5 rounded border-white/10 bg-slate-950">
+                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest" data-t="label_multiple">Allow Multiple Selection</span>
+                        </label>
                     </div>
                 </div>
-                <div><label id="optionsLabel" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
-                <textarea id="pollOptionsInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium" rows="4"></textarea></div>
-                <div id="quizFields" class="hidden bg-accent/5 p-6 rounded-3xl border border-accent/20 space-y-4">
-                    <div><label id="labelQuizIdx" class="text-[8px] font-black text-accent uppercase tracking-widest mb-1 block text-accent"></label>
-                    <input type="number" id="pollCorrectIndexInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white outline-none" min="0"></div>
-                    <div><label id="labelQuizExp" class="text-[8px] font-black text-accent uppercase tracking-widest mb-1 block text-accent"></label>
-                    <textarea id="pollExplanationInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white outline-none font-medium" rows="2"></textarea></div>
+                <div>
+                    <label id="optionsLabel" class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1" data-t="label_options">Voting Options (One per line)</label>
+                    <textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-5 text-white text-sm focus:border-cyan-500 outline-none transition-colors font-mono" rows="4" data-t-placeholder="placeholder_options"></textarea>
+                </div>
+                <div id="quizFields" class="hidden bg-cyan-500/5 p-6 rounded-3xl border border-cyan-500/20 space-y-4">
+                    <h4 class="text-[10px] font-black text-cyan-400 uppercase tracking-[0.2em] mb-2" data-t="quiz_intelligence">Quiz Intelligence</h4>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-500 uppercase block mb-1" data-t="label_verify">Verify Answer</label>
+                        <select id="pollCorrectIndexInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-white text-xs"></select>
+                    </div>
                 </div>
             </div>
             <div class="flex gap-4 mt-12">
-                <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all"></button>
-                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-accent to-blue-600 text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] shadow-xl shadow-accent/20 active:scale-95 transition-all text-white"></button>
+                <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-bold py-4 rounded-2xl text-[10px] uppercase tracking-widest hover:bg-white/10" data-t="btn_abort">Abort</button>
+                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest shadow-xl active:scale-95 transition-all" data-t="btn_finalize">Finalize & Deploy</button>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-        import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-        import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, arrayUnion, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+        import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+        import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, runTransaction, where, Timestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-        // --- 1. 初期設定 ---
-        const userLang = navigator.language || navigator.userLanguage;
-        let currentLang = userLang.startsWith('ja') ? 'ja' : 'en';
-
-        const i18n = {
-            ja: {
-                appName: "Mix Vote", signin: "サインイン", logout: "ログアウト", newPoll: "新規アンケート", categories: "カテゴリー", all: "全て",
-                guideLabel: "ガイド", guideText: "投票は自由に参加できます。作成や投稿にはログインが必要です。",
-                noticeLabel: "お知らせ", noticeText: "Mix Voteへようこそ。投票期限から1ヶ月経過したものは自動的にアーカイブされます。",
-                translateGuide: "海外のアンケートはブラウザ翻訳機能をご利用ください。",
-                latestTitle: "最新の投票", trendingTitle: "急上昇中", backToList: "一覧に戻る", discussion: "ディスカッション",
-                commentPlaceholder: "あなたの意見を書き込む...", send: "送信", loginNotice: "サインインすると参加できます",
-                noData: "有効なデータがありません", votes: "票", author: "作成者", ended: "終了しました",
-                unlockResults: "投票後に結果が表示されます", quizResult: "解答と解説", correct: "正解",
-                noExplanation: "解説はありません。", share: "共有", edit: "編集", delete: "削除", save: "保存", cancel: "キャンセル",
-                translate: "アンケートを翻訳", translating: "翻訳中...", showOriginal: "原文を表示", tosTitle: "利用規約", tosAgree: "同意して開始",
-                tosBody: `<div class="space-y-6 text-slate-300 text-sm leading-relaxed"><p>Mix Voteへようこそ。以下の規約にご同意ください。</p><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">1. 行動指針</h4><ul class="list-disc pl-5"><li>他者の感性や意見を尊重しましょう。</li><li>誹謗中傷は禁止します。</li></ul></section></div>`,
-                labelTitle: "タイトル", labelDesc: "説明文", labelCat: "カテゴリー", labelDeadline: "終了期限", labelTags: "ハッシュタグ",
-                labelVisual: "画像キーワード (英語推奨)", labelOptions: "選択肢 (1行に1つ)", labelQuizIdx: "正解Index", labelQuizExp: "解説",
-                voteOrigin: "投票地域の分布", downloadCard: "結果カードをダウンロード", searchPlaceholder: "検索...",
-                accentPresets: "アクセントカラー", customColors: "カスタムカラー", background: "背景色", mainText: "文字色", reset: "デフォルトに戻す",
-                catNames: ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"],
-                aiAnalyzing: "AIが分析中...", aiInsightTitle: "AIインサイト", copied: "コピーしました", confirmDelete: "削除しますか？", alertAuth: "サインインが必要です", alertVoted: "投票済みです", alertInvalid: "入力が不完全です"
-            },
-            en: {
-                appName: "Mix Vote", signin: "Sign In", logout: "Logout", newPoll: "New Poll", categories: "Categories", all: "All",
-                guideLabel: "Guide", guideText: "Join for free. Login to create polls.",
-                noticeLabel: "Notice", noticeText: "Welcome to Mix Vote.",
-                translateGuide: "Use browser translation for international polls.",
-                latestTitle: "Latest Polls", trendingTitle: "Trending Now", backToList: "Back to List", discussion: "Discussion",
-                commentPlaceholder: "Post opinion...", send: "Send", loginNotice: "Sign in to join",
-                noData: "No data", votes: "Votes", author: "Author", ended: "Ended",
-                unlockResults: "Vote to unlock results", quizResult: "Solution", correct: "Correct",
-                noExplanation: "No explanation.", share: "Share", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel",
-                translate: "Translate Poll", translating: "Translating...", showOriginal: "Original", tosTitle: "Terms", tosAgree: "Agree & Start",
-                tosBody: `<div class="text-slate-300">Welcome to Mix Vote. Please agree to terms.</div>`,
-                labelTitle: "Title", labelDesc: "Description", labelCat: "Category", labelDeadline: "Deadline", labelTags: "Tags",
-                labelVisual: "Image Keyword", labelOptions: "Options", labelQuizIdx: "Correct Index", labelQuizExp: "Explanation",
-                voteOrigin: "Vote Origin", downloadCard: "Download Result Card", searchPlaceholder: "Search...",
-                accentPresets: "Accent Presets", customColors: "Custom Colors", background: "BG", mainText: "Text", reset: "Reset",
-                catNames: ["News", "Entertainment", "Tech", "Life", "Sports", "Travel", "Gourmet", "Education", "Politics", "Hobbies", "Quiz", "Common"],
-                aiAnalyzing: "Analyzing...", aiInsightTitle: "AI Insight", copied: "Copied", confirmDelete: "Delete?", alertAuth: "Login required", alertVoted: "Already voted", alertInvalid: "Invalid input"
-            }
-        };
-
-        const catImageMap = {
-            "ニュース": "news", "エンタメ": "cinema", "テクノロジー": "future", "生活": "home",
-            "スポーツ": "stadium", "旅行": "mountains", "グルメ": "food", "教育": "library",
-            "政治": "parliament", "趣味": "photography", "クイズ": "brain", "あるある": "people"
-        };
-
-        // --- 2. 状態管理 ---
-        let user = null;
-        let activeCategory = "全て";
-        let searchQuery = "";
-        let chartInstance = null;
-        let currentPollId = null;
-        let editMode = false;
-        let editPollId = null;
-        let originalPollData = null;
-        let translatedData = null;
-        let currentAIInsight = "";
-
-        // --- 3. Firebase 設定 ---
-        const firebaseConfig = JSON.parse('{"apiKey":"AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE","authDomain":"mixvotesurvey.firebaseapp.com","projectId":"mixvotesurvey","messagingSenderId":"352307389497","appId":"1:352307389497:web:0939fd29452d6c6afc59e8"}');
+        // --- Core Config ---
+        const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appIdStr = typeof __app_id !== 'undefined' ? __app_id : 'mixvote-default';
-        const POLLS_COLLECTION = collection(db, 'artifacts', appIdStr, 'public', 'data', 'polls');
-        const ARUARU_OPTIONS = "あるある！\nいいね\n笑\n涙";
+        const appIdStr = (typeof __app_id !== 'undefined' ? __app_id : 'mixvotesurvey');
 
-        // --- 4. 共通関数群 (Hoisting回避のため先に定義) ---
-        const t = (key) => i18n[currentLang][key] || key;
-        const getCatName = (jaName) => { const idx = i18n.ja.catNames.indexOf(jaName); return idx !== -1 ? i18n[currentLang].catNames[idx] : jaName; };
-        const maskName = (name) => name ? (name.length <= 3 ? '●●●' : name.substring(0, 3) + '●●●') : 'Anonymous';
-        const formatDate = (date) => {
-            if (!date) return "New";
-            const d = date.seconds ? new Date(date.seconds * 1000) : new Date(date);
-            return new Intl.DateTimeFormat(currentLang === 'ja' ? 'ja-JP' : 'en-US', { dateStyle: 'medium' }).format(d);
-        };
+        const POLLS_COLL = collection(db, 'artifacts', appIdStr, 'public', 'data', 'polls');
 
-        window.setAccent = (color) => {
-            if(!color) return;
-            document.documentElement.style.setProperty('--accent', color);
-            const r = parseInt(color.slice(1,3), 16), g = parseInt(color.slice(3,5), 16), b = parseInt(color.slice(5,7), 16);
-            document.documentElement.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.5)`);
-            localStorage.setItem('mixvote_accent', color);
-        };
-        window.setBgColor = (color) => {
-            if(!color) return;
-            document.documentElement.style.setProperty('--bg-main', color);
-            localStorage.setItem('mixvote_bg', color);
-        };
-        window.setTextColor = (color) => {
-            if(!color) return;
-            document.documentElement.style.setProperty('--text-main', color);
-            localStorage.setItem('mixvote_text', color);
-        };
-        window.resetTheme = () => {
-            localStorage.removeItem('mixvote_accent'); localStorage.removeItem('mixvote_bg'); localStorage.removeItem('mixvote_text');
-            document.documentElement.style.setProperty('--accent', '#06b6d4');
-            document.documentElement.style.setProperty('--bg-main', '#020617');
-            document.documentElement.style.setProperty('--text-main', '#f1f5f9');
-            document.getElementById('bgPicker').value = '#020617';
-            document.getElementById('textPicker').value = '#f1f5f9';
-        };
-
-        const callGemini = async (prompt, isJson = false) => {
-            const apiKey = "";
-            let delay = 1000;
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: isJson ? { responseMimeType: "application/json" } : {} })
-                    });
-                    const result = await response.json();
-                    return isJson ? JSON.parse(result.candidates[0].content.parts[0].text) : result.candidates[0].content.parts[0].text;
-                } catch (err) { if (i === 4) throw err; await new Promise(r => setTimeout(r, delay)); delay *= 2; }
+        const CATEGORIES_JA = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
+        
+        const translations = {
+            ja: {
+                theme_title: "外観のカスタマイズ", theme_accent: "アクセントカラー", theme_bg: "背景色", theme_text: "文字色", btn_reset_theme: "デフォルトに戻す",
+                tos_title: "コミュニティルール", tos_rule1_title: "尊重し合う対話", tos_rule1_body: "誹謗中傷、差別、攻撃的な内容は厳格に禁止されます。",
+                tos_rule2_title: "公平性の維持", tos_rule2_body: "一人一票の原則を守りましょう。", tos_accept: "同意して初期化",
+                btn_close: "閉じる", btn_signin: "ログイン", btn_launch_poll: "新規作成", btn_send: "送信", btn_abort: "中断", btn_finalize: "完了",
+                btn_return: "戻る", btn_modify: "編集", btn_archive: "アーカイブ", btn_delete_permanent: "完全に削除",
+                search_placeholder: "トピック、投票を検索...", active_user: "ユーザー", nav_explore: "探索", nav_mypage: "マイページ",
+                discovery_label: "カテゴリー", sync_status: "同期済み", discourse_label: "議論", comment_placeholder: "コメント...",
+                auth_req_label: "権限が必要です", mypage_title: "ダッシュボード", all_category: "全て", voted_unlock_label: "投票でアンロック",
+                label_topic: "トピック名", label_multiple: "複数回答を許可する", label_segment: "カテゴリー", label_deadline: "期限", label_options: "選択肢",
+                placeholder_topic: "中央の質問...", placeholder_options: "選択肢 A\n選択肢 B", participation_label: "参加数",
+                error_input: "エラー", error_options_limit: "最大50個までです。", btn_doughnut: "ドーナツ", btn_bar: "棒グラフ",
+                btn_download: "保存", share_label: "シェアする", share_text_prefix: "【Mix Vote】投票中: ",
+                sort_latest: "最新順", sort_trending: "トレンド順", sub_header: "その他のトピック", btn_vote_multi: "一括投票する"
+            },
+            en: {
+                theme_title: "Customize Theme", theme_accent: "Accent Color", theme_bg: "Background Color", theme_text: "Text Color", btn_reset_theme: "Restore Default",
+                tos_title: "Community Rules", tos_rule1_title: "Respectful", tos_rule1_body: "Discrimination and offensive content are prohibited.",
+                tos_rule2_title: "Fairness First", tos_rule2_body: "One-person, one-vote principle.", tos_accept: "Accept",
+                btn_close: "Close", btn_signin: "Sign In", btn_launch_poll: "Launch New Poll", btn_send: "Send", btn_abort: "Abort", btn_finalize: "Finalize",
+                btn_return: "Back", btn_modify: "Modify", btn_archive: "Archive", btn_delete_permanent: "Permanent Delete",
+                search_placeholder: "Explore...", active_user: "Active User", nav_explore: "Explore", nav_mypage: "My Polls",
+                discovery_label: "Discovery", sync_status: "Synchronized", discourse_label: "Discourse", comment_placeholder: "Join...",
+                auth_req_label: "Auth Required", mypage_title: "Dashboard", all_category: "All", voted_unlock_label: "Seal Intact",
+                label_topic: "Topic", label_multiple: "Allow Multiple Selections", label_segment: "Segment", label_deadline: "Deadline", label_options: "Options",
+                placeholder_topic: "Central question?", placeholder_options: "Option A\nOption B", participation_label: "Total Participation",
+                error_input: "Error", error_options_limit: "Max 50 options.", btn_doughnut: "Doughnut", btn_bar: "Bar Chart",
+                btn_download: "Save", share_label: "Share", share_text_prefix: "[Mix Vote] Poll: ",
+                sort_latest: "Latest", sort_trending: "Trending", sub_header: "Sub Topics", btn_vote_multi: "Submit Selections"
             }
         };
 
-        const renderPollList = (eid, list) => {
-            const container = document.getElementById(eid); if(!container) return;
-            container.innerHTML = list.length ? '' : `<p class="text-slate-500 py-10 font-black uppercase text-[10px] text-center w-full">${t('noData')}</p>`;
-            list.forEach((p) => {
-                const div = document.createElement('div'); div.onclick = () => goDetail(p.id);
-                div.className = "poll-card glass rounded-[32px] cursor-pointer flex flex-col justify-between border border-white/5 p-0 overflow-hidden";
-                const visualKw = p.visualKeyword || catImageMap[p.category] || "abstract";
-                const imgSrc = p.imageUrl || `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(visualKw)}`;
-                div.innerHTML = `<div class="relative w-full"><img src="${imgSrc}" class="poll-card-img" alt="Poll Image"><div class="absolute bottom-4 left-4 right-4"><span class="text-[10px] font-black px-3 py-1 rounded-full bg-accent text-slate-950 uppercase tracking-widest shadow-lg">${getCatName(p.category)}</span></div></div><div class="p-7 space-y-4 text-white"><div class="flex justify-between items-center opacity-50"><span class="text-[9px] font-black tracking-tighter">${formatDate(p.createdAt)}</span></div><h3 class="text-lg font-black line-clamp-2 leading-tight tracking-tight">${p.title}</h3>${p.tags ? `<div class="flex flex-wrap gap-2 pt-1">${p.tags.map(t => `<span class="text-[8px] font-bold text-accent opacity-60 text-accent">${t}</span>`).join('')}</div>` : ''}</div><div class="px-7 pb-7 border-t border-white/5 pt-6 flex justify-between items-center mt-auto text-white"><span class="text-[9px] font-bold italic opacity-60">${t('author')}: ${maskName(p.author)}</span><div class="flex items-center gap-1 text-white"><span class="text-accent font-black text-xs text-accent">${p.votes?.reduce((s,v)=>s+v,0)||0}</span><span class="text-[8px] font-black uppercase opacity-60">${t('votes')}</span></div></div>`;
-                container.appendChild(div);
-            });
-        };
+        // --- App State ---
+        let currentLang = localStorage.getItem('mixvote_lang') || 'ja';
+        let user = null;
+        let currentPollId = null;
+        let currentPollData = null;
+        let selectedCategory = "全て";
+        let searchTerm = "";
+        let chartInstance = null;
+        let chartType = 'doughnut';
+        let sortMode = 'latest'; 
+        let editMode = false;
+        let editId = null;
+        let multiSelections = [];
 
-        const loadPolls = async () => {
-            if (!user) return;
-            try {
-                const snap = await getDocs(POLLS_COLLECTION);
-                let polls = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => !p.deleted);
-                if (activeCategory !== "全て") polls = polls.filter(p => p.category === activeCategory);
-                if (searchQuery) polls = polls.filter(p => p.title.toLowerCase().includes(searchQuery) || (p.tags && p.tags.some(t => t.toLowerCase().includes(searchQuery))));
-                const latest = [...polls].sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-                const popular = [...polls].sort((a,b) => (b.votes?.reduce((s,v)=>s+v,0)||0) - (a.votes?.reduce((s,v)=>s+v,0)||0));
-                renderPollList('latestPolls', latest.slice(0, 10)); 
-                renderPollList('popularPolls', popular.slice(0, 10));
-            } catch (err) {}
-        };
+        // --- Core Functions (Fixed Declaration) ---
 
-        const renderPollDetailUI = (p) => {
-            const total = p.votes?.reduce((s,v)=>s+v,0)||0;
-            const hasVoted = p.votedUsers?.includes(user?.uid);
-            const isExp = p.deadline && new Date(p.deadline.seconds*1000) < new Date();
-            const isResultVisible = hasVoted || isExp || p.category !== "クイズ";
-            const detailEl = document.getElementById('pollDetailContent'); if(!detailEl) return;
-            const visualKw = p.visualKeyword || catImageMap[p.category] || "abstract";
-            const imgSrc = p.imageUrl || `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(visualKw)}`;
-            detailEl.innerHTML = `<div class="w-full h-64 md:h-80 relative text-white"><img src="${imgSrc}" class="w-full h-full object-cover opacity-50" onerror="this.src='https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80'"><div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div><div class="absolute bottom-8 left-8 right-8 text-white"><div class="flex flex-wrap items-center gap-4 mb-4 text-white"><span class="bg-accent text-slate-950 font-black text-[12px] px-4 py-1 rounded-full uppercase tracking-widest shadow-xl text-slate-950">${getCatName(p.category)}</span><button onclick="window.handlePollTranslate()" class="text-[10px] font-black uppercase tracking-widest text-accent hover:opacity-70 flex items-center gap-2 transition-all text-accent" id="pollTranslateBtn"><i class="fas fa-language text-lg text-accent"></i><span>${!translatedData?t('translate'):t('showOriginal')}</span></button></div><h2 class="text-3xl md:text-5xl font-black tracking-tighter leading-none uppercase italic text-white">${p.title}</h2><div class="flex items-center gap-4 text-sm font-bold opacity-60 italic text-white"><span>${t('author')}: ${maskName(p.author)}</span><span>•</span><span>${formatDate(p.createdAt)}</span></div>${p.tags ? `<div class="flex flex-wrap gap-2 pt-2">${p.tags.map(t => `<span class="px-3 py-1 rounded-lg bg-accent/10 text-[9px] font-bold text-accent text-accent">${t}</span>`).join('')}</div>` : ''}${p.question?`<p class="text-lg leading-relaxed mt-6 font-medium border-l-4 border-accent/30 pl-6 whitespace-pre-wrap opacity-80 text-white">${p.question}</p>`:''}</div></div><div class="p-8 md:p-14 space-y-12 text-white"><div class="grid grid-cols-1 lg:grid-cols-2 gap-16 text-white text-white"><div class="space-y-4 text-white">${p.options.map((opt, idx)=>{const v=originalPollData.votes[idx]||0; const per=total>0?Math.round(v/total*100):0; if(hasVoted||isExp){return `<div class="relative overflow-hidden bg-slate-950/20 border border-white/5 rounded-3xl p-6 flex justify-between items-center group"><div class="absolute inset-y-0 left-0 bg-accent/10 bg-accent text-white" style="width:${per}%"></div><span class="z-10 font-bold text-lg text-white">${opt}</span><div class="z-10 text-right text-white"><div class="font-black text-2xl tracking-tighter text-white">${per}%</div><div class="text-[8px] uppercase font-black tracking-widest opacity-60 text-white">${v} ${t('votes')}</div></div></div>`}else{return `<button onclick="window.handleVote(${idx})" class="w-full relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex justify-between items-center text-white"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all bg-accent text-white" style="width:${isResultVisible?per:0}%"></div><div class="flex items-center gap-4 z-10 text-white text-white text-white"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl text-white text-white">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-white">${opt}</span></div>${isResultVisible?`<div class="z-10 text-right font-black text-accent/40 group-hover:text-accent text-2xl tracking-tighter text-accent">${per}%</div>`:''}</button>`}}).join('')}</div><div class="flex flex-col justify-center items-center text-white text-white text-white">${isResultVisible?`<div class="chart-container text-white"><canvas id="pollChart"></canvas></div><div id="aiInsightContainer" class="w-full mt-8 text-white"></div>` : `<div class="text-center p-20 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-700 uppercase text-xs font-black tracking-widest flex flex-col items-center gap-4 text-white text-white text-white"><i class="fas fa-lock text-3xl text-accent/30 text-accent"></i><span>${t('unlockResults')}</span></div>`}</div></div><div class="flex flex-wrap gap-4 pt-10 border-t border-white/5 items-center pb-14 text-white text-white"><span class="text-[10px] font-black uppercase tracking-widest opacity-50 text-white">${t('share')}:</span><button onclick="window.downloadShareCard()" class="px-6 py-2 glass rounded-xl text-accent font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-accent hover:text-slate-950 transition-all text-accent text-accent"><i class="fas fa-download text-accent"></i> ${t('downloadCard')}</button><button onclick="window.copyUrl()" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-accent hover:opacity-70 transition-all text-accent"><i class="fas fa-link text-accent"></i></button>${user && originalPollData.authorID === user.uid?`<div class="ml-auto flex gap-6 text-white"><button onclick="window.handleEdit('${originalPollData.id}')" class="text-[10px] font-black uppercase underline decoration-2 underline-offset-4 opacity-50 hover:opacity-100 text-white">編集</button><button onclick="window.handleDelete('${originalPollData.id}')" class="text-[10px] text-red-500 font-black uppercase underline decoration-2 underline-offset-4 hover:text-red-600 transition-all text-red-600">削除</button></div>`:''}</div></div>`;
-            if (isResultVisible) renderChart(originalPollData);
-        };
+        function t(key) { return translations[currentLang][key] || key; }
 
-        const loadPollDetail = async (id) => {
-            currentPollId = id; translatedData = null; currentAIInsight = "";
-            try {
-                const d = await getDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', id));
-                if (!d.exists() || d.data().deleted) return goHome();
-                originalPollData = { id: d.id, ...d.data() }; 
-                renderPollDetailUI(originalPollData); 
-                loadComments(id);
-            } catch (err) {}
-        };
+        function applyTheme() {
+            const currentTheme = {
+                accent: localStorage.getItem('mixvote_theme_accent') || '#06b6d4',
+                bg: localStorage.getItem('mixvote_theme_bg') || '#020617',
+                text: localStorage.getItem('mixvote_theme_text') || '#f1f5f9'
+            };
+            const root = document.documentElement;
+            root.style.setProperty('--accent', currentTheme.accent);
+            root.style.setProperty('--bg-dark', currentTheme.bg);
+            root.style.setProperty('--text-main', currentTheme.text);
+            const r = parseInt(currentTheme.accent.slice(1, 3), 16), g = parseInt(currentTheme.accent.slice(3, 5), 16), b = parseInt(currentTheme.accent.slice(5, 7), 16);
+            root.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.4)`);
+            document.getElementById('themeAccentInput').value = currentTheme.accent;
+            document.getElementById('themeBgInput').value = currentTheme.bg;
+            document.getElementById('themeTextInput').value = currentTheme.text;
+        }
 
-        const handleRouting = () => {
-            const h = window.location.hash;
-            if(h.startsWith('#poll/')){ 
-                const id = h.replace('#poll/', ''); 
-                document.getElementById('view-home').classList.add('hidden'); 
-                document.getElementById('view-detail').classList.remove('hidden'); 
+        function updateAuthUI() {
+            const isRegistered = user && !user.isAnonymous;
+            document.getElementById('loginBtn').classList.toggle('hidden', isRegistered);
+            document.getElementById('userInfo').classList.toggle('hidden', !isRegistered);
+            document.getElementById('openCreateBtn').classList.toggle('hidden', !isRegistered);
+            document.getElementById('navMyPageBtn').classList.toggle('hidden', !isRegistered);
+            document.getElementById('commentInputArea').classList.toggle('hidden', !isRegistered);
+            if (isRegistered) {
+                document.getElementById('userName').textContent = user.displayName || 'Creator';
+            }
+        }
+
+        function updateUILanguage() {
+            document.querySelectorAll('[data-t]').forEach(el => el.textContent = t(el.dataset.t));
+            document.querySelectorAll('[data-t-placeholder]').forEach(el => el.placeholder = t(el.dataset.tPlaceholder));
+            document.getElementById('loadingText').textContent = t('loading');
+            updateSortUI();
+        }
+
+        function updateSortUI() {
+            const btnLatest = document.getElementById('sort-latest'), btnTrend = document.getElementById('sort-trending');
+            btnLatest.textContent = t('sort_latest'); btnTrend.textContent = t('sort_trending');
+            const active = 'bg-cyan-500 text-slate-950', inactive = 'text-slate-500 hover:text-white';
+            btnLatest.className = `px-3 py-1 rounded-lg text-[8px] font-black uppercase transition-all ${sortMode==='latest'?active:inactive}`;
+            btnTrend.className = `px-3 py-1 rounded-lg text-[8px] font-black uppercase transition-all ${sortMode==='trending'?active:inactive}`;
+        }
+
+        function handleRoute() {
+            const hash = window.location.hash;
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-detail').classList.add('hidden');
+            document.getElementById('view-mypage').classList.add('hidden');
+            if (hash.startsWith('#poll/')) {
+                const id = hash.replace('#poll/', '');
+                document.getElementById('view-detail').classList.remove('hidden');
                 loadPollDetail(id);
-            } else { 
-                document.getElementById('view-home').classList.remove('hidden'); 
-                document.getElementById('view-detail').classList.add('hidden'); 
-                loadPolls(); 
+            } else if (hash === '#mypage') {
+                document.getElementById('view-mypage').classList.remove('hidden');
+                loadMyPolls();
+            } else {
+                document.getElementById('view-home').classList.remove('hidden');
+                loadAllPolls();
             }
-        };
+            window.scrollTo(0,0);
+        }
 
-        const updateStaticUI = () => {
-            const root = document.getElementById('appUI');
-            const tosModal = document.getElementById('tosModal');
-            document.getElementById('tosTitle').textContent = t('tosTitle');
-            document.getElementById('tosContent').innerHTML = t('tosBody');
-            document.getElementById('agreeTosBtn').textContent = t('tosAgree');
-            if (root.classList.contains('hidden')) return;
-            document.getElementById('loginBtn').innerHTML = `<i class="fab fa-google text-accent"></i> ${t('signin')}`;
-            document.getElementById('logoutBtn').textContent = t('logout');
-            document.getElementById('openCreateBtn').innerHTML = `<i class="fas fa-plus-circle text-xl text-white"></i> ${t('newPoll')}`;
-            document.getElementById('catSidebarTitle').textContent = t('categories');
-            document.getElementById('guideLabel').textContent = t('guideLabel');
-            document.getElementById('guideText').textContent = t('guideText');
-            document.getElementById('noticeLabel').textContent = t('noticeLabel');
-            document.getElementById('noticeText').textContent = t('noticeText');
-            document.getElementById('translateGuide').textContent = t('translateGuide');
-            document.getElementById('latestPollsTitle').innerHTML = `${currentLang==='ja'?'最新の':'Latest'} <span class="opacity-40 font-normal not-italic text-white">${currentLang==='ja'?'投票':'Polls'}</span>`;
-            document.getElementById('popularPollsTitle').innerHTML = `${currentLang==='ja'?'急上昇':'Trending'} <span class="opacity-40 font-normal not-italic text-white">${currentLang==='ja'?'中':'Now'}</span>`;
-            document.getElementById('backToListBtn').innerHTML = `<div class="w-10 h-10 rounded-full glass flex items-center justify-center text-white"><i class="fas fa-chevron-left text-white"></i></div> ${t('backToList')}`;
-            document.getElementById('discussionTitle').innerHTML = `<i class="far fa-comment-dots text-accent"></i> ${t('discussion')}`;
-            document.getElementById('commentText').placeholder = t('commentPlaceholder');
-            document.getElementById('postCommentBtn').textContent = t('send');
-            document.getElementById('commentLoginNotice').textContent = t('loginNotice');
-            document.getElementById('labelTitle').textContent = t('labelTitle');
-            document.getElementById('labelDesc').textContent = t('labelDesc');
-            document.getElementById('labelCat').textContent = t('labelCat');
-            document.getElementById('labelDeadline').textContent = t('labelDeadline');
-            document.getElementById('labelTags').textContent = t('labelTags');
-            document.getElementById('optionsLabel').textContent = t('labelOptions');
-            document.getElementById('cancelCreateBtn').textContent = t('cancel');
-            document.getElementById('savePollBtn').textContent = t('save');
-            document.getElementById('accentPresetsTitle').textContent = t('accentPresets');
-            document.getElementById('customColorsTitle').textContent = t('customColors');
-            document.getElementById('labelBg').textContent = t('background');
-            document.getElementById('labelText').textContent = t('mainText');
-            document.getElementById('searchInput').placeholder = t('searchPlaceholder');
-            if (document.getElementById('modalTitle')) document.getElementById('modalTitle').innerHTML = editMode ? t('edit') : `Create <span class="text-accent text-accent text-accent">${currentLang==='ja'?'投票':'Poll'}</span>`;
-        };
-
-        const renderCategoryMenu = () => {
-            const nav = document.getElementById('categoryNav'); const select = document.getElementById('pollCategoryInput'); if(!nav||!select) return;
+        function setupCategoryNav() {
+            const nav = document.getElementById('categoryNav'), select = document.getElementById('pollCategoryInput');
             nav.innerHTML = ''; select.innerHTML = '';
-            const btnAll = document.createElement('button');
-            btnAll.className = `nav-link px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all text-left shrink-0 ${activeCategory === "全て" ? 'active' : 'text-slate-400 hover:text-white'}`;
-            btnAll.textContent = t('all'); btnAll.onclick = () => { activeCategory = "全て"; renderCategoryMenu(); loadPolls(); };
-            nav.appendChild(btnAll);
-            i18n.ja.catNames.forEach((catJa) => {
+            ["全て", ...CATEGORIES_JA].forEach(cat => {
                 const btn = document.createElement('button');
-                btn.className = `nav-link px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all text-left shrink-0 ${activeCategory === catJa ? 'active' : 'text-slate-600 hover:text-white'}`;
-                btn.textContent = getCatName(catJa); btn.onclick = () => { activeCategory = catJa; renderCategoryMenu(); loadPolls(); };
+                btn.className = `nav-link px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all text-left whitespace-nowrap ${selectedCategory === cat ? 'active' : 'text-slate-500 hover:text-white'}`;
+                btn.textContent = (currentLang==='en' && cat==="全て") ? "All" : cat;
+                btn.onclick = () => { selectedCategory = cat; setupCategoryNav(); loadAllPolls(); };
                 nav.appendChild(btn);
-                const opt = document.createElement('option'); opt.value = catJa; opt.textContent = getCatName(catJa); select.appendChild(opt);
+                if (cat !== "全て") { const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt); }
             });
-        };
+        }
 
-        const setupAppInternal = () => { renderCategoryMenu(); loadPolls(); };
-
-        const initAuth = async () => {
-            const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-            if (token) { try { await signInWithCustomToken(auth, token); } catch (e) { await signInAnonymously(auth); } }
-            else { await signInAnonymously(auth); }
-        };
-
-        // --- 5. Firebase イベント登録 & アプリ起動 ---
-
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            const isReg = u && !u.isAnonymous;
-            const loginBtn = document.getElementById('loginBtn');
-            const userInfo = document.getElementById('userInfo');
-            const createBtn = document.getElementById('openCreateBtn');
-            if(loginBtn) loginBtn.style.display = isReg ? 'none' : 'flex';
-            if(userInfo) userInfo.style.display = isReg ? 'flex' : 'none';
-            if(createBtn) createBtn.style.display = isReg ? 'flex' : 'none';
-            if (isReg) document.getElementById('userName').textContent = maskName(u.displayName);
-            
-            const acc = localStorage.getItem('mixvote_accent') || '#06b6d4';
-            const bg = localStorage.getItem('mixvote_bg') || '#020617';
-            const tx = localStorage.getItem('mixvote_text') || '#f1f5f9';
-            window.setAccent(acc); window.setBgColor(bg); window.setTextColor(tx);
-
-            updateStaticUI();
-            
-            if (localStorage.getItem('mixvote_agreed')) { 
-                document.getElementById('appUI').classList.remove('hidden'); 
-                document.getElementById('tosModal').classList.add('hidden'); 
-                setupAppInternal(); 
-                handleRouting();
-            } else { 
-                document.getElementById('tosModal').classList.remove('hidden'); 
-            }
-        });
-
-        window.handleDelete = (id) => {
-            showMessage(t('confirmDelete'), "", async () => {
-                try {
-                    await updateDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', id), { deleted: true });
-                    goHome();
-                } catch (e) {}
+        function loadAllPolls() {
+            if (!user) return;
+            onSnapshot(query(POLLS_COLL), (snap) => {
+                const polls = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => !p.deleted);
+                if (sortMode === 'trending') {
+                    polls.sort((a,b) => {
+                        const scoreA = (a.votes?.reduce((s,v)=>s+v,0)||0) + (a.likes?.length||0);
+                        const scoreB = (b.votes?.reduce((s,v)=>s+v,0)||0) + (b.likes?.length||0);
+                        return scoreB - scoreA;
+                    });
+                } else {
+                    polls.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                }
+                renderPolls(polls);
             });
-        };
+        }
 
-        window.handlePollTranslate = async () => {
-            if (translatedData) { translatedData = null; renderPollDetailUI(originalPollData); return; }
-            const btn = document.getElementById('pollTranslateBtn');
-            btn.innerHTML = `<i class="fas fa-sync fa-spin"></i> ${t('translating')}`; btn.disabled = true;
-            try {
-                const target = currentLang === 'ja' ? 'Japanese' : 'English';
-                const prompt = `Translate poll: {"title": "${originalPollData.title}", "options": ${JSON.stringify(originalPollData.options)}} into ${target}. JSON ONLY.`;
-                const data = await callGemini(prompt, true);
-                if (data && data.title) { translatedData = { ...originalPollData, ...data }; renderPollDetailUI(translatedData); }
-            } catch (err) { btn.disabled = false; btn.innerHTML = `<i class="fas fa-language text-lg"></i><span>${t('translate')}</span>`; }
-        };
+        function renderPolls(polls) {
+            let filtered = polls;
+            if (selectedCategory !== "全て") filtered = filtered.filter(p => p.category === selectedCategory);
+            if (searchTerm) filtered = filtered.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()));
+            
+            const topContainer = document.getElementById('topPolls'), subContainer = document.getElementById('subPolls');
+            topContainer.innerHTML = ''; subContainer.innerHTML = '';
 
-        window.handleVote = async (idx) => {
-            if (!user) return showMessage(t('alertAuth'), "");
-            const ref = doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', currentPollId);
-            const d = await getDoc(ref); const p = d.data();
-            if (p.votedUsers?.includes(user.uid)) return showMessage(t('alertVoted'), "");
-            const v = [...p.votes]; v[idx]++;
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const country = tz.includes('/') ? tz.split('/')[0] : 'Global';
-            const countries = { ...(p.countries || {}) };
-            countries[country] = (countries[country] || 0) + 1;
-            await updateDoc(ref, { votes: v, votedUsers: arrayUnion(user.uid), countries: countries });
-            loadPollDetail(currentPollId);
-            const prompt = `User chose "${p.options[idx]}" in "${p.title}". Soulful 1-sentence comment in ${currentLang==='ja'?'Japanese':'English'}.`;
-            const container = document.getElementById('aiInsightContainer');
-            container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/20 flex flex-col items-center gap-3 text-accent"><i class="fas fa-sparkles ai-loading text-2xl"></i><p class="text-[9px] font-bold opacity-50 uppercase tracking-widest">${t('aiAnalyzing')}</p></div>`;
-            try {
-                const insight = await callGemini(prompt);
-                container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/30 animate-in fade-in slide-in-from-bottom-2 duration-700 text-white"><div class="flex items-center gap-2 mb-3 text-accent text-accent"><i class="fas fa-magic"></i><span class="text-[10px] font-black uppercase tracking-widest">${t('aiInsightTitle')}</span></div><p class="text-sm font-medium leading-relaxed italic text-white">"${insight.trim().replace(/^"|"$/g, '')}"</p></div>`;
-            } catch (e) { container.innerHTML = ""; }
-        };
+            const top5 = filtered.slice(0, 5);
+            const others = filtered.slice(5, 55);
 
-        window.downloadShareCard = async () => {
-            const canvas = document.getElementById('shareCanvas'); const ctx = canvas.getContext('2d');
-            canvas.width = 1200; canvas.height = 630;
-            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-            const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-main').trim();
-            ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = accent; ctx.globalAlpha = 0.1; ctx.beginPath(); ctx.arc(1200, 0, 400, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0;
-            ctx.fillStyle = "#ffffff"; ctx.font = "bold 60px sans-serif";
-            ctx.fillText(originalPollData.title.substring(0, 30), 80, 150);
-            ctx.fillStyle = accent; ctx.font = "bold 40px sans-serif";
-            ctx.fillText("MIX VOTE", 950, 580);
-            const link = document.createElement('a'); link.download = `mixvote-${currentPollId}.png`; link.href = canvas.toDataURL(); link.click();
-        };
+            top5.forEach(p => {
+                const total = p.votes?.reduce((s,v) => s+v, 0) || 0;
+                const div = document.createElement('div');
+                div.className = "poll-card glass rounded-[40px] p-10 cursor-pointer border border-white/5 animate-fade group relative overflow-hidden";
+                div.onclick = () => goDetail(p.id);
+                div.innerHTML = `
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-bl-full group-hover:bg-cyan-500/10 transition-all"></div>
+                    <div class="relative z-10 space-y-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-black uppercase px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 tracking-[0.2em]">${p.category}</span>
+                            <div class="flex items-center gap-4 text-[10px] font-black text-slate-600">
+                                <span><i class="far fa-heart mr-1"></i> ${p.likes?.length || 0}</span>
+                                <span><i class="fas fa-check-to-slot mr-1"></i> ${total}</span>
+                            </div>
+                        </div>
+                        <h3 class="text-3xl font-black leading-tight text-white italic group-hover:text-cyan-400 transition-colors">${p.title}</h3>
+                        <div class="flex items-center gap-3 pt-4 border-t border-white/5">
+                            <div class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-[10px] text-slate-500 font-black">${p.author ? p.author[0] : '?'}</div>
+                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">By ${p.author || 'User'}</span>
+                        </div>
+                    </div>`;
+                topContainer.appendChild(div);
+            });
 
-        const loadComments = (pid) => {
-            onSnapshot(query(collection(db, 'artifacts', appIdStr, 'public', 'data', 'polls', pid, 'comments'), orderBy('createdAt', 'desc')), (snap) => {
-                const list = document.getElementById('commentsList'); if(!list) return;
-                list.innerHTML = ''; const coms = snap.docs.map(d=>({id:d.id,...d.data()}));
-                if(!coms.length) { list.innerHTML=`<p class="text-center opacity-40 uppercase text-[9px] font-black py-16 tracking-widest text-white">${currentLang==='ja'?'議論はまだありません':'No discussions yet'}</p>`; return; }
-                coms.forEach(c => {
-                    const div = document.createElement('div'); div.className = "p-7 rounded-[32px] bg-white/5 border border-white/5 flex justify-start items-start group text-white";
-                    div.innerHTML = `<div class="flex-1 text-white"><div class="flex gap-3 items-center mb-3 text-white"><span class="text-[10px] font-black text-accent uppercase tracking-tighter text-white">${maskName(c.author)}</span><span class="text-[7px] font-bold uppercase tracking-widest opacity-40 text-current">${formatDate(c.createdAt)}</span></div><p class="text-sm leading-relaxed font-medium opacity-80 text-white">${c.text}</p></div>${user && c.userId===user.uid?`<button onclick="window.deleteComment('${c.id}')" class="text-[8px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 text-red-500">削除</button>`:''}`;
+            others.forEach(p => {
+                const div = document.createElement('div');
+                div.className = "poll-card glass rounded-2xl p-5 cursor-pointer border border-white/5 animate-fade flex items-center justify-between";
+                div.onclick = () => goDetail(p.id);
+                div.innerHTML = `
+                    <div class="flex flex-col gap-1 overflow-hidden">
+                        <span class="text-[8px] font-black uppercase text-cyan-500/50">${p.category}</span>
+                        <h4 class="text-sm font-bold text-slate-300 truncate pr-4">${p.title}</h4>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-800 text-[10px]"></i>`;
+                subContainer.appendChild(div);
+            });
+        }
+
+        async function loadPollDetail(id) {
+            currentPollId = id; multiSelections = [];
+            const ref = doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', id);
+            onSnapshot(ref, (snap) => {
+                if (!snap.exists()) return goHome();
+                currentPollData = snap.data();
+                renderDetail(id, currentPollData);
+            });
+        }
+
+        function renderDetail(id, p) {
+            const total = p.votes?.reduce((s,v) => s+v, 0) || 0;
+            const resultsVisible = p.votedUsers?.includes(user?.uid) || (p.deadline && new Date() > p.deadline.toDate());
+            const shareUrl = window.location.href;
+
+            let html = `
+                <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-10 pb-10 border-b border-white/5">
+                    <div class="space-y-4 max-w-2xl">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-cyan-500 text-slate-950 font-black text-[9px] px-3 py-1 rounded-md uppercase">${p.category}</span>
+                            ${p.is_multiple ? `<span class="bg-indigo-500/20 text-indigo-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-indigo-500/20">Multiple Selection</span>` : ''}
+                        </div>
+                        <h2 class="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-none">${p.title}</h2>
+                        <p class="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">${p.desc || ''}</p>
+                    </div>
+                    <button onclick="handleAction('like', '${id}')" class="w-12 h-12 rounded-2xl glass flex items-center justify-center transition-all ${p.likes?.includes(user?.uid) ? 'text-pink-500 bg-pink-500/5' : 'text-slate-500 hover:text-white'}"><i class="fas fa-heart text-xl"></i></button>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div class="space-y-3">
+                        ${p.options.map((opt, i) => {
+                            const perc = total > 0 ? Math.round(((p.votes[i]||0) / total) * 100) : 0;
+                            if (resultsVisible) return `<div class="relative overflow-hidden bg-slate-950 border border-white/5 rounded-2xl p-5 flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-cyan-500/10 transition-all duration-1000" style="width: ${perc}%"></div><div class="z-10"><span class="text-sm font-bold text-white">${opt}</span><div class="text-[9px] text-slate-500 uppercase mt-1">${p.votes[i]||0} ${t('vote_count_label')}</div></div><span class="z-10 text-xl font-black text-cyan-400 italic">${perc}%</span></div>`;
+                            if (p.is_multiple) return `<label class="w-full bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-4 cursor-pointer hover:border-cyan-500/50 transition-all group"><input type="checkbox" onchange="toggleSelection(${i})" class="w-5 h-5"><span class="font-bold text-white text-sm flex-1">${opt}</span></label>`;
+                            return `<button onclick="castVote(${i})" class="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-left hover:border-cyan-500/50 transition-all group flex items-center gap-4"><span class="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center font-black text-slate-600 italic text-sm">${i+1}</span><span class="font-bold text-white text-sm flex-1">${opt}</span></button>`;
+                        }).join('')}
+                        ${(p.is_multiple && !resultsVisible) ? `<button onclick="submitMultiVote()" class="w-full mt-6 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-5 rounded-2xl shadow-xl active:scale-95 uppercase tracking-widest text-xs">${t('btn_vote_multi')}</button>` : ''}
+                        <div class="mt-10 p-6 glass rounded-3xl border border-white/5 flex gap-4">
+                            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(t('share_text_prefix') + p.title)}&url=${encodeURIComponent(shareUrl)}" target="_blank" class="w-12 h-12 rounded-xl bg-slate-950 border border-white/10 flex items-center justify-center text-white hover:text-cyan-400"><i class="fab fa-x-twitter text-xl"></i></a>
+                            <button onclick="copyShareLink('${shareUrl}')" class="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-white hover:scale-105"><i class="fab fa-instagram text-xl"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center gap-6">
+                        ${resultsVisible ? `<div class="flex bg-slate-950/50 p-1.5 rounded-xl border border-white/5 mb-2"><button onclick="updateChartType('doughnut')" class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase ${chartType==='doughnut'?'bg-cyan-500 text-slate-950':'text-slate-500'}">${t('btn_doughnut')}</button><button onclick="updateChartType('bar')" class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase ${chartType==='bar'?'bg-cyan-500 text-slate-950':'text-slate-500'}">${t('btn_bar')}</button></div><div class="w-full max-w-[320px] relative"><canvas id="pollChart"></canvas><button onclick="downloadChart()" class="mt-4 w-full text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-cyan-400"><i class="fas fa-download mr-1"></i> ${t('btn_download')}</button></div>` : `<p class="text-slate-400 text-xs font-black uppercase tracking-widest">${t('voted_unlock_label')}</p>`}
+                    </div>
+                </div>`;
+            document.getElementById('pollDetailContent').innerHTML = html;
+            if (resultsVisible) renderChart(p.options, p.votes);
+            loadComments(id);
+        }
+
+        function renderChart(labels, data) {
+            const ctx = document.getElementById('pollChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            const accent = localStorage.getItem('mixvote_theme_accent') || '#06b6d4';
+            chartInstance = new Chart(ctx, {
+                type: chartType,
+                data: { labels, datasets: [{ data, backgroundColor: [accent, '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'], borderWidth: 0 }] },
+                options: { cutout: chartType==='doughnut'?'80%':0, plugins: { legend: { display: false } }, scales: chartType==='bar' ? { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } } : {} }
+            });
+        }
+
+        function loadComments(pid) {
+            const coll = collection(db, 'artifacts', appIdStr, 'public', 'data', 'polls', pid, 'comments');
+            onSnapshot(query(coll, orderBy('createdAt', 'desc')), (snap) => {
+                const list = document.getElementById('commentsList');
+                document.getElementById('commentCount').textContent = `${snap.size} ${t('discourse_label')}`;
+                list.innerHTML = snap.empty ? `<p class="text-center text-[10px] font-black text-slate-700 uppercase">No Discourse</p>` : '';
+                snap.docs.forEach(d => {
+                    const c = d.data();
+                    const div = document.createElement('div');
+                    div.className = "p-6 rounded-3xl bg-white/5 border border-white/5 flex gap-5 animate-fade";
+                    div.innerHTML = `<div class="w-10 h-10 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center text-xs text-slate-500 shrink-0 font-black">${maskName(c.author)[0]}</div><div class="flex-1"><span class="text-[10px] font-black text-cyan-500 uppercase">${maskName(c.author)}</span><p class="text-sm text-slate-300 leading-relaxed">${c.text}</p></div>`;
                     list.appendChild(div);
                 });
             });
-        };
+        }
 
-        window.deleteComment = async (cid) => { await deleteDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', currentPollId, 'comments', cid)); };
-        window.copyUrl = () => { const el = document.createElement('textarea'); el.value = window.location.href; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); showMessage(t('copied'), ""); };
-
-        // 検索
-        document.getElementById('searchInput').addEventListener('input', (e) => { searchQuery = e.target.value.toLowerCase(); loadPolls(); });
-        
-        // TOS同意
-        document.getElementById('agreeTosBtn').onclick = () => { 
-            localStorage.setItem('mixvote_agreed', 'true'); 
-            document.getElementById('tosModal').classList.add('hidden'); 
-            document.getElementById('appUI').classList.remove('hidden'); 
-            updateStaticUI();
-            setupAppInternal();
-            handleRouting();
-        };
-
-        window.addEventListener('hashchange', handleRouting);
-        document.getElementById('openCreateBtn').onclick = () => { editMode = false; document.getElementById('pollTitleInput').value = ""; document.getElementById('pollOptionsInput').value = ""; document.getElementById('createModal').classList.remove('hidden'); };
-        document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
-        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
-        document.getElementById('logoutBtn').onclick = () => auth.signOut();
-        document.getElementById('langToggle').onclick = () => { currentLang = currentLang === 'ja' ? 'en' : 'ja'; updateStaticUI(); renderCategoryMenu(); if(currentPollId) loadPollDetail(currentPollId); else loadPolls(); };
-        document.getElementById('themeToggleBtn').onclick = (e) => { e.stopPropagation(); document.getElementById('themeMenu').classList.toggle('hidden'); };
-        document.addEventListener('click', (e) => { if (!document.getElementById('themeMenu').contains(e.target)) { const m = document.getElementById('themeMenu'); if(m) m.classList.add('hidden'); } });
-
-        window.suggestTagsOnly = async () => {
-            const title = document.getElementById('pollTitleInput').value.trim();
-            if (!title) return;
-            const btn = document.getElementById('aiSuggestTagsBtn');
-            btn.disabled = true; btn.innerHTML = `<i class="fas fa-sync fa-spin"></i>`;
-            const prompt = `Suggest 3 relevant hashtags for: "${title}". Output only hashtags.`;
+        async function loadMyPolls() {
+            const list = document.getElementById('myPollsList');
+            list.innerHTML = '<div class="flex justify-center p-20"><div class="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div></div>';
             try {
-                const result = await callGemini(prompt);
-                document.getElementById('pollTagsInput').value = result.trim();
-            } catch (e) {}
-            btn.disabled = false; btn.innerHTML = "AI Suggest";
+                const snap = await getDocs(POLLS_COLL);
+                const myPolls = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.authorID === user.uid && !p.deleted);
+                myPolls.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                list.innerHTML = myPolls.length ? '' : `<p class="text-center py-20 text-slate-700 font-bold uppercase tracking-widest text-xs">No Data</p>`;
+                myPolls.forEach(p => {
+                    const total = p.votes?.reduce((s,v) => s+v, 0) || 0;
+                    const div = document.createElement('div');
+                    div.className = "glass rounded-3xl p-8 border border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 animate-fade";
+                    div.innerHTML = `
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-white mb-2 cursor-pointer hover:text-cyan-400 transition-colors" onclick="goDetail('${p.id}')">${p.title}</h3>
+                            <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest">${total} ${t('vote_count_label')}</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openEdit('${p.id}')" class="px-5 py-2.5 rounded-xl bg-white/5 text-white text-[10px] font-black uppercase">${t('btn_modify')}</button>
+                            <button onclick="handleDeleteAction('${p.id}')" class="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-500 text-[10px] font-black uppercase">${t('btn_archive')}</button>
+                        </div>`;
+                    list.appendChild(div);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // --- Helper Functions ---
+        window.goHome = () => { history.pushState(null, '', '#'); handleRoute(); };
+        window.goDetail = (id) => { history.pushState(null, '', `#poll/${id}`); handleRoute(); };
+        window.goMyPage = () => { if (user && !user.isAnonymous) { history.pushState(null, '', '#mypage'); handleRoute(); } };
+        window.switchLang = (lang) => { currentLang = lang; localStorage.setItem('mixvote_lang', lang); updateUILanguage(); setupCategoryNav(); handleRoute(); };
+        window.switchSort = (mode) => { sortMode = mode; updateSortUI(); loadAllPolls(); };
+        window.updateChartType = (type) => { chartType = type; if (currentPollData) renderDetail(currentPollId, currentPollData); };
+        window.downloadChart = () => { const canvas = document.getElementById('pollChart'); const link = document.createElement('a'); link.download = `Result.png`; link.href = canvas.toDataURL(); link.click(); };
+        window.copyShareLink = (url) => { const el = document.createElement('textarea'); el.value = url; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); showMessage(t('copied'), t('share_label')); };
+        window.toggleSelection = (idx) => { const i = multiSelections.indexOf(idx); if (i > -1) multiSelections.splice(i, 1); else multiSelections.push(idx); };
+
+        window.submitMultiVote = async () => {
+            if (multiSelections.length === 0) return;
+            if (!user) return showMessage(t('error_auth'), "Sign in required.");
+            const ref = doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', currentPollId);
+            await runTransaction(db, async (t) => {
+                const snap = await t.get(ref);
+                const d = snap.data();
+                if (d.votedUsers?.includes(user.uid)) return;
+                const v = [...d.votes];
+                multiSelections.forEach(idx => v[idx]++);
+                t.update(ref, { votes: v, votedUsers: arrayUnion(user.uid) });
+            });
+            multiSelections = [];
         };
 
-        document.getElementById('savePollBtn').onclick = async () => {
-            const title = document.getElementById('pollTitleInput').value.trim(); 
-            const rawOptions = document.getElementById('pollOptionsInput').value.split('\n').filter(s=>s.trim());
-            if(!title||rawOptions.length<2) return showMessage(t('alertInvalid'), "");
-            const data = { title, question: document.getElementById('pollDescInput').value, category: document.getElementById('pollCategoryInput').value, options: rawOptions, tags: document.getElementById('pollTagsInput').value.split(' ').filter(s=>s.startsWith('#')), createdAt: serverTimestamp(), author: user.displayName, authorID: user.uid, votes: new Array(rawOptions.length).fill(0), votedUsers: [], deleted: false, countries: {} };
-            await addDoc(POLLS_COLLECTION, data);
-            document.getElementById('createModal').classList.add('hidden'); loadPolls();
+        window.castVote = async (idx) => {
+            if (!user) return showMessage(t('error_auth'), "Sign in required.");
+            const ref = doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', currentPollId);
+            await runTransaction(db, async (t) => {
+                const snap = await t.get(ref);
+                const d = snap.data();
+                if (d.votedUsers?.includes(user.uid)) return;
+                const v = [...d.votes]; v[idx]++;
+                t.update(ref, { votes: v, votedUsers: arrayUnion(user.uid) });
+            });
         };
 
-        window.handleEdit = async (id) => {
-            editMode = true; editPollId = id; const p = (await getDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', id))).data();
-            updateStaticUI(); document.getElementById('pollTitleInput').value = p.title; document.getElementById('pollDescInput').value = p.question || "";
-            document.getElementById('pollOptionsInput').value = p.options.join('\n'); document.getElementById('pollCategoryInput').value = p.category;
-            document.getElementById('pollTagsInput').value = p.tags ? p.tags.join(' ') : "";
+        window.handleAction = async (type, id) => {
+            if (!user || user.isAnonymous) return;
+            const ref = doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', id);
+            const snap = await getDoc(ref);
+            const data = snap.data();
+            if (type === 'like') {
+                if (user.uid !== data.authorID) return;
+                const likes = data.likes || [];
+                const idx = likes.indexOf(user.uid);
+                if (idx > -1) likes.splice(idx, 1); else likes.push(user.uid);
+                await updateDoc(ref, { likes });
+            }
+        };
+
+        window.handleDeleteAction = (id) => {
+            const modal = document.getElementById('msgModal');
+            document.getElementById('msgTitle').textContent = t('archive_confirm');
+            document.getElementById('msgBody').textContent = t('archive_body');
+            document.getElementById('msgConfirmBtn').classList.add('hidden');
+            document.getElementById('msgCloseBtn').textContent = t('btn_abort');
+            document.getElementById('extraActions').classList.remove('hidden');
+            modal.classList.remove('hidden');
+            document.getElementById('msgArchiveBtn').onclick = async () => {
+                await updateDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', id), { deleted: true });
+                modal.classList.add('hidden'); loadMyPolls();
+            };
+            document.getElementById('msgDeletePermanentBtn').onclick = async () => {
+                await deleteDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', id));
+                modal.classList.add('hidden'); loadMyPolls();
+            };
+        };
+
+        window.openEdit = async (id) => {
+            editMode = true; editId = id;
+            const snap = await getDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', id));
+            const p = snap.data();
+            document.getElementById('modalTitle').textContent = t('btn_modify');
+            document.getElementById('pollTitleInput').value = p.title;
+            document.getElementById('pollOptionsInput').value = p.options.join('\n');
+            document.getElementById('pollCategoryInput').value = p.category;
             document.getElementById('createModal').classList.remove('hidden');
         };
 
-        initAuth();
+        // --- Entry Point ---
+        const init = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+            } catch (e) {}
+            onAuthStateChanged(auth, (u) => {
+                user = u; document.getElementById('loadingLayer').classList.add('hidden');
+                updateAuthUI(); updateUILanguage(); applyTheme();
+                if (localStorage.getItem('mixvote_tos_accepted')) { document.getElementById('appUI').classList.remove('hidden'); handleRoute(); }
+                else document.getElementById('tosModal').classList.remove('hidden');
+            });
+        };
+
+        // --- Listeners ---
+        document.getElementById('themeAccentInput').oninput = (e) => { localStorage.setItem('mixvote_theme_accent', e.target.value); applyTheme(); };
+        document.getElementById('themeBgInput').oninput = (e) => { localStorage.setItem('mixvote_theme_bg', e.target.value); applyTheme(); };
+        document.getElementById('themeTextInput').oninput = (e) => { localStorage.setItem('mixvote_theme_text', e.target.value); applyTheme(); };
+        document.getElementById('resetThemeBtn').onclick = () => { localStorage.removeItem('mixvote_theme_accent'); localStorage.removeItem('mixvote_theme_bg'); localStorage.removeItem('mixvote_theme_text'); applyTheme(); };
+        document.getElementById('globalSearch').oninput = (e) => { searchTerm = e.target.value; loadAllPolls(); };
+        document.getElementById('agreeTosBtn').onclick = () => { localStorage.setItem('mixvote_tos_accepted', 'true'); document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); handleRoute(); };
+        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
+        document.getElementById('logoutBtn').onclick = () => auth.signOut();
+        document.getElementById('openCreateBtn').onclick = () => { editMode = false; editId = null; document.getElementById('createModal').classList.remove('hidden'); };
+        document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
+        document.getElementById('msgCloseBtn').onclick = () => document.getElementById('msgModal').classList.add('hidden');
+        document.getElementById('savePollBtn').onclick = async () => {
+            const title = document.getElementById('pollTitleInput').value.trim();
+            const options = document.getElementById('pollOptionsInput').value.split('\n').filter(x => x.trim());
+            if (!title || options.length < 2) return showMessage(t('error_input'), "Error");
+            const data = {
+                title, category: document.getElementById('pollCategoryInput').value,
+                is_multiple: document.getElementById('pollMultipleChoiceInput').checked,
+                options, updatedAt: serverTimestamp()
+            };
+            if (editMode && editId) await updateDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', editId), data);
+            else await addDoc(POLLS_COLL, { ...data, author: user.displayName, authorID: user.uid, createdAt: serverTimestamp(), votes: new Array(options.length).fill(0), votedUsers: [], likes: [], deleted: false });
+            document.getElementById('createModal').classList.add('hidden'); handleRoute();
+        };
+
+        window.onpopstate = handleRoute;
+        setupCategoryNav();
+        init();
     </script>
 </body>
 </html>
