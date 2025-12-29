@@ -143,7 +143,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen text-current">
 
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
@@ -166,12 +166,12 @@
         <div class="glass max-w-2xl w-full rounded-3xl p-8 md:p-12 shadow-2xl border border-white/10">
             <div class="flex items-center gap-3 mb-8">
                 <div class="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/50">
-                    <i class="fas fa-shield-alt text-white text-xl"></i>
+                    <i class="fas fa-shield-alt text-white text-xl text-white"></i>
                 </div>
                 <h2 id="tosTitle" class="text-3xl font-extrabold tracking-tight text-white uppercase">Agreement</h2>
             </div>
             <div id="tosContent" class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-400"></div>
-            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-accent to-blue-600 text-white font-black py-6 rounded-2xl transition-all shadow-2xl shadow-accent/40 active:scale-95 uppercase tracking-widest text-lg md:text-xl border border-white/10">
+            <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-accent to-blue-600 text-white font-black py-6 rounded-2xl transition-all shadow-2xl shadow-accent/40 active:scale-95 uppercase tracking-widest text-lg md:text-xl border border-white/10 text-white">
                 I Agree & Start
             </button>
         </div>
@@ -187,7 +187,7 @@
                     </div>
                     <h1 class="text-2xl font-black tracking-tighter text-white uppercase">Mix Vote</h1>
                 </div>
-                <div id="authArea" class="flex items-center gap-3 md:gap-4">
+                <div id="authArea" class="flex items-center gap-3 md:gap-4 text-white">
                     <div class="relative">
                         <button id="themeToggleBtn" class="glass p-2.5 rounded-xl text-slate-400 hover:text-accent transition-all">
                             <i class="fas fa-palette text-lg"></i>
@@ -203,16 +203,16 @@
                             </div>
                             <h4 id="customColorsTitle" class="text-[9px] font-black uppercase tracking-widest mb-4 opacity-50">Custom UI Colors</h4>
                             <div class="space-y-4">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between text-white">
                                     <span id="labelBg" class="text-[10px] font-bold opacity-70">Background</span>
                                     <input type="color" id="bgPicker" oninput="setBgColor(this.value)">
                                 </div>
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between text-white">
                                     <span id="labelText" class="text-[10px] font-bold opacity-70">Text Color</span>
                                     <input type="color" id="textPicker" oninput="setTextColor(this.value)">
                                 </div>
                             </div>
-                            <button onclick="resetTheme()" class="w-full mt-6 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] font-bold uppercase tracking-widest transition-all">Reset Default</button>
+                            <button onclick="resetTheme()" class="w-full mt-6 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] font-bold uppercase tracking-widest transition-all text-white">Reset Default</button>
                         </div>
                     </div>
                     <button id="langToggle" class="glass text-[10px] font-black uppercase tracking-widest px-3 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all">JP / EN</button>
@@ -222,7 +222,7 @@
                     <div id="userInfo" class="hidden flex items-center gap-4 text-right">
                         <div>
                             <p id="userName" class="text-sm font-black text-slate-200"></p>
-                            <button id="logoutBtn" class="text-[10px] text-slate-500 hover:text-accent uppercase font-black tracking-widest">Logout</button>
+                            <button id="logoutBtn" class="text-[10px] text-slate-500 hover:text-accent uppercase font-black tracking-widest text-slate-500">Logout</button>
                         </div>
                     </div>
                 </div>
@@ -230,37 +230,37 @@
         </header>
 
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 mt-10">
-            <aside class="lg:col-span-3 space-y-8">
+            <aside class="lg:col-span-3 space-y-8 text-current">
                 <button id="openCreateBtn" class="btn-glow hidden w-full bg-gradient-to-r from-accent to-blue-600 text-white font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-accent/20 active:scale-95 transition-all uppercase tracking-widest text-xs">
-                    <i class="fas fa-plus-circle text-xl"></i> New Poll
+                    <i class="fas fa-plus-circle text-xl text-white"></i> New Poll
                 </button>
-                <div class="glass rounded-3xl p-4 border border-white/5 flex items-center gap-3 text-current">
+                <div class="glass rounded-3xl p-4 border border-white/5 flex items-center gap-3">
                     <i class="fas fa-search text-accent opacity-50"></i>
                     <input type="text" id="searchInput" class="bg-transparent border-none outline-none text-xs w-full font-bold placeholder:opacity-30 text-current" placeholder="Search...">
                 </div>
                 <div class="glass rounded-3xl p-6 border border-white/5">
-                    <h3 id="catSidebarTitle" class="text-xs font-black uppercase tracking-[0.2em] opacity-50 mb-6 italic">Categories</h3>
+                    <h3 id="catSidebarTitle" class="text-xs font-black uppercase tracking-[0.2em] opacity-50 mb-6 italic text-slate-500">Categories</h3>
                     <nav id="categoryNav" class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 custom-scrollbar"></nav>
                 </div>
                 <div class="glass rounded-3xl p-6 border border-white/5 opacity-70">
                     <div class="flex items-center gap-3 text-accent mb-3">
                         <i class="fas fa-info-circle"></i>
-                        <span id="guideLabel" class="text-xs font-bold uppercase tracking-widest">Guide</span>
+                        <span id="guideLabel" class="text-xs font-bold uppercase tracking-widest text-accent text-accent">Guide</span>
                     </div>
-                    <p id="guideText" class="text-[11px] leading-relaxed font-medium text-current"></p>
+                    <p id="guideText" class="text-[11px] leading-relaxed font-medium"></p>
                 </div>
             </aside>
 
             <main class="lg:col-span-9 space-y-16 pb-32 text-current">
                 <div id="view-home" class="space-y-14">
                     <div class="glass rounded-[32px] p-6 border-l-4 border-accent">
-                        <div class="flex items-start gap-5 text-accent">
+                        <div class="flex items-start gap-5 text-accent text-accent">
                             <div class="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
                                 <i class="fas fa-bullhorn text-xl"></i>
                             </div>
                             <div class="w-full">
                                 <h3 id="noticeLabel" class="font-black text-xs uppercase tracking-widest mb-1.5 italic">Notice</h3>
-                                <p id="noticeText" class="text-xs md:text-sm leading-relaxed font-medium opacity-80 mb-2"></p>
+                                <p id="noticeText" class="text-xs md:text-sm leading-relaxed font-medium opacity-80 mb-2 text-current"></p>
                                 <div class="bg-accent/5 p-4 rounded-2xl border border-accent/10 flex items-center gap-4 text-current">
                                     <div class="w-10 h-10 rounded-full glass flex items-center justify-center shrink-0 text-accent">
                                         <i class="fas fa-globe"></i>
@@ -271,28 +271,28 @@
                         </div>
                     </div>
                     <section>
-                        <h2 id="latestPollsTitle" class="text-2xl font-black italic mb-8 uppercase tracking-tighter">Latest <span class="opacity-40 font-normal not-italic">Polls</span></h2>
-                        <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                        <h2 id="latestPollsTitle" class="text-2xl font-black italic mb-8 uppercase tracking-tighter text-current">Latest <span class="opacity-40 font-normal not-italic text-current">Polls</span></h2>
+                        <div id="latestPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-current"></div>
                     </section>
                     <section>
-                        <h2 id="popularPollsTitle" class="text-2xl font-black italic mb-8 uppercase tracking-tighter">Trending <span class="opacity-40 font-normal not-italic">Now</span></h2>
+                        <h2 id="popularPollsTitle" class="text-2xl font-black italic mb-8 uppercase tracking-tighter text-current text-current">Trending <span class="opacity-40 font-normal not-italic">Now</span></h2>
                         <div id="popularPolls" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </section>
                 </div>
 
                 <div id="view-detail" class="hidden space-y-10">
-                    <button id="backToListBtn" onclick="goHome()" class="group flex items-center gap-3 opacity-60 hover:opacity-100 font-black uppercase tracking-widest text-[10px] transition-all">
+                    <button id="backToListBtn" onclick="goHome()" class="group flex items-center gap-3 opacity-60 hover:opacity-100 font-black uppercase tracking-widest text-[10px] transition-all text-current text-current">
                         <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-current"><i class="fas fa-chevron-left"></i></div>
                         一覧に戻る
                     </button>
-                    <div id="pollDetailContent" class="glass rounded-[40px] p-0 overflow-hidden border border-white/10 shadow-2xl space-y-0 text-current"></div>
+                    <div id="pollDetailContent" class="glass rounded-[40px] p-0 overflow-hidden border border-white/10 shadow-2xl space-y-0 text-current text-current text-current text-current text-current"></div>
                     <div class="glass rounded-[40px] p-8 md:p-12 border border-white/10">
-                        <h3 id="discussionTitle" class="text-2xl font-black mb-10 uppercase tracking-widest italic text-current"><i class="far fa-comment-dots text-accent"></i> Discussion</h3>
-                        <div id="commentInputArea" class="hidden mb-12 relative text-current">
+                        <h3 id="discussionTitle" class="text-2xl font-black mb-10 uppercase tracking-widest italic text-current text-current text-current text-current text-current text-current text-current"><i class="far fa-comment-dots text-accent text-accent text-accent"></i> Discussion</h3>
+                        <div id="commentInputArea" class="hidden mb-12 relative text-current text-current">
                             <textarea id="commentText" maxlength="200" class="w-full bg-black/20 border border-white/10 rounded-3xl p-6 text-current outline-none focus:ring-2 focus:ring-accent/50 placeholder:opacity-30 font-medium" rows="3"></textarea>
-                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-accent to-blue-600 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">送信</button>
+                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-accent to-blue-600 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all text-white">送信</button>
                         </div>
-                        <div id="commentLoginNotice" class="text-center p-12 bg-white/5 rounded-[30px] opacity-40 font-black uppercase tracking-widest text-[10px] border border-dashed border-white/10 text-current"></div>
+                        <div id="commentLoginNotice" class="text-center p-12 bg-white/5 rounded-[30px] opacity-40 font-black uppercase tracking-widest text-[10px] border border-dashed border-white/10 text-current text-current"></div>
                         <div id="commentsList" class="space-y-6"></div>
                     </div>
                 </div>
@@ -303,36 +303,37 @@
     <!-- 作成モーダル -->
     <div id="createModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4">
         <div class="glass max-w-xl w-full rounded-[40px] p-10 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto custom-scrollbar text-white">
-            <h2 id="modalTitle" class="text-3xl font-black mb-8 italic tracking-tighter uppercase">Create <span class="text-accent text-accent text-accent">Poll</span></h2>
+            <h2 id="modalTitle" class="text-3xl font-black mb-8 italic tracking-tighter uppercase text-white">Create <span class="text-accent text-accent text-accent text-accent">Poll</span></h2>
             <div class="space-y-6">
-                <div><label id="labelTitle" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
+                <div><label id="labelTitle" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
                 <input type="text" id="pollTitleInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold text-white"></div>
-                <div><label id="labelDesc" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
+                <div><label id="labelDesc" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
                 <textarea id="pollDescInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium text-white" rows="2"></textarea></div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div><label id="labelCat" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
+                <div class="grid grid-cols-2 gap-6 text-white">
+                    <div><label id="labelCat" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
                     <select id="pollCategoryInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent font-bold" onchange="window.generateImageCandidates()"></select></div>
-                    <div><label id="labelDeadline" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2"></label>
-                    <input type="datetime-local" id="pollDeadlineInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium text-white"></div>
+                    <div><label id="labelDeadline" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
+                    <input type="datetime-local" id="pollDeadlineInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium text-white text-white"></div>
                 </div>
 
                 <div class="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-4">
                     <label id="labelVisual" class="text-[10px] font-black opacity-60 uppercase tracking-widest block text-white"></label>
                     <div class="flex gap-2">
-                        <input type="text" id="pollVisualInput" class="flex-1 bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold text-xs" placeholder="キーワード入力 (日本語OK)">
+                        <input type="text" id="pollVisualInput" class="flex-1 bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold text-xs text-white" placeholder="キーワード入力 (日本語OK)">
                         <button onclick="window.generateImageCandidates()" class="bg-accent text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shrink-0">表示</button>
                     </div>
                     <div id="imageCandidatesGrid" class="grid grid-cols-5 gap-2 pt-2 h-[80px]"></div>
+                    <p class="text-[8px] opacity-40 italic text-white">*画像はUnsplashライセンスにより安全に利用可能です。</p>
                 </div>
 
                 <div class="relative">
                     <label id="labelTags" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
-                    <input type="text" id="pollTagsInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold pr-24" placeholder="#Tags">
-                    <button onclick="window.suggestTags()" class="absolute right-2 bottom-2 bg-accent text-slate-950 px-3 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest active:scale-95 transition-all" id="aiSuggestTagsBtn">AI Suggest</button>
+                    <input type="text" id="pollTagsInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold pr-24 text-white" placeholder="#Tags">
+                    <button onclick="window.suggestTags()" class="absolute right-2 bottom-2 bg-accent text-slate-950 px-3 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest active:scale-95 transition-all text-accent" id="aiSuggestTagsBtn">AI Suggest</button>
                 </div>
 
                 <div><label id="optionsLabel" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
-                <textarea id="pollOptionsInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium text-white" rows="4"></textarea></div>
+                <textarea id="pollOptionsInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium text-white text-white" rows="4"></textarea></div>
             </div>
             <div class="flex gap-4 mt-12">
                 <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all text-white"></button>
@@ -346,7 +347,7 @@
         import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, arrayUnion, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-        // --- 1. 基本設定・辞書 ---
+        // --- 1. 初期設定・辞書データ (ReferenceError回避のため最初に定義) ---
         const userLang = navigator.language || navigator.userLanguage;
         let currentLang = userLang.startsWith('ja') ? 'ja' : 'en';
 
@@ -362,12 +363,7 @@
                 unlockResults: "投票後に結果が表示されます", quizResult: "解答", correct: "正解",
                 noExplanation: "解説はありません。", share: "共有", edit: "編集", delete: "削除", save: "保存", cancel: "キャンセル",
                 translate: "アンケートを翻訳", translating: "翻訳中...", showOriginal: "原文を表示", tosTitle: "利用規約", tosAgree: "同意して開始",
-                tosBody: `<div class="space-y-6 text-slate-300 text-sm leading-relaxed">
-                    <p>Mix Voteへようこそ。本プラットフォームを安全かつ楽しくご利用いただくために、以下の規約にご同意ください。</p>
-                    <section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">1. 行動指針</h4><ul class="list-disc pl-5"><li>他者の感性や意見を尊重しましょう。</li><li>誹謗中傷、差別的表現は固く禁止します。</li></ul></section>
-                    <section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">2. AI分析</h4><p>AIインサイトは楽しみを目的としたもので、正確性を保証しません。</p></section>
-                    <section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">3. データの取り扱い</h4><p>画像提供には安全なUnsplashを使用しています。投稿内容は公開情報として扱われます。</p></section>
-                </div>`,
+                tosBody: `<div class="space-y-6 text-slate-300 text-sm leading-relaxed"><p>Mix Voteへようこそ。本プラットフォームを安全かつ楽しくご利用いただくために、以下の規約にご同意ください。</p><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">1. 行動指針</h4><ul class="list-disc pl-5"><li>他者の感性や意見を尊重しましょう。</li><li>誹謗中傷、差別的表現は固く禁止します。</li></ul></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">2. データの取り扱い</h4><p>画像提供には安全なUnsplashを使用しています。投稿内容は公開情報として扱われます。</p></section></div>`,
                 labelTitle: "タイトル", labelDesc: "説明文", labelCat: "カテゴリー", labelDeadline: "終了期限", labelTags: "タグ", labelVisual: "画像選択 (候補をクリック)",
                 voteOrigin: "投票地域の分布", downloadCard: "結果カードをダウンロード", searchPlaceholder: "検索または#タグ...",
                 accentPresets: "アクセントカラー", customColors: "カラーカスタマイズ", background: "背景色", mainText: "文字色", reset: "リセット",
@@ -400,7 +396,7 @@
             "政治": "parliament", "趣味": "photography", "クイズ": "brain", "あるある": "people"
         };
 
-        // --- 2. 状態管理 ---
+        // --- 2. 状態管理変数 ---
         let user = null;
         let activeCategory = "全て";
         let searchQuery = "";
@@ -413,15 +409,15 @@
         let selectedImageUrl = null;
         let currentAIInsight = "";
 
-        // --- 3. Firebase 初期化 ---
-        const firebaseConfig = JSON.parse('{"apiKey":"AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE","authDomain":"mixvotesurvey.firebaseapp.com","projectId":"mixvotesurvey","messagingSenderId":"352307389497","appId":"1:352307389497:web:0939fd29452d6c6afc59e8"}');
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // --- 3. Firebase サービス初期化 ---
+        const firebaseConfigObject = JSON.parse('{"apiKey":"AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE","authDomain":"mixvotesurvey.firebaseapp.com","projectId":"mixvotesurvey","messagingSenderId":"352307389497","appId":"1:352307389497:web:0939fd29452d6c6afc59e8"}');
+        const firebaseApp = initializeApp(firebaseConfigObject);
+        const auth = getAuth(firebaseApp);
+        const db = getFirestore(firebaseApp);
         const appIdStr = typeof __app_id !== 'undefined' ? __app_id : 'mixvote-default';
         const POLLS_COLLECTION = collection(db, 'artifacts', appIdStr, 'public', 'data', 'polls');
 
-        // --- 4. ユーティリティ・関数群 (Hoisting回避のため一括定義) ---
+        // --- 4. ユーティリティ & UI制御関数 (一括定義) ---
         const t = (key) => i18n[currentLang][key] || key;
         const getCatName = (jaName) => { const idx = i18n.ja.catNames.indexOf(jaName); return idx !== -1 ? i18n[currentLang].catNames[idx] : jaName; };
         const maskName = (name) => name ? (name.length <= 3 ? '●●●' : name.substring(0, 3) + '●●●') : 'Anonymous';
@@ -447,6 +443,7 @@
         };
         window.resetTheme = () => { setAccent('#06b6d4'); setBgColor('#020617'); setTextColor('#f1f5f9'); };
 
+        // Unsplashから候補画像を生成する
         window.generateImageCandidates = () => {
             const grid = document.getElementById('imageCandidatesGrid');
             if (!grid) return;
@@ -538,6 +535,7 @@
             document.getElementById('labelBg').textContent = t('background');
             document.getElementById('labelText').textContent = t('mainText');
             document.getElementById('searchInput').placeholder = t('searchPlaceholder');
+            if (document.getElementById('modalTitle')) document.getElementById('modalTitle').innerHTML = editMode ? t('edit') : `Create <span class="text-accent">${currentLang==='ja'?'投票':'Poll'}</span>`;
         };
 
         const loadPolls = async () => {
@@ -560,7 +558,7 @@
                 const div = document.createElement('div'); div.onclick = () => goDetail(p.id);
                 div.className = "poll-card glass rounded-[32px] cursor-pointer flex flex-col justify-between border border-white/5";
                 const imgSrc = p.imageUrl || `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(catImageMap[p.category] || "abstract")}`;
-                div.innerHTML = `<div class="relative w-full"><img src="${imgSrc}" class="poll-card-img" alt="Poll Image"><div class="absolute bottom-4 left-4 right-4 text-slate-950"><span class="text-[10px] font-black px-3 py-1 rounded-full bg-accent uppercase tracking-widest shadow-lg">${getCatName(p.category)}</span></div></div><div class="p-7 space-y-4 text-current text-current text-current"><div class="flex justify-between items-center opacity-50"><span class="text-[9px] font-black tracking-tighter">${formatDate(p.createdAt)}</span></div><h3 class="text-lg font-black line-clamp-2 leading-tight tracking-tight">${p.title}</h3>${p.tags ? `<div class="flex flex-wrap gap-2 pt-1">${p.tags.map(t => `<span class="text-[8px] font-bold text-accent opacity-60 text-accent text-accent">${t}</span>`).join('')}</div>` : ''}</div><div class="px-7 pb-7 border-t border-white/5 pt-6 flex justify-between items-center mt-auto text-current text-current text-current"><span class="text-[9px] font-bold italic opacity-60">${t('author')}: ${maskName(p.author)}</span><div class="flex items-center gap-1 text-current"><span class="text-accent font-black text-xs text-accent text-accent text-accent">${p.votes?.reduce((s,v)=>s+v,0)||0}</span><span class="text-[8px] font-black uppercase opacity-60">${t('votes')}</span></div></div>`;
+                div.innerHTML = `<div class="relative w-full"><img src="${imgSrc}" class="poll-card-img" alt="Poll Image"><div class="absolute bottom-4 left-4 right-4 text-slate-950"><span class="text-[10px] font-black px-3 py-1 rounded-full bg-accent uppercase tracking-widest shadow-lg text-slate-950">${getCatName(p.category)}</span></div></div><div class="p-7 space-y-4 text-current"><div class="flex justify-between items-center opacity-50"><span class="text-[9px] font-black opacity-50">${formatDate(p.createdAt)}</span></div><h3 class="text-lg font-black line-clamp-2 leading-tight tracking-tight">${p.title}</h3>${p.tags ? `<div class="flex flex-wrap gap-2 pt-1">${p.tags.map(t => `<span class="text-[8px] font-bold text-accent opacity-60 text-accent">${t}</span>`).join('')}</div>` : ''}</div><div class="px-7 pb-7 border-t border-white/5 pt-6 flex justify-between items-center mt-auto text-current"><span class="text-[9px] font-bold italic opacity-60">${t('author')}: ${maskName(p.author)}</span><div class="flex items-center gap-1 text-current"><span class="text-accent font-black text-xs text-accent">${p.votes?.reduce((s,v)=>s+v,0)||0}</span><span class="text-[8px] font-black uppercase opacity-60">${t('votes')}</span></div></div>`;
                 container.appendChild(div);
             });
         };
@@ -605,7 +603,7 @@
                 const id = h.replace('#poll/', ''); 
                 document.getElementById('view-home').classList.add('hidden'); 
                 document.getElementById('view-detail').classList.remove('hidden'); 
-                // loadPollDetail(id); // 詳細ロジックは必要に応じて復元
+                // loadPollDetail(id);
             } else { 
                 document.getElementById('view-home').classList.remove('hidden'); 
                 document.getElementById('view-detail').classList.add('hidden'); 
@@ -619,7 +617,7 @@
             else { await signInAnonymously(auth); }
         };
 
-        // --- 5. イベントリスナーとアプリ起動 ---
+        // --- 5. アプリ起動とイベントリスナー ---
         onAuthStateChanged(auth, (u) => {
             user = u;
             const isReg = u && !u.isAnonymous;
@@ -630,10 +628,7 @@
             if(userInfo) userInfo.style.display = isReg ? 'flex' : 'none';
             if(createBtn) createBtn.style.display = isReg ? 'flex' : 'none';
             if (isReg) document.getElementById('userName').textContent = maskName(u.displayName);
-            document.getElementById('commentInputArea').classList.toggle('hidden', !isReg);
-            document.getElementById('commentLoginNotice').classList.toggle('hidden', isReg);
             
-            // 保存済みカラーを反映
             const acc = localStorage.getItem('mixvote_accent'); if(acc) setAccent(acc);
             const bg = localStorage.getItem('mixvote_bg'); if(bg) setBgColor(bg);
             const tx = localStorage.getItem('mixvote_text'); if(tx) setTextColor(tx);
@@ -667,7 +662,15 @@
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
         document.getElementById('langToggle').onclick = () => { currentLang = currentLang === 'ja' ? 'en' : 'ja'; updateStaticUI(); renderCategoryMenu(); loadPolls(); };
 
-        // 実行開始
+        document.getElementById('savePollBtn').onclick = async () => {
+            const title = document.getElementById('pollTitleInput').value.trim(); 
+            const rawOptions = document.getElementById('pollOptionsInput').value.split('\n').filter(s=>s.trim());
+            if(!title||rawOptions.length<2) return showMessage(t('alertInvalid'), "");
+            const data = { title, question: document.getElementById('pollDescInput').value, category: document.getElementById('pollCategoryInput').value, options: rawOptions, tags: document.getElementById('pollTagsInput').value.split(' ').filter(s=>s.startsWith('#')), imageUrl: selectedImageUrl, visualKeyword: document.getElementById('pollVisualInput').value, createdAt: serverTimestamp(), author: user.displayName, authorID: user.uid, votes: new Array(rawOptions.length).fill(0), votedUsers: [], deleted: false, countries: {} };
+            await addDoc(POLLS_COLLECTION, data);
+            document.getElementById('createModal').classList.add('hidden'); loadPolls();
+        };
+
         initAuth();
     </script>
 </body>
