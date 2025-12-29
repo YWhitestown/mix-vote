@@ -268,7 +268,7 @@
                     </section>
                 </div>
 
-                <!-- Detail View -->
+                <!-- 詳細ビュー -->
                 <div id="view-detail" class="hidden space-y-10">
                     <button id="backToListBtn" onclick="goHome()" class="group flex items-center gap-3 opacity-60 hover:opacity-100 font-black uppercase tracking-widest text-[10px] transition-all">
                         <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-current"><i class="fas fa-chevron-left"></i></div>
@@ -332,7 +332,7 @@
                 appName: "Mix Vote", signin: "サインイン", logout: "ログアウト", newPoll: "新規アンケート", categories: "カテゴリー", all: "全て",
                 guideLabel: "ガイド", guideText: "投票はどなたでも自由に参加できます。アンケート作成やコメント投稿にはログインが必要です。",
                 noticeLabel: "お知らせ", noticeText: "Mix Voteへようこそ。投票期限から1ヶ月経過したものは自動的にアーカイブされます。",
-                translateGuide: "海外のアンケートは、画面を右クリックして「日本語に翻訳」を選ぶと読みやすくなります。",
+                translateGuide: "海外のアンケートは、ブラウザの翻訳機能（Safariならアドレスバーの『ぁあ』や翻訳アイコン、Chromeなら右クリック）をご利用ください。",
                 latestTitle: "最新の投票", trendingTitle: "急上昇中", backToList: "一覧に戻る", discussion: "ディスカッション",
                 commentPlaceholder: "あなたの意見を書き込む...", send: "送信", loginNotice: "サインインすると参加できます",
                 noData: "有効なデータがありません", votes: "票", author: "作成者", ended: "終了しました",
@@ -351,7 +351,7 @@
                 appName: "Mix Vote", signin: "Sign In", logout: "Logout", newPoll: "New Poll", categories: "Categories", all: "All",
                 guideLabel: "Guide", guideText: "Anyone can participate in voting. Login is required to create polls or post comments.",
                 noticeLabel: "Notice", noticeText: "Welcome to Mix Vote. Polls older than one month after the deadline are automatically archived.",
-                translateGuide: "For international polls, right-click and select 'Translate' to read in your language.",
+                translateGuide: "For international polls, use browser translation (Safari: 'AA' or translation icon in address bar; Chrome: right-click).",
                 latestTitle: "Latest Polls", trendingTitle: "Trending Now", backToList: "Back to List", discussion: "Discussion",
                 commentPlaceholder: "Post your opinion...", send: "Send", loginNotice: "Sign in to join the discussion",
                 noData: "No active data", votes: "Votes", author: "Author", ended: "Ended",
@@ -641,7 +641,8 @@
             const container = document.getElementById('aiInsightContainer'); if(!container) return;
             container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/20 flex flex-col items-center gap-3"><i class="fas fa-sparkles ai-loading text-2xl"></i><p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${t('aiAnalyzing')}</p></div>`;
             const total = pollData.votes.reduce((s,v)=>s+v,0); const per = Math.round(pollData.votes[idx]/total*100);
-            const prompt = `Based on this poll result, give a short, encouraging 1-sentence comment in ${currentLang === 'ja' ? 'Japanese' : 'English'} to the user who chose "${pollData.options[idx]}". Poll: ${pollData.title}, Stats: ${per}%. Be soulful and human. No robot talk.`;
+            const prompt = `Based on this poll result, give a short, encouraging 1-sentence comment in ${currentLang === 'ja' ? 'Japanese' : 'English'} to the user who chose "${pollData.options[idx]}".
+            Poll: ${pollData.title}, Category: ${pollData.category}, Stats: ${per}%. Be soulful and human. No robot talk.`;
             try {
                 const insight = await callGemini(prompt);
                 container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/30 animate-in fade-in slide-in-from-bottom-2 duration-700 text-current">
@@ -657,9 +658,12 @@
             btn.innerHTML = `<i class="fas fa-sync fa-spin"></i> ${t('translating')}`; btn.disabled = true;
             try {
                 const target = currentLang === 'ja' ? 'Japanese' : 'English';
-                const prompt = `Translate this poll content to ${target}. Format as valid JSON only: {"title": "...", "question": "...", "options": ["...", "..."], "explanation": "..."}. Data: Title: ${originalPollData.title}, Question: ${originalPollData.question || ""}, Options: ${JSON.stringify(originalPollData.options)}, Explanation: ${originalPollData.explanation || ""}`;
+                const prompt = `Translate this poll content (title, question, and all options) to ${target}: {title: "${originalPollData.title}", question: "${originalPollData.question||''}", options: ${JSON.stringify(originalPollData.options)}}. Return valid JSON only with properties 'title', 'question', and 'options' (array of strings).`;
                 const data = await callGemini(prompt, true);
-                if (data && data.title) { translatedData = { ...originalPollData, ...data }; renderPollDetailUI(translatedData); }
+                if (data && data.title) {
+                    translatedData = { ...originalPollData, ...data };
+                    renderPollDetailUI(translatedData);
+                }
             } catch (err) { btn.innerHTML = originalText; btn.disabled = false; }
         };
 
