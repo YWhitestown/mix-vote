@@ -46,7 +46,6 @@
             to { transform: translate(100px, 100px) scale(1.2); }
         }
 
-        /* グラスモーフィズム */
         .glass { 
             background: var(--glass-bg); 
             backdrop-filter: blur(16px); 
@@ -171,7 +170,7 @@
                 </div>
                 <h2 id="tosTitle" class="text-3xl font-extrabold tracking-tight text-white uppercase text-white">Agreement</h2>
             </div>
-            <div id="tosContent" class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-400">
+            <div id="tosContent" class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar text-base leading-relaxed text-slate-400 text-current">
                 <!-- i18nから注入 -->
             </div>
             <button id="agreeTosBtn" class="btn-glow w-full mt-10 bg-gradient-to-r from-accent to-blue-600 text-white font-black py-6 rounded-2xl transition-all shadow-2xl shadow-accent/40 active:scale-95 uppercase tracking-widest text-lg md:text-xl border border-white/10">
@@ -242,7 +241,6 @@
                     <i class="fas fa-plus-circle text-xl"></i> New Poll
                 </button>
 
-                <!-- 検索バー -->
                 <div class="glass rounded-3xl p-4 border border-white/5 flex items-center gap-3">
                     <i class="fas fa-search text-accent opacity-50"></i>
                     <input type="text" id="searchInput" class="bg-transparent border-none outline-none text-xs w-full font-bold placeholder:opacity-30 text-current" placeholder="Search polls or #tags...">
@@ -262,7 +260,7 @@
                 </div>
             </aside>
 
-            <!-- メインコンテンツ -->
+            <!-- メイン -->
             <main class="lg:col-span-9 space-y-16 pb-32">
                 <div id="view-home" class="space-y-14">
                     <div class="glass rounded-[32px] p-6 border-l-4 border-accent">
@@ -273,12 +271,11 @@
                             <div class="w-full">
                                 <h3 id="noticeLabel" class="font-black text-xs uppercase tracking-widest mb-1.5 italic text-accent">Notice</h3>
                                 <p id="noticeText" class="text-xs md:text-sm leading-relaxed font-medium opacity-80 mb-2 text-current"></p>
-                                <!-- ブラウザ翻訳案内 -->
-                                <div class="bg-accent/5 p-4 rounded-2xl border border-accent/10 flex items-center gap-4">
+                                <div class="bg-accent/5 p-4 rounded-2xl border border-accent/10 flex items-center gap-4 text-current">
                                     <div class="w-10 h-10 rounded-full glass flex items-center justify-center shrink-0 text-accent text-accent">
                                         <i class="fas fa-globe"></i>
                                     </div>
-                                    <p id="translateGuide" class="text-[11px] font-bold opacity-70 italic text-current leading-relaxed"></p>
+                                    <p id="translateGuide" class="text-[11px] font-bold opacity-70 italic leading-relaxed"></p>
                                 </div>
                             </div>
                         </div>
@@ -301,7 +298,7 @@
                     <div id="pollDetailContent" class="glass rounded-[40px] p-0 overflow-hidden border border-white/10 shadow-2xl space-y-0 text-current"></div>
                     
                     <div class="glass rounded-[40px] p-8 md:p-12 border border-white/10">
-                        <h3 id="discussionTitle" class="text-2xl font-black mb-10 uppercase tracking-widest italic text-current text-current"><i class="far fa-comment-dots text-accent text-accent"></i> Discussion</h3>
+                        <h3 id="discussionTitle" class="text-2xl font-black mb-10 uppercase tracking-widest italic text-current text-current text-current"><i class="far fa-comment-dots text-accent text-accent"></i> Discussion</h3>
                         <div id="commentInputArea" class="hidden mb-12 relative">
                             <textarea id="commentText" maxlength="200" class="w-full bg-black/20 border border-white/10 rounded-3xl p-6 text-current outline-none focus:ring-2 focus:ring-accent/50 placeholder:opacity-30 font-medium" rows="3"></textarea>
                             <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-gradient-to-r from-accent to-blue-600 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all text-white">送信</button>
@@ -318,7 +315,7 @@
     <div id="createModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/95 backdrop-blur-xl p-4">
         <div class="glass max-w-xl w-full rounded-[40px] p-10 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto custom-scrollbar text-white text-white">
             <h2 id="modalTitle" class="text-3xl font-black mb-8 italic tracking-tighter uppercase text-white">Create <span class="text-accent text-accent">Poll</span></h2>
-            <div class="space-y-6">
+            <div class="space-y-6 text-current">
                 <div><label id="labelTitle" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
                 <input type="text" id="pollTitleInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold"></div>
                 <div><label id="labelDesc" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
@@ -329,7 +326,7 @@
                     <div><label id="labelDeadline" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
                     <input type="datetime-local" id="pollDeadlineInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-medium"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-2 gap-6 text-current">
                     <div class="relative">
                         <label id="labelTags" class="text-[10px] font-black opacity-60 uppercase tracking-widest block mb-2 text-white"></label>
                         <input type="text" id="pollTagsInput" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-accent outline-none font-bold pr-24" placeholder="#Tags">
@@ -374,7 +371,7 @@
                 unlockResults: "投票後に結果が表示されます", quizResult: "解答と解説", correct: "正解",
                 noExplanation: "解説はありません。", share: "共有", edit: "編集", delete: "削除", save: "保存", cancel: "キャンセル",
                 translate: "アンケートを翻訳", translating: "翻訳中...", showOriginal: "原文を表示", tosTitle: "利用規約", tosAgree: "同意して開始",
-                tosBody: `<div class="space-y-6 text-slate-300"><p>Mix Voteへようこそ。本プラットフォームを安全かつ楽しくご利用いただくために、以下の規約にご同意ください。</p><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">1. 行動指針</h4><ul class="list-disc pl-5 space-y-1"><li>他者の感性や意見を尊重し、建設的な議論を心がけましょう。</li><li>誹謗中傷、差別的表現、公序良俗に反する投稿は固く禁止します。</li><li>多重投票やシステムの不正利用を試みないでください。</li></ul></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">2. AIインサイトについて</h4><p>投票後に表示されるAIの分析（AI Insight）はGemini APIによって生成されます。このメッセージは楽しみを目的としたものであり、絶対的な正確性や診断を保証するものではありません。</p></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">3. データの取り扱い</h4><p>投稿されたアンケートやコメントは公開情報として扱われます。個人情報の入力は避けてください。また、期限から1ヶ月経過したデータは、アーカイブされる場合があります。</p></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">4. グローバル利用</h4><p>本サービスは世界中からのアクセスを想定しています。統計のために、接続情報の地域名が利用される場合があります。</p></section></div>`,
+                tosBody: `<div class="space-y-6 text-slate-300"><p>Mix Voteへようこそ。本プラットフォームを安全かつ楽しくご利用いただくために、以下の規約にご同意ください。</p><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4 text-white">1. 行動指針</h4><ul class="list-disc pl-5 space-y-1"><li>他者の感性や意見を尊重し、建設的な議論を心がけましょう。</li><li>誹謗中傷、差別的表現、公序良俗に反する投稿は固く禁止します。</li><li>多重投票やシステムの不正利用を試みないでください。</li></ul></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4 text-white">2. AIインサイトについて</h4><p>投票後に表示されるAIの分析（AI Insight）はGemini APIによって生成されます。このメッセージは楽しみを目的としたものであり、絶対的な正確性や診断を保証するものではありません。</p></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4 text-white">3. データの取り扱い</h4><p>投稿されたアンケートやコメントは公開情報として扱われます。個人情報の入力は避けてください。また、期限から1ヶ月経過したデータは、アーカイブされる場合があります。</p></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4 text-white">4. グローバル利用</h4><p>本サービスは世界中からのアクセスを想定しています。統計のために、接続情報の地域名が利用される場合があります。</p></section></div>`,
                 labelTitle: "タイトル", labelDesc: "説明文", labelCat: "カテゴリー", labelDeadline: "終了期限", labelOptions: "選択肢 (1行に1つ)",
                 labelQuizIdx: "正解のインデックス (0から開始)", labelQuizExp: "解説", alertVoted: "すでに投票済みです。", alertAuth: "投票するにはサインインしてください。",
                 alertInvalid: "タイトルと2つ以上の選択肢が必要です。", confirmDelete: "このアンケートを削除（アーカイブ）しますか？",
@@ -395,7 +392,7 @@
                 unlockResults: "Vote to unlock results", quizResult: "Solution & Explanation", correct: "Correct",
                 noExplanation: "No explanation provided.", share: "Share", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel",
                 translate: "Translate Poll", translating: "Translating...", showOriginal: "Show Original", tosTitle: "Terms of Service", tosAgree: "I Agree & Start",
-                tosBody: `<div class="space-y-6 text-slate-300"><p>Welcome to Mix Vote. Please agree to the following terms.</p><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">1. Code of Conduct</h4><ul class="list-disc pl-5 space-y-1"><li>Respect others' feelings and opinions.</li><li>Slander and discriminatory expressions are strictly prohibited.</li><li>Do not attempt multi-voting or system exploitation.</li></ul></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">2. AI Insight</h4><p>AI Insights are generated via Gemini API for entertainment and do not guarantee accuracy.</p></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">3. Data Handling</h4><p>Polls and comments are public. Data older than one month may be archived.</p></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4">4. Global Usage</h4><p>Location info may be used for statistics.</p></section></div>`,
+                tosBody: `<div class="space-y-6 text-slate-300"><p>Welcome to Mix Vote. Please agree to the following terms.</p><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4 text-white">1. Code of Conduct</h4><ul class="list-disc pl-5 space-y-1"><li>Respect others' feelings and opinions.</li><li>Slander and discriminatory expressions are strictly prohibited.</li><li>Do not attempt multi-voting or system exploitation.</li></ul></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4 text-white">2. AI Insight</h4><p>AI Insights are generated via Gemini API for entertainment and do not guarantee accuracy.</p></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4 text-white">3. Data Handling</h4><p>Polls and comments are public. Data older than one month may be archived.</p></section><section><h4 class="font-bold text-white mb-2 underline decoration-accent underline-offset-4 text-white">4. Global Usage</h4><p>Location info may be used for statistics.</p></section></div>`,
                 labelTitle: "Title", labelDesc: "Description", labelCat: "Category", labelDeadline: "Deadline", labelOptions: "Options (One per line)",
                 labelQuizIdx: "Correct Index (Starts from 0)", labelQuizExp: "Explanation", alertVoted: "You have already voted.", alertAuth: "Please sign in to vote.",
                 alertInvalid: "Title and at least 2 options are required.", confirmDelete: "Archive this poll?",
@@ -412,11 +409,11 @@
         const t = (key) => i18n[currentLang][key] || key;
         const getCatName = (jaName) => { const idx = i18n.ja.catNames.indexOf(jaName); return idx !== -1 ? i18n[currentLang].catNames[idx] : jaName; };
 
-        // カテゴリー別デフォルトキーワード
+        // カテゴリー別デフォルトキーワード（画像検索用）
         const catImageMap = {
-            "ニュース": "news", "エンタメ": "movie", "テクノロジー": "tech", "生活": "home",
-            "スポーツ": "sports", "旅行": "travel", "グルメ": "food", "教育": "school",
-            "政治": "politics", "趣味": "hobby", "クイズ": "quiz", "あるある": "daily life"
+            "ニュース": "news", "エンタメ": "movie", "テクノロジー": "tech", "生活": "lifestyle",
+            "スポーツ": "stadium", "旅行": "scenery", "グルメ": "gourmet", "教育": "classroom",
+            "政治": "parliament", "趣味": "creative", "クイズ": "brain", "あるある": "people"
         };
 
         const formatDate = (date) => {
@@ -462,7 +459,7 @@
         let translatedData = null;
         let currentAIInsight = "";
 
-        // UIテーマ制御
+        // UIテーマ
         window.setAccent = (color) => {
             document.documentElement.style.setProperty('--accent', color);
             const r = parseInt(color.slice(1,3), 16), g = parseInt(color.slice(3,5), 16), b = parseInt(color.slice(5,7), 16);
@@ -499,10 +496,10 @@
             document.getElementById('noticeLabel').textContent = t('noticeLabel');
             document.getElementById('noticeText').textContent = t('noticeText');
             document.getElementById('translateGuide').textContent = t('translateGuide');
-            document.getElementById('latestPollsTitle').innerHTML = `${currentLang==='ja'?'最新の':'Latest'} <span class="opacity-40 font-normal not-italic">${currentLang==='ja'?'投票':'Polls'}</span>`;
-            document.getElementById('popularPollsTitle').innerHTML = `${currentLang==='ja'?'急上昇':'Trending'} <span class="opacity-40 font-normal not-italic">${currentLang==='ja'?'中':'Now'}</span>`;
+            document.getElementById('latestPollsTitle').innerHTML = `${currentLang==='ja'?'最新の':'Latest'} <span class="opacity-40 font-normal not-italic text-current">${currentLang==='ja'?'投票':'Polls'}</span>`;
+            document.getElementById('popularPollsTitle').innerHTML = `${currentLang==='ja'?'急上昇':'Trending'} <span class="opacity-40 font-normal not-italic text-current">${currentLang==='ja'?'中':'Now'}</span>`;
             document.getElementById('backToListBtn').innerHTML = `<div class="w-10 h-10 rounded-full glass flex items-center justify-center text-current"><i class="fas fa-chevron-left"></i></div> ${t('backToList')}`;
-            document.getElementById('discussionTitle').innerHTML = `<i class="far fa-comment-dots text-accent"></i> ${t('discussion')}`;
+            document.getElementById('discussionTitle').innerHTML = `<i class="far fa-comment-dots text-accent text-accent"></i> ${t('discussion')}`;
             document.getElementById('commentText').placeholder = t('commentPlaceholder');
             document.getElementById('postCommentBtn').textContent = t('send');
             document.getElementById('commentLoginNotice').textContent = t('loginNotice');
@@ -525,7 +522,7 @@
             document.getElementById('labelBg').textContent = t('background');
             document.getElementById('labelText').textContent = t('mainText');
             document.getElementById('searchInput').placeholder = t('searchPlaceholder');
-            if (document.getElementById('modalTitle')) document.getElementById('modalTitle').innerHTML = editMode ? t('edit') : `Create <span class="text-accent">${currentLang==='ja'?'投票':'Poll'}</span>`;
+            if (document.getElementById('modalTitle')) document.getElementById('modalTitle').innerHTML = editMode ? t('edit') : `Create <span class="text-accent text-accent">${currentLang==='ja'?'投票':'Poll'}</span>`;
         };
 
         const maskName = (name) => name ? (name.length <= 3 ? '●●●' : name.substring(0, 3) + '●●●') : 'Anonymous';
@@ -562,7 +559,6 @@
             document.getElementById('commentInputArea').classList.toggle('hidden', !isReg);
             document.getElementById('commentLoginNotice').classList.toggle('hidden', isReg);
             
-            // カラー反映
             const accent = localStorage.getItem('mixvote_accent'); if(accent) setAccent(accent);
             const bg = localStorage.getItem('mixvote_bg'); if(bg) { setBgColor(bg); document.getElementById('bgPicker').value = bg; }
             const txt = localStorage.getItem('mixvote_text'); if(txt) { setTextColor(txt); document.getElementById('textPicker').value = txt; }
@@ -609,6 +605,12 @@
             } catch (err) { console.error(err); }
         };
 
+        // 画像取得URLの生成 (LoremFlickrを使用し、IDをシードにする)
+        const getVisualUrl = (keyword, seed) => {
+            const kw = keyword || "abstract";
+            return `https://loremflickr.com/800/600/${encodeURIComponent(kw)}?lock=${seed.substring(0, 5)}`;
+        };
+
         const renderPollList = (eid, list) => {
             const container = document.getElementById(eid); if(!container) return;
             container.innerHTML = list.length ? '' : `<p class="text-slate-500 py-10 font-black uppercase text-[10px] text-center w-full">${t('noData')}</p>`;
@@ -618,27 +620,28 @@
                 div.onclick = () => goDetail(p.id);
                 div.className = "poll-card glass rounded-[32px] cursor-pointer flex flex-col justify-between border border-white/5";
                 
-                const imgSrc = p.imageUrl || `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(catImageMap[p.category] || "abstract")}&sig=${p.id}`;
+                const visualKw = p.visualKeyword || catImageMap[p.category] || "abstract";
+                const imgSrc = p.imageUrl || getVisualUrl(visualKw, p.id);
                 
                 div.innerHTML = `
                     <div class="relative w-full">
                         <img src="${imgSrc}" class="poll-card-img" alt="Poll Image" onerror="this.src='https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=80'">
                         <div class="absolute bottom-4 left-4 right-4">
-                             <span class="text-[10px] font-black px-3 py-1 rounded-full bg-accent text-slate-950 uppercase tracking-widest shadow-lg">${getCatName(p.category)}</span>
+                             <span class="text-[10px] font-black px-3 py-1 rounded-full bg-accent text-slate-950 uppercase tracking-widest shadow-lg text-slate-950">${getCatName(p.category)}</span>
                         </div>
                     </div>
                     <div class="p-7 space-y-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-[9px] font-black opacity-50 tracking-tighter">${formatDate(p.createdAt)}</span>
+                            <span class="text-[9px] font-black opacity-50 tracking-tighter text-current">${formatDate(p.createdAt)}</span>
                         </div>
-                        <h3 class="text-lg font-black line-clamp-2 leading-tight tracking-tight uppercase text-current">${p.title}</h3>
-                        ${p.tags ? `<div class="flex flex-wrap gap-2 pt-1">${p.tags.map(t => `<span class="text-[8px] font-bold text-accent opacity-60">${t}</span>`).join('')}</div>` : ''}
+                        <h3 class="text-lg font-black line-clamp-2 leading-tight tracking-tight uppercase text-current text-current">${p.title}</h3>
+                        ${p.tags ? `<div class="flex flex-wrap gap-2 pt-1 text-current">${p.tags.map(t => `<span class="text-[8px] font-bold text-accent opacity-60">${t}</span>`).join('')}</div>` : ''}
                     </div>
                     <div class="px-7 pb-7 border-t border-white/5 pt-6 flex justify-between items-center mt-auto">
-                        <span class="text-[9px] font-bold italic opacity-60">${t('author')}: ${maskName(p.author)}</span>
-                        <div class="flex items-center gap-1">
-                            <span class="text-accent font-black text-xs">${totalVotes}</span>
-                            <span class="text-[8px] font-black uppercase opacity-60">${t('votes')}</span>
+                        <span class="text-[9px] font-bold italic opacity-60 text-current">${t('author')}: ${maskName(p.author)}</span>
+                        <div class="flex items-center gap-1 text-current">
+                            <span class="text-accent font-black text-xs text-accent">${totalVotes}</span>
+                            <span class="text-[8px] font-black uppercase opacity-60 text-current">${t('votes')}</span>
                         </div>
                     </div>
                 `;
@@ -659,10 +662,10 @@
             const total = Object.values(countries).reduce((s, v) => s + v, 0);
             if (total === 0) return "";
             const sorted = Object.entries(countries).sort((a,b) => b[1] - a[1]).slice(0, 3);
-            let html = `<div class="mt-10 p-8 glass rounded-[32px] border border-white/5 w-full"><h4 class="text-[10px] font-black uppercase tracking-widest opacity-50 mb-6 text-center">${t('voteOrigin')}</h4><div class="space-y-4 text-current">`;
+            let html = `<div class="mt-10 p-8 glass rounded-[32px] border border-white/5 w-full"><h4 class="text-[10px] font-black uppercase tracking-widest opacity-50 mb-6 text-center text-current">${t('voteOrigin')}</h4><div class="space-y-4">`;
             sorted.forEach(([code, count]) => {
                 const per = Math.round(count/total*100);
-                html += `<div><div class="flex justify-between items-center mb-1.5 px-1 text-current"><span class="text-[10px] font-bold uppercase tracking-widest">${code}</span><span class="text-[10px] font-black text-accent">${per}%</span></div><div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: ${per}%"></div></div></div>`;
+                html += `<div><div class="flex justify-between items-center mb-1.5 px-1 text-current text-current"><span class="text-[10px] font-bold uppercase tracking-widest">${code}</span><span class="text-[10px] font-black text-accent text-accent">${per}%</span></div><div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-accent bg-accent" style="width: ${per}%"></div></div></div>`;
             });
             return html + `</div></div>`;
         };
@@ -675,38 +678,39 @@
             const isOriginal = !translatedData;
             const detailEl = document.getElementById('pollDetailContent'); if(!detailEl) return;
             
-            const imgSrc = p.imageUrl || `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(catImageMap[p.category] || "abstract")}&sig=${p.id}`;
+            const visualKw = p.visualKeyword || catImageMap[p.category] || "abstract";
+            const imgSrc = p.imageUrl || getVisualUrl(visualKw, p.id);
 
             detailEl.innerHTML = `
                 <div class="w-full h-64 md:h-80 relative">
                     <img src="${imgSrc}" class="w-full h-full object-cover opacity-50" onerror="this.src='https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
-                    <div class="absolute bottom-8 left-8 right-8 text-white text-white">
+                    <div class="absolute bottom-8 left-8 right-8 text-white text-white text-white">
                         <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <span class="bg-accent text-slate-950 font-black text-[12px] px-4 py-1 rounded-full uppercase tracking-widest shadow-xl">${getCatName(p.category)}</span>
-                            <button id="pollTranslateBtn" onclick="window.handlePollTranslate()" class="text-[10px] font-black uppercase tracking-widest text-accent hover:opacity-70 flex items-center gap-2 transition-all">
+                            <span class="bg-accent text-slate-950 font-black text-[12px] px-4 py-1 rounded-full uppercase tracking-widest shadow-xl text-slate-950">${getCatName(p.category)}</span>
+                            <button id="pollTranslateBtn" onclick="window.handlePollTranslate()" class="text-[10px] font-black uppercase tracking-widest text-accent hover:opacity-70 flex items-center gap-2 transition-all text-accent">
                                 <i class="fas fa-language text-lg"></i><span>${isOriginal?t('translate'):t('showOriginal')}</span>
                             </button>
                         </div>
-                        <h2 class="text-3xl md:text-5xl font-black tracking-tighter leading-none uppercase italic">${p.title}</h2>
+                        <h2 class="text-3xl md:text-5xl font-black tracking-tighter leading-none uppercase italic text-white">${p.title}</h2>
                     </div>
                 </div>
                 <div class="p-8 md:p-14 space-y-12">
-                    <div class="flex flex-col lg:flex-row justify-between gap-8 text-current">
+                    <div class="flex flex-col lg:flex-row justify-between gap-8 text-current text-current text-current">
                         <div class="space-y-4 flex-1">
-                            <div class="flex items-center gap-4 text-sm font-bold opacity-60 italic text-current">
+                            <div class="flex items-center gap-4 text-sm font-bold opacity-60 italic text-current text-current">
                                 <span>${t('author')}: ${maskName(p.author)}</span>
                                 <span>•</span>
                                 <span>${formatDate(p.createdAt)}</span>
                             </div>
-                            ${p.tags ? `<div class="flex flex-wrap gap-2 pt-2">${p.tags.map(t => `<span class="px-3 py-1 rounded-lg bg-accent/10 text-[9px] font-bold text-accent">${t}</span>`).join('')}</div>` : ''}
-                            ${p.question?`<p class="text-lg leading-relaxed mt-6 font-medium border-l-4 border-accent/30 pl-6 whitespace-pre-wrap opacity-80 text-current">${p.question}</p>`:''}
+                            ${p.tags ? `<div class="flex flex-wrap gap-2 pt-2 text-current">${p.tags.map(t => `<span class="px-3 py-1 rounded-lg bg-accent/10 text-[9px] font-bold text-accent text-accent">${t}</span>`).join('')}</div>` : ''}
+                            ${p.question?`<p class="text-lg leading-relaxed mt-6 font-medium border-l-4 border-accent/30 pl-6 whitespace-pre-wrap opacity-80 text-current text-current">${p.question}</p>`:''}
                         </div>
-                        ${isExp?`<div class="text-red-500 font-black uppercase text-xs p-4 bg-red-500/10 rounded-2xl border border-red-500/20 h-fit">${t('ended')}</div>`:''}
+                        ${isExp?`<div class="text-red-500 font-black uppercase text-xs p-4 bg-red-500/10 rounded-2xl border border-red-500/20 h-fit text-red-500">${t('ended')}</div>`:''}
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 text-current">
-                        <div class="space-y-4 text-current">
-                            ${p.options.map((opt, idx)=>{const v=originalPollData.votes[idx]||0; const per=total>0?Math.round(v/total*100):0; if(hasVoted||isExp){return `<div class="relative overflow-hidden bg-slate-950/20 border border-white/5 rounded-3xl p-6 flex justify-between items-center group"><div class="absolute inset-y-0 left-0 bg-accent/10" style="width:${per}%"></div><span class="z-10 font-bold text-lg">${opt}</span><div class="z-10 text-right"><div class="font-black text-2xl tracking-tighter">${per}%</div><div class="text-[8px] uppercase font-black tracking-widest opacity-60">${v} ${t('votes')}</div></div></div>`}else if(isResultVisible){return `<button onclick="window.handleVote(${idx})" class="w-full relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all" style="width:${per}%"></div><div class="flex items-center gap-4 z-10"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight">${opt}</span></div><div class="z-10 text-right"><div class="font-black text-accent/40 group-hover:text-accent text-2xl tracking-tighter">${per}%</div></div></button>`}else{return `<button onclick="window.handleVote(${idx})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex items-center gap-4 text-current text-current"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight">${opt}</span></button>`}}).join('')}
+                        <div class="space-y-4 text-current text-current">
+                            ${p.options.map((opt, idx)=>{const v=originalPollData.votes[idx]||0; const per=total>0?Math.round(v/total*100):0; if(hasVoted||isExp){return `<div class="relative overflow-hidden bg-slate-950/20 border border-white/5 rounded-3xl p-6 flex justify-between items-center group"><div class="absolute inset-y-0 left-0 bg-accent/10 bg-accent" style="width:${per}%"></div><span class="z-10 font-bold text-lg text-current">${opt}</span><div class="z-10 text-right"><div class="font-black text-2xl tracking-tighter text-current">${per}%</div><div class="text-[8px] uppercase font-black tracking-widest opacity-60 text-current">${v} ${t('votes')}</div></div></div>`}else if(isResultVisible){return `<button onclick="window.handleVote(${idx})" class="w-full relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all bg-accent" style="width:${per}%"></div><div class="flex items-center gap-4 z-10"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-current text-current">${opt}</span></div><div class="z-10 text-right"><div class="font-black text-accent/40 group-hover:text-accent text-2xl tracking-tighter text-accent">${per}%</div></div></button>`}else{return `<button onclick="window.handleVote(${idx})" class="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-left hover:border-accent transition-all active:scale-95 group flex items-center gap-4 text-current text-current text-current text-current"><span class="w-10 h-10 rounded-xl bg-slate-900/50 flex items-center justify-center font-black opacity-50 group-hover:bg-accent group-hover:opacity-100 group-hover:text-slate-950 transition-all italic text-xl text-current text-current">${idx+1}</span><span class="font-black text-lg uppercase tracking-tight text-current text-current">${opt}</span></button>`}}).join('')}
                         </div>
                         <div class="flex flex-col justify-center items-center">
                             ${isResultVisible?`
@@ -715,16 +719,16 @@
                             </div>
                             <div id="aiInsightContainer" class="w-full mt-8"></div>
                             ${renderOriginStats(originalPollData.countries)}
-                            `:`<div class="text-center p-20 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-700 uppercase text-xs font-black tracking-widest flex flex-col items-center gap-4"><i class="fas fa-lock text-3xl text-accent/30"></i><span>${t('unlockResults')}</span></div>`}
+                            `:`<div class="text-center p-20 glass rounded-[40px] border-2 border-dashed border-white/5 text-slate-700 uppercase text-xs font-black tracking-widest flex flex-col items-center gap-4 text-current"><i class="fas fa-lock text-3xl text-accent text-accent/30 text-accent"></i><span>${t('unlockResults')}</span></div>`}
                         </div>
                     </div>
-                    <div class="flex flex-wrap gap-4 pt-10 border-t border-white/5 items-center px-8 md:px-14 pb-14 text-current text-current">
-                        <span class="text-[10px] font-black uppercase tracking-widest opacity-50 text-current">${t('share')}:</span>
-                        <button onclick="window.downloadShareCard()" class="px-6 py-2 glass rounded-xl text-accent font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-accent hover:text-slate-950 transition-all text-accent">
+                    <div class="flex flex-wrap gap-4 pt-10 border-t border-white/5 items-center px-8 md:px-14 pb-14 text-current text-current text-current text-current">
+                        <span class="text-[10px] font-black uppercase tracking-widest opacity-50 text-current text-current">${t('share')}:</span>
+                        <button onclick="window.downloadShareCard()" class="px-6 py-2 glass rounded-xl text-accent font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-accent hover:text-slate-950 transition-all text-accent text-accent">
                             <i class="fas fa-download"></i> ${t('downloadCard')}
                         </button>
-                        <button onclick="window.copyUrl()" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-accent hover:opacity-70 transition-all text-accent"><i class="fas fa-link"></i></button>
-                        ${user && originalPollData.authorID === user.uid?`<div class="ml-auto flex gap-6"><button onclick="window.handleEdit('${originalPollData.id}')" class="text-[10px] font-black uppercase underline decoration-2 underline-offset-4 opacity-50 hover:opacity-100 text-current">編集</button><button onclick="window.handleDelete('${originalPollData.id}')" class="text-[10px] text-red-500/50 font-black uppercase underline decoration-2 underline-offset-4 hover:text-red-500 transition-all">削除</button></div>`:''}
+                        <button onclick="window.copyUrl()" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-accent hover:opacity-70 transition-all text-accent text-accent"><i class="fas fa-link"></i></button>
+                        ${user && originalPollData.authorID === user.uid?`<div class="ml-auto flex gap-6"><button onclick="window.handleEdit('${originalPollData.id}')" class="text-[10px] font-black uppercase underline decoration-2 underline-offset-4 opacity-50 hover:opacity-100 text-current text-current">編集</button><button onclick="window.handleDelete('${originalPollData.id}')" class="text-[10px] text-red-500/50 font-black uppercase underline decoration-2 underline-offset-4 hover:text-red-500 transition-all text-red-500">削除</button></div>`:''}
                     </div>
                 </div>
             `;
@@ -738,16 +742,19 @@
             chartInstance = new Chart(ctx, { type:'doughnut', data:{ labels:p.options, datasets:[{ data:p.votes, backgroundColor:[accent,'#3b82f6','#8b5cf6','#ec4899','#f59e0b','#10b981'], borderWidth:0, hoverOffset:15 }] }, options:{ maintainAspectRatio: false, cutout:'80%', plugins:{ legend:{ display:false } } } });
         };
 
-        // シェアカード生成
+        // シェアカード
         window.downloadShareCard = async () => {
             const canvas = document.getElementById('shareCanvas'); const ctx = canvas.getContext('2d');
             canvas.width = 1200; canvas.height = 630;
             const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
             const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-main').trim();
             ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            const detailImgSrc = originalPollData.imageUrl || `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(catImageMap[originalPollData.category] || "abstract")}&sig=${originalPollData.id}`;
+            
+            const visualKw = originalPollData.visualKeyword || catImageMap[originalPollData.category] || "abstract";
+            const detailImgSrc = originalPollData.imageUrl || getVisualUrl(visualKw, originalPollData.id);
             const img = new Image(); img.crossOrigin = "anonymous"; img.src = detailImgSrc;
             try { await new Promise(r => { img.onload = r; img.onerror = r; }); ctx.globalAlpha = 0.3; ctx.drawImage(img, 0, 0, 1200, 630); ctx.globalAlpha = 1.0; } catch(e) {}
+            
             ctx.fillStyle = accent; ctx.globalAlpha = 0.1; ctx.beginPath(); ctx.arc(1200, 0, 400, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0;
             ctx.fillStyle = "#ffffff"; ctx.font = "bold 60px sans-serif";
             const title = originalPollData.title.toUpperCase(); ctx.fillText(title.length > 30 ? title.substring(0, 27) + '...' : title, 80, 150);
@@ -773,11 +780,11 @@
 
         const generateAIInsight = async (idx, pollData) => {
             const container = document.getElementById('aiInsightContainer'); if(!container) return;
-            container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/20 flex flex-col items-center gap-3"><i class="fas fa-sparkles ai-loading text-2xl text-accent"></i><p class="text-xs font-bold opacity-50 uppercase tracking-widest text-current">${t('aiAnalyzing')}</p></div>`;
+            container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/20 flex flex-col items-center gap-3"><i class="fas fa-sparkles ai-loading text-2xl text-accent text-accent"></i><p class="text-xs font-bold opacity-50 uppercase tracking-widest text-current text-current">${t('aiAnalyzing')}</p></div>`;
             const prompt = `Based on poll: "${pollData.title}", user chose "${pollData.options[idx]}". Stats: ${Math.round(pollData.votes[idx]/pollData.votes.reduce((s,v)=>s+v,0)*100)}%. Give a soulful 1-sentence comment in ${currentLang==='ja'?'Japanese':'English'}. No robot speak.`;
             try {
                 currentAIInsight = await callGemini(prompt);
-                container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/30 animate-in fade-in slide-in-from-bottom-2 duration-700 text-current text-current"><div class="flex items-center gap-2 mb-3 text-accent text-accent"><i class="fas fa-magic"></i><span class="text-[10px] font-black uppercase tracking-widest">${t('aiInsightTitle')}</span></div><p class="text-sm font-medium leading-relaxed italic text-current">"${currentAIInsight.trim().replace(/^"|"$/g, '')}"</p></div>`;
+                container.innerHTML = `<div class="p-6 glass rounded-3xl border border-accent/30 animate-in fade-in slide-in-from-bottom-2 duration-700 text-current text-current text-current text-current text-current"><div class="flex items-center gap-2 mb-3 text-accent text-accent text-accent text-accent"><i class="fas fa-magic"></i><span class="text-[10px] font-black uppercase tracking-widest text-accent">${t('aiInsightTitle')}</span></div><p class="text-sm font-medium leading-relaxed italic text-current">"${currentAIInsight.trim().replace(/^"|"$/g, '')}"</p></div>`;
             } catch (e) { container.innerHTML = ""; }
         };
 
@@ -811,10 +818,10 @@
             onSnapshot(query(collection(db, 'artifacts', appIdStr, 'public', 'data', 'polls', pid, 'comments'), orderBy('createdAt', 'desc')), (snap) => {
                 const list = document.getElementById('commentsList'); if(!list) return;
                 list.innerHTML = ''; const coms = snap.docs.map(d=>({id:d.id,...d.data()}));
-                if(!coms.length) { list.innerHTML=`<p class="text-center opacity-40 uppercase text-[9px] font-black py-16 tracking-widest text-current">${currentLang==='ja'?'議論はまだありません':'No discussions yet'}</p>`; return; }
+                if(!coms.length) { list.innerHTML=`<p class="text-center opacity-40 uppercase text-[9px] font-black py-16 tracking-widest text-current text-current">${currentLang==='ja'?'議論はまだありません':'No discussions yet'}</p>`; return; }
                 coms.forEach(c => {
-                    const div = document.createElement('div'); div.className = "p-7 rounded-[32px] bg-white/5 border border-white/5 flex justify-between items-start group text-current";
-                    div.innerHTML = `<div><div class="flex gap-3 items-center mb-3 text-current text-current"><span class="text-[10px] font-black text-accent text-accent uppercase tracking-tighter">${maskName(c.author)}</span><span class="text-[7px] font-bold uppercase tracking-widest opacity-40">${formatDate(c.createdAt)}</span></div><p class="text-sm leading-relaxed font-medium opacity-80">${c.text}</p></div>${user && c.userId===user.uid?`<button onclick="window.deleteComment('${c.id}')" class="text-[8px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100">削除</button>`:''}`;
+                    const div = document.createElement('div'); div.className = "p-7 rounded-[32px] bg-white/5 border border-white/5 flex justify-between items-start group text-current text-current";
+                    div.innerHTML = `<div><div class="flex gap-3 items-center mb-3 text-current text-current text-current text-current text-current text-current text-current text-current text-current"><span class="text-[10px] font-black text-accent text-accent text-accent uppercase tracking-tighter">${maskName(c.author)}</span><span class="text-[7px] font-bold uppercase tracking-widest opacity-40 text-current">${formatDate(c.createdAt)}</span></div><p class="text-sm leading-relaxed font-medium opacity-80 text-current">${c.text}</p></div>${user && c.userId===user.uid?`<button onclick="window.deleteComment('${c.id}')" class="text-[8px] font-black text-red-500/20 hover:text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 text-red-500">削除</button>`:''}`;
                     list.appendChild(div);
                 });
             }, (err)=>{});
@@ -850,9 +857,9 @@
             const tags = document.getElementById('pollTagsInput').value.split(' ').filter(s => s.startsWith('#'));
             if(!title||rawOptions.length<2) return showMessage(t('alertInvalid'), "");
             
+            // キーワードが無い場合はカテゴリーから自動設定
             if (!visual) visual = catImageMap[cat] || "abstract";
-            const sig = Date.now();
-            const imageUrl = `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(visual)}&sig=${sig}`;
+            const imageUrl = `https://loremflickr.com/800/600/${encodeURIComponent(visual)}`;
 
             const data = { title, question: document.getElementById('pollDescInput').value, category: cat, options: rawOptions, tags: tags, imageUrl: imageUrl, visualKeyword: visual, deadline: document.getElementById('pollDeadlineInput').value ? new Date(document.getElementById('pollDeadlineInput').value) : null, is_quiz: cat === "クイズ", correct_index: cat === "クイズ" ? parseInt(document.getElementById('pollCorrectIndexInput').value || 0) : null, explanation: document.getElementById('pollExplanationInput').value, updatedAt: serverTimestamp() };
             if(editMode){ await updateDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', 'polls', editPollId), data); } 
@@ -886,7 +893,6 @@
         };
 
         window.addEventListener('hashchange', handleRouting);
-        // 修正箇所: 同意ボタンクリック時にページリロードせず、直接UIを切り替える
         document.getElementById('agreeTosBtn').onclick = () => { 
             localStorage.setItem('mixvote_agreed', 'true'); 
             document.getElementById('tosModal').classList.add('hidden');
