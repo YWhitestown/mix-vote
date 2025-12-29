@@ -111,7 +111,7 @@
         <h2 class="text-xl font-black text-white italic uppercase tracking-widest mb-2">Initializing Core</h2>
         <p class="text-slate-500 text-xs mb-8" data-i18n="loading_desc">Connecting to MixVote securely...</p>
         
-        <!-- Troubleshooting Section (Hidden by default, shown after delay) -->
+        <!-- Troubleshooting Section -->
         <div id="troubleshootingHint" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-1000 max-w-sm">
             <div class="bg-white/5 border border-white/10 rounded-2xl p-6 text-left">
                 <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2">
@@ -498,7 +498,6 @@
                 if (t[key]) el.textContent = t[key];
             });
 
-            // HTML based translation
             const lp = document.getElementById('latest_polls_label'); if(lp) lp.innerHTML = t.latest_polls_html;
             const tr = document.getElementById('trending_label'); if(tr) tr.innerHTML = t.trending_html;
             const gs = document.getElementById('globalSearch'); if(gs) gs.placeholder = t.search_placeholder;
@@ -545,7 +544,6 @@
 
         // --- Auth ---
         const initAuth = async () => {
-            // Show troubleshooting hint after 5 seconds of loading
             const timer = setTimeout(() => {
                 const hint = document.getElementById('troubleshootingHint');
                 if (hint) hint.classList.remove('hidden');
@@ -828,7 +826,8 @@
         };
 
         window.toggleLike = async (id) => {
-            if (isAnonymous()) return showMessage(UI_TEXT[currentLang].signin, UI_TEXT[currentLang].auth_required);
+            const t = UI_TEXT[currentLang];
+            if (isAnonymous()) return showMessage(t.signin, t.auth_required);
             const ref = doc(db, ...POLLS_PATH, id);
             try {
                 await runTransaction(db, async (tx) => {
@@ -838,7 +837,9 @@
                     if (idx > -1) likes.splice(idx, 1); else likes.push(currentUser.uid);
                     tx.update(ref, { likes });
                 });
-            } catch (e) { }
+            } catch (e) { 
+                console.error("Like error", e);
+            }
         };
 
         window.updateChartType = (type) => { if (currentPollData) renderChart(currentPollData, type); };
@@ -862,7 +863,10 @@
                 if (data.votedUsers?.includes(currentUser.uid)) return showMessage(t.notify_title, t.voted_notice);
                 const newVotes = [...data.votes]; newVotes[idx]++;
                 await updateDoc(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid) });
-            } catch (e) { }
+            } catch (e) { 
+                console.error("Vote error", e);
+                showMessage("Error", e?.message || String(e));
+            }
         };
 
         const loadComments = (pid) => {
@@ -895,7 +899,10 @@
             try {
                 await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { author: currentUser.displayName || 'User', userId: currentUser.uid, text: t, createdAt: serverTimestamp() });
                 document.getElementById('commentText').value = '';
-            } catch (e) { }
+            } catch (e) {
+                console.error("Comment error", e);
+                showMessage("Error", e?.message || String(e));
+            }
         };
 
         window.handleDeleteComment = async (id) => {
@@ -907,20 +914,22 @@
         // --- Create/Edit ---
         const ocb = document.getElementById('openCreateBtn');
         if(ocb) ocb.onclick = () => { 
-            if (isAnonymous()) return;
+            if (isAnonymous()) return showMessage(UI_TEXT[currentLang].signin, UI_TEXT[currentLang].auth_required);
             editMode = false; document.getElementById('modalTitle').textContent = UI_TEXT[currentLang].modal_create_title;
             document.getElementById('pollTitleInput').value = ""; document.getElementById('pollOptionsInput').value = "";
             document.getElementById('pollDescInput').value = ""; document.getElementById('pollOptionsInput').disabled = false;
+            document.getElementById('quizFields').classList.add('hidden');
             document.getElementById('createModal').classList.remove('hidden'); 
         };
         const ccb = document.getElementById('cancelCreateBtn');
         if(ccb) ccb.onclick = () => document.getElementById('createModal').classList.add('hidden');
         const spb = document.getElementById('savePollBtn');
         if(spb) spb.onclick = async () => {
-            if (isAnonymous()) return;
+            const t_err = UI_TEXT[currentLang];
+            if (isAnonymous()) return showMessage(t_err.signin, t_err.auth_required);
             const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').filter(s=>s.trim());
             const catKey = document.getElementById('pollCategoryInput').value, dl = document.getElementById('pollDeadlineInput').value;
-            if(!t || o.length < 2) return showMessage("Error", UI_TEXT[currentLang].error_missing);
+            if(!t || o.length < 2) return showMessage("Error", t_err.error_missing);
             const d = { 
                 title: t, question: document.getElementById('pollDescInput').value, categoryKey: catKey, options: o, 
                 deadline: dl ? new Date(dl) : null, is_quiz: catKey === "quiz", 
@@ -934,7 +943,10 @@
                     await addDoc(collection(db, ...POLLS_PATH), d); 
                 }
                 document.getElementById('createModal').classList.add('hidden'); loadPolls(); if(editMode) loadPollDetail(editPollId);
-            } catch (e) { }
+            } catch (e) {
+                console.error("Save failed", e);
+                showMessage("Error", e?.message || String(e));
+            }
         };
 
         window.openEditPoll = async (id) => { 
@@ -960,31 +972,49 @@
 
         window.handleDeletePoll = (id) => { 
             if(confirm(UI_TEXT[currentLang].delete_confirm)){ 
-                updateDoc(doc(db, ...POLLS_PATH, id), { deleted: true }).then(() => goHome());
+                updateDoc(doc(db, ...POLLS_PATH, id), { deleted: true }).then(() => goHome()).catch(e => showMessage("Error", e.message));
             } 
         };
+
+        const updateQuizOptions = () => {
+            const cat = document.getElementById('pollCategoryInput').value;
+            if (cat !== "quiz") return;
+            const oi = document.getElementById('pollOptionsInput');
+            const sel = document.getElementById('pollCorrectIndexInput');
+            if (!oi || !sel) return;
+            sel.innerHTML = '';
+            const opts = oi.value.split('\n').filter(s=>s.trim());
+            opts.forEach((opt, idx) => {
+                const o = document.createElement('option'); o.value = idx; o.textContent = opt; sel.appendChild(o);
+            });
+        };
+
+        const oi = document.getElementById('pollOptionsInput');
+        if (oi) { oi.addEventListener('input', updateQuizOptions); }
 
         const pci = document.getElementById('pollCategoryInput');
         if (pci) {
             pci.onchange = (e) => {
-                const cat = e.target.value; const oi = document.getElementById('pollOptionsInput');
+                const cat = e.target.value; const oi_area = document.getElementById('pollOptionsInput');
                 document.getElementById('quizFields').classList.toggle('hidden', cat !== "quiz");
-                if(cat === "aruaru") { oi.value = ARUARU_OPTIONS_TEXT; oi.disabled = true; }
-                else { if(oi.value === ARUARU_OPTIONS_TEXT) oi.value = ""; oi.disabled = false; }
-                if (cat === "quiz") {
-                    const sel = document.getElementById('pollCorrectIndexInput'); sel.innerHTML = '';
-                    const opts = oi.value.split('\n').filter(s=>s.trim());
-                    opts.forEach((opt, idx) => {
-                        const o = document.createElement('option'); o.value = idx; o.textContent = opt; sel.appendChild(o);
-                    });
-                }
+                if(cat === "aruaru") { oi_area.value = ARUARU_OPTIONS_TEXT; oi_area.disabled = true; }
+                else { if(oi_area.value === ARUARU_OPTIONS_TEXT) oi_area.value = ""; oi_area.disabled = false; }
+                if (cat === "quiz") updateQuizOptions();
             };
         }
 
         const dpc = document.getElementById('deadlinePickerContainer');
         if (dpc) dpc.onclick = () => document.getElementById('pollDeadlineInput').showPicker();
         
-        const lb = document.getElementById('loginBtn'); if(lb) lb.onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
+        const lb = document.getElementById('loginBtn'); 
+        if(lb) lb.onclick = async () => {
+            try {
+                await signInWithPopup(auth, new GoogleAuthProvider());
+            } catch (e) {
+                console.error("Login failed", e);
+                showMessage("Login Error", e?.message || String(e));
+            }
+        };
         const lob = document.getElementById('logoutBtn'); if(lob) lob.onclick = () => auth.signOut();
         
         initAuth();
