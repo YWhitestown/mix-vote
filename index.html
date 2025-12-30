@@ -123,22 +123,24 @@
 
         /* ブラウザ翻訳ヒントUI */
         .browser-tip {
-            font-size: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--accent);
+            font-size: 13px;
+            background: rgba(6, 182, 212, 0.05);
+            padding: 16px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            color: var(--text-main);
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 15px;
+            margin-bottom: 24px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
         .browser-tip:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(6, 182, 212, 0.1);
             border-color: var(--accent);
+            transform: scale(1.01);
         }
     </style>
 </head>
@@ -322,7 +324,19 @@
 
             <!-- メイン -->
             <main class="lg:col-span-9 pb-20">
-                <div id="view-home" class="view-content space-y-12 animate-in fade-in duration-500">
+                <div id="view-home" class="view-content space-y-8 animate-in fade-in duration-500">
+                    <!-- ホーム画面用 翻訳ガイド (大きく目立つバナー) -->
+                    <div id="homeTranslateGuide" class="browser-tip" onclick="window.openTranslateModal()">
+                        <div class="w-12 h-12 bg-accent/20 rounded-2xl flex items-center justify-center text-accent shrink-0">
+                            <i class="fas fa-language text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-black text-sm tracking-tight mb-0.5 i18n" data-key="home_translate_title">Translate Content</p>
+                            <p class="text-[11px] opacity-70 leading-snug i18n" data-key="home_translate_desc">Use your browser's "Translate" feature to read polls in any language. Click here for step-by-step instructions.</p>
+                        </div>
+                        <i class="fas fa-chevron-right opacity-30"></i>
+                    </div>
+
                     <section class="space-y-10">
                         <div id="featuredPollsSection" class="space-y-6">
                             <div class="flex items-end border-l-4 border-accent pl-4">
@@ -351,8 +365,7 @@
                         <div id="adminControls" class="flex gap-2"></div>
                     </div>
                     
-                    <!-- 翻訳ガイドボタンのヒント (詳細画面内) -->
-                    <div id="translateGuide" class="browser-tip" onclick="window.openTranslateModal()">
+                    <div id="translateGuideDetail" class="browser-tip" onclick="window.openTranslateModal()">
                         <i class="fas fa-info-circle"></i>
                         <span class="i18n" data-key="browser_translate_hint">To translate the content, please use your browser's translate feature. (Click for help)</span>
                     </div>
@@ -409,19 +422,19 @@
             ja: {
                 welcome_title: "Welcome to Mix Vote",
                 tos_content: `<p>安全なコミュニティ維持のため、ガイドラインに同意してください。</p><ul class="list-disc list-inside space-y-2"><li>他者の意見を尊重し、誹謗中傷は行わないでください。</li><li>多重投票や不正なデータ操作は禁止されています。</li><li>アンケートの作成やコメントにはGoogleサインインが必要です。</li><li><strong>投票はどなたでも自由にご参加いただけます。</strong></li></ul>`,
-                agree_btn: "同意して入室", login: "ログイン", logout: "ログアウト", welcome_user: "ようこそ", home: "ホーム", created_polls: "作成したアンケート", voted_polls: "投票済みアンケート", new_poll: "新規作成", language: "言語設定", categories: "カテゴリー", theme_custom: "テーマのカスタマイズ", accent: "アクセントカラー", background: "背景色", text_color: "文字色", default: "デフォルトに戻す", polls: "アンケート", recent_activity: "最近の活動", back: "戻る", discussion: "ディスカッション", post: "投稿する", create_poll: "アンケート作成", label_title: "タイトル", label_desc: "説明文", label_category: "カテゴリー", label_deadline: "投票期限", label_hashtags: "ハッシュタグ", label_multi: "複数回答を許可する", label_options: "選択肢 (最大50個)", options_hint: "※作成後は選択肢の数を変更できません", save_poll: "保存する", cancel: "キャンセル", save: "保存", confirm: "確定", close: "閉じる", delete_poll: "アンケートを削除", delete_confirm_text: "このアンケートをどのように処理しますか？", archive_btn: "アーカイブ (非表示にする)", permanent_delete_btn: "完全に削除する (管理者のみ)", edit_comment: "コメントを編集", votes: "票", popular_polls: "人気アンケート", latest_polls: "最新アンケート", no_polls: "アンケートが見つかりません", all: "全て", notice: "お知らせ", edition_tag: "Global Edition", select: "選択", translate_help: "翻訳ヘルプ", browser_translate_hint: "内容の翻訳は、ブラウザの翻訳機能（右クリック > 翻訳）をご利用ください。(詳細を表示)", translate_guide_content: `<p class="mb-4">アンケートやコメントの内容を翻訳するには、お使いのブラウザの機能をご利用ください。</p><div class="space-y-4 text-xs"><div><strong class="text-accent">Chrome / Edge:</strong><p>画面を右クリックし、「日本語に翻訳」または「英語に翻訳」を選択します。</p></div><div><strong class="text-accent">Safari:</strong><p>アドレスバーの左端にある「あA」アイコンまたは翻訳アイコンをクリックします。</p></div></div>`
+                agree_btn: "同意して入室", login: "ログイン", logout: "ログアウト", welcome_user: "ようこそ", home: "ホーム", created_polls: "作成したアンケート", voted_polls: "投票済みアンケート", new_poll: "新規作成", language: "言語設定", categories: "カテゴリー", theme_custom: "テーマのカスタマイズ", accent: "アクセントカラー", background: "背景色", text_color: "文字色", default: "デフォルトに戻す", polls: "アンケート", recent_activity: "最近の活動", back: "戻る", discussion: "ディスカッション", post: "投稿する", create_poll: "アンケート作成", label_title: "タイトル", label_desc: "説明文", label_category: "カテゴリー", label_deadline: "投票期限", label_hashtags: "ハッシュタグ", label_multi: "複数回答を許可する", label_options: "選択肢 (最大50個)", options_hint: "※作成後は選択肢の数を変更できません", save_poll: "保存する", cancel: "キャンセル", save: "保存", confirm: "確定", close: "閉じる", delete_poll: "アンケートを削除", delete_confirm_text: "このアンケートをどのように処理しますか？", archive_btn: "アーカイブ (非表示にする)", permanent_delete_btn: "完全に削除する (管理者のみ)", edit_comment: "コメントを編集", votes: "票", popular_polls: "人気アンケート", latest_polls: "最新アンケート", no_polls: "アンケートが見つかりません", all: "全て", notice: "お知らせ", edition_tag: "Global Edition", select: "選択", translate_help: "翻訳ヘルプ", browser_translate_hint: "内容の翻訳は、ブラウザの翻訳機能（右クリック > 翻訳）をご利用ください。(詳細を表示)", home_translate_title: "内容の翻訳について", home_translate_desc: "アンケートやコメントを翻訳して読むには、お使いのブラウザ（Chrome, Safari等）の翻訳機能をご利用ください。クリックして手順を表示します。", translate_guide_content: `<p class="mb-4 font-bold text-accent">ブラウザの高度な全文翻訳機能を利用することで、どんな言語のアンケートも快適に読むことができます。</p><div class="space-y-5 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2">PC版 Chrome / Edge / Brave:</strong><p class="mt-2 pl-2 border-l-2 border-accent/30">画面の何もないところを<span class="text-accent font-bold">右クリック</span>して、「日本語に翻訳」または「英語に翻訳」を選択してください。</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2">iPhone / Mac Safari:</strong><p class="mt-2 pl-2 border-l-2 border-accent/30">アドレスバーの左端にある「<span class="text-accent font-bold">あA</span>」アイコンまたは「翻訳アイコン」をタップし、「翻訳」を選択します。</p></div></div>`
             },
             en: {
                 welcome_title: "Welcome to Mix Vote",
                 tos_content: `<p>Please agree to the guidelines to maintain a safe community.</p><ul class="list-disc list-inside space-y-2"><li>Respect others' opinions and avoid harassment.</li><li>Multiple voting and data manipulation are prohibited.</li><li>Google Sign-in is required to create polls or post comments.</li><li><strong>Anyone can participate in voting freely.</strong></li></ul>`,
-                agree_btn: "Agree & Enter", login: "Sign In", logout: "Log Out", welcome_user: "Welcome", home: "Home", created_polls: "Created Polls", voted_polls: "Voted Polls", new_poll: "New Poll", language: "Language", categories: "Categories", theme_custom: "Theme Custom", accent: "Accent", background: "Background", text_color: "Text Color", default: "Default", polls: "Polls", recent_activity: "Recent Activity", back: "Back", discussion: "Discussion", post: "Post", create_poll: "Create Poll", label_title: "Title", label_desc: "Description", label_category: "Category", label_deadline: "Deadline", label_hashtags: "Hashtags", label_multi: "Allow Multiple Choice", label_options: "Options (Max 50)", options_hint: "Option count cannot be changed after creation.", save_poll: "Save Poll", cancel: "Cancel", save: "Save", confirm: "Confirm", close: "Close", delete_poll: "Delete Poll", delete_confirm_text: "How would you like to process this poll?", archive_btn: "Archive (Hide)", permanent_delete_btn: "Delete Permanently (Admin)", edit_comment: "Edit Comment", votes: "Votes", popular_polls: "Popular Polls", latest_polls: "Latest Polls", no_polls: "No polls found", all: "All", notice: "Notice", edition_tag: "Global Edition", select: "Select", translate_help: "Translation Help", browser_translate_hint: "To translate the content, please use your browser's translate feature. (View Help)", translate_guide_content: `<p class="mb-4">To translate poll content or comments, please use your browser's built-in translation feature.</p><div class="space-y-4 text-xs"><div><strong class="text-accent">Chrome / Edge:</strong><p>Right-click anywhere on the page and select "Translate to English/Japanese".</p></div><div><strong class="text-accent">Safari:</strong><p>Click the "A" icon or translation icon in the address bar.</p></div></div>`
+                agree_btn: "Agree & Enter", login: "Sign In", logout: "Log Out", welcome_user: "Welcome", home: "Home", created_polls: "Created Polls", voted_polls: "Voted Polls", new_poll: "New Poll", language: "Language", categories: "Categories", theme_custom: "Theme Custom", accent: "Accent", background: "Background", text_color: "Text Color", default: "Default", polls: "Polls", recent_activity: "Recent Activity", back: "Back", discussion: "Discussion", post: "Post", create_poll: "Create Poll", label_title: "Title", label_desc: "Description", label_category: "Category", label_deadline: "Deadline", label_hashtags: "Hashtags", label_multi: "Allow Multiple Choice", label_options: "Options (Max 50)", options_hint: "Option count cannot be changed after creation.", save_poll: "Save Poll", cancel: "Cancel", save: "Save", confirm: "Confirm", close: "Close", delete_poll: "Delete Poll", delete_confirm_text: "How would you like to process this poll?", archive_btn: "Archive (Hide)", permanent_delete_btn: "Delete Permanently (Admin)", edit_comment: "Edit Comment", votes: "Votes", popular_polls: "Popular Polls", latest_polls: "Latest Polls", no_polls: "No polls found", all: "All", notice: "Notice", edition_tag: "Global Edition", select: "Select", translate_help: "Translation Help", browser_translate_hint: "To translate the content, please use your browser's translate feature. (View Help)", home_translate_title: "How to Translate", home_translate_desc: "To read polls or comments in your language, please use your browser's built-in translation feature (Chrome, Safari, etc.). Click for instructions.", translate_guide_content: `<p class="mb-4 font-bold text-accent">By using your browser's advanced full-page translation, you can comfortably read polls in any language.</p><div class="space-y-5 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2">PC Chrome / Edge / Brave:</strong><p class="mt-2 pl-2 border-l-2 border-accent/30"><span class="text-accent font-bold">Right-click</span> anywhere on the page and select "Translate to English/Japanese".</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2">iPhone / Mac Safari:</strong><p class="mt-2 pl-2 border-l-2 border-accent/30">Tap the "<span class="text-accent font-bold">AA</span>" or translation icon at the left of the address bar and select "Translate".</p></div></div>`
             }
         };
 
         // --- 2. 状態管理 ---
         let currentLang = 'ja';
         let currentUser = null, isAdmin = false, selectedCategory = "全て", searchTerm = "", chartInstance = null, currentPollId = null, currentPollData = null, currentChartType = 'doughnut', editMode = false, editPollId = null;
-        let unsubscribePolls = null, unsubscribeComments = null, localSelectedIndices = [];
+        let unsubscribePolls = null, localSelectedIndices = [];
         let currentCommentsData = {}; 
         let commentToEditId = null;
         window.sessionAgreed = false;
@@ -521,7 +534,6 @@
                 const words = head.split(' ');
                 tE.innerHTML = `${words[0]} <span class="opacity-40 font-normal not-italic">${words.slice(1).join(' ')}</span>`;
             }
-            // htmlタグのlang属性を更新（ブラウザ翻訳認識のため）
             document.documentElement.lang = currentLang;
         };
 
@@ -574,7 +586,7 @@
                     <h3 class="text-lg md:text-xl font-black leading-tight group-hover:text-accent transition-colors">${escapeHTML(p.title)}</h3>
                     <div class="flex flex-wrap mt-1">${(p.hashtags || []).map(t => `<span class="text-[10px] text-accent opacity-80 mr-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>
                 </div>
-                <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold">
+                <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase">
                     <span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span>
                 </div>`;
                 fC.appendChild(div);
