@@ -354,7 +354,7 @@
         import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, getIdTokenResult } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, serverTimestamp, arrayUnion, runTransaction, Timestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-        // --- 1. 定数と初期データの定義 ---
+        // --- 1. 定数定義 ---
         const apiKey = ""; 
         const firebaseConfig = { apiKey: "AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE", authDomain: "mixvotesurvey.firebaseapp.com", projectId: "mixvotesurvey", storageBucket: "mixvotesurvey.firebasestorage.app", messagingSenderId: "352307389497", appId: "1:352307389497:web:0939fd29452d6c6afc59e8", measurementId: "G-ZWR5GHHL54" };
         const ADMIN_EMAILS = ["kurihara1229@gmail.com"];
@@ -375,7 +375,7 @@
             }
         };
 
-        // --- 2. 状態変数の初期化 ---
+        // --- 2. 状態管理 ---
         let currentLang = 'ja';
         let currentUser = null, isAdmin = false, selectedCategory = "全て", searchTerm = "", chartInstance = null, currentPollId = null, currentPollData = null, currentChartType = 'doughnut', editMode = false, editPollId = null;
         let unsubscribePolls = null, unsubscribeComments = null, localSelectedIndices = [];
@@ -389,7 +389,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mixvote-web';
         const POLLS_PATH = ['artifacts', appId, 'public', 'data', 'polls'];
 
-        // --- 3. ユーティリティ関数 ---
+        // --- 3. ユーティリティ ---
         const hexToRgba = (hex, alpha) => {
             const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
             return `rgba(${r}, ${g}, ${b}, ${alpha})`;
@@ -404,14 +404,14 @@
             }
             return s.split('').map((char, i) => [1, 4, 5, 7, 8, 9, 10].includes(i) ? '*' : char).join('');
         };
-        const i18n = (key) => translations[currentLang][key] || key;
+        const i18n = (key) => (translations[currentLang] && translations[currentLang][key]) || key;
         const getInternalCategoryName = (label) => {
             const idxEn = CATEGORIES_EN.indexOf(label);
             if (idxEn > -1) return CATEGORIES_JA[idxEn];
             return label; 
         };
 
-        // --- 4. UI関連関数をwindowに登録 ---
+        // --- 4. UI更新・関数登録 ---
         window.setupCategoryMenu = () => {
             const nav = document.getElementById('categoryNav'), select = document.getElementById('pollCategoryInput');
             if (!nav || !select) return; nav.innerHTML = ''; select.innerHTML = '';
@@ -440,22 +440,21 @@
             }
         };
 
-        window.changeLang = (lang) => {
-            const oldAll = i18n('all'), oldPop = i18n('popular_polls');
-            currentLang = lang;
-            try { localStorage.setItem('mixvote_lang', lang); } catch(e){}
-            if (selectedCategory === oldAll) selectedCategory = i18n('all');
-            else if (selectedCategory === oldPop) selectedCategory = i18n('popular_polls');
-            else {
-                const idx = lang === 'en' ? CATEGORIES_JA.indexOf(selectedCategory) : CATEGORIES_EN.indexOf(selectedCategory);
-                if (idx > -1) selectedCategory = lang === 'en' ? CATEGORIES_EN[idx] : CATEGORIES_JA[idx];
+        window.showMessage = (title, body, onConfirm = null) => {
+            const modal = document.getElementById('msgModal');
+            document.getElementById('msgTitle').textContent = title;
+            document.getElementById('msgBody').textContent = body;
+            const confirmBtn = document.getElementById('msgConfirmBtn');
+            const closeBtn = document.getElementById('msgCloseBtn');
+            if (onConfirm) {
+                confirmBtn.classList.remove('hidden');
+                confirmBtn.onclick = () => { onConfirm(); modal.classList.add('hidden'); };
+                closeBtn.textContent = i18n('cancel'); 
+            } else {
+                confirmBtn.classList.add('hidden');
+                closeBtn.textContent = i18n('close');
             }
-            const jB = document.getElementById('langJaBtn'), eB = document.getElementById('langEnBtn');
-            if (jB) jB.className = `flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${lang === 'ja' ? 'bg-accent text-slate-950 shadow-lg' : 'text-slate-500 hover:text-white'}`;
-            if (eB) eB.className = `flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${lang === 'en' ? 'bg-accent text-slate-950 shadow-lg' : 'text-slate-500 hover:text-white'}`;
-            window.updateUIStrings();
-            if (currentPollId) window.loadPollDetail(currentPollId);
-            window.loadPolls(); 
+            modal.classList.remove('hidden');
         };
 
         window.applyTheme = (accent, bg, text, save = true) => {
@@ -477,6 +476,25 @@
 
         window.resetTheme = () => window.applyTheme(DEFAULT_THEME.accent, DEFAULT_THEME.bg, DEFAULT_THEME.text);
 
+        window.changeLang = (lang) => {
+            const oldAll = i18n('all'), oldPop = i18n('popular_polls');
+            currentLang = lang;
+            try { localStorage.setItem('mixvote_lang', lang); } catch(e){}
+            if (selectedCategory === oldAll) selectedCategory = i18n('all');
+            else if (selectedCategory === oldPop) selectedCategory = i18n('popular_polls');
+            else {
+                const idx = lang === 'en' ? CATEGORIES_JA.indexOf(selectedCategory) : CATEGORIES_EN.indexOf(selectedCategory);
+                if (idx > -1) selectedCategory = lang === 'en' ? CATEGORIES_EN[idx] : CATEGORIES_JA[idx];
+            }
+            const jB = document.getElementById('langJaBtn'), eB = document.getElementById('langEnBtn');
+            if (jB) jB.className = `flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${lang === 'ja' ? 'bg-accent text-slate-950 shadow-lg' : 'text-slate-500 hover:text-white'}`;
+            if (eB) eB.className = `flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${lang === 'en' ? 'bg-accent text-slate-950 shadow-lg' : 'text-slate-500 hover:text-white'}`;
+            window.updateUIStrings();
+            if (currentPollId) window.loadPollDetail(currentPollId);
+            window.loadPolls(); 
+        };
+
+        // --- 5. AI翻訳機能 ---
         const callGemini = async (prompt) => {
             let delay = 1000;
             for (let i = 0; i < 5; i++) {
@@ -490,8 +508,7 @@
                     return data.candidates?.[0]?.content?.parts?.[0]?.text;
                 } catch (e) {
                     if (i === 4) throw e;
-                    await new Promise(r => setTimeout(r, delay));
-                    delay *= 2;
+                    await new Promise(r => setTimeout(r, delay)); delay *= 2;
                 }
             }
         };
@@ -500,28 +517,27 @@
             const targetEl = document.getElementById(elementId);
             if (!targetEl) return;
             const originalText = text || targetEl.innerText;
-            const targetLangLabel = currentLang === 'ja' ? 'English' : 'Japanese';
-            const prompt = `Translate the following ${type} to ${targetLangLabel}. Return ONLY translated text: "${originalText}"`;
+            const prompt = `Translate the following ${type} to ${currentLang === 'ja' ? 'English' : 'Japanese'}. Return ONLY translated text: "${originalText}"`;
             try {
                 targetEl.classList.add('translating');
                 const translated = await callGemini(prompt);
                 if (translated) targetEl.innerText = translated.trim();
             } catch (e) {
-                showMessage(i18n('notice'), "AI error.");
+                window.showMessage(i18n('notice'), "AI translation currently disabled due to API key restrictions.");
             } finally { targetEl.classList.remove('translating'); }
         };
 
-        // --- 5. Firebase & ナビゲーション ---
+        // --- 6. Firebase & ナビゲーション ---
         window.loadPolls = () => {
             if (!currentUser) return;
             if (unsubscribePolls) unsubscribePolls();
             unsubscribePolls = onSnapshot(collection(db, ...POLLS_PATH), (snapshot) => {
                 let polls = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => !p.deleted);
-                const allLabel = i18n('all'), popularLabel = i18n('popular_polls');
-                const internalSelected = getInternalCategoryName(selectedCategory);
-                if (selectedCategory !== allLabel && selectedCategory !== popularLabel) polls = polls.filter(p => p.category === internalSelected);
+                const aL = i18n('all'), pL = i18n('popular_polls');
+                const iS = getInternalCategoryName(selectedCategory);
+                if (selectedCategory !== aL && selectedCategory !== pL) polls = polls.filter(p => p.category === iS);
                 if (searchTerm) polls = polls.filter(p => p.title.toLowerCase().includes(searchTerm));
-                if (selectedCategory === popularLabel) polls.sort((a, b) => (b.votes?.reduce((s, v) => s + v, 0) || 0) - (a.votes?.reduce((s, v) => s + v, 0) || 0));
+                if (selectedCategory === pL) polls.sort((a, b) => (b.votes?.reduce((s, v) => s + v, 0) || 0) - (a.votes?.reduce((s, v) => s + v, 0) || 0));
                 else polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
                 window.renderHomePolls(polls);
             });
@@ -537,20 +553,9 @@
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div');
                 div.className = "poll-card glass-panel rounded-[24px] p-6 md:p-8 cursor-pointer flex flex-col justify-between group";
                 div.onclick = () => window.goDetail(p.id);
-                const tagsHTML = (p.hashtags || []).map(t => `<span class="text-[10px] text-accent opacity-80 mr-2 font-bold">#${escapeHTML(t)}</span>`).join('');
                 const idx = CATEGORIES_JA.indexOf(p.category);
                 const dC = idx > -1 ? (currentLang === 'en' ? CATEGORIES_EN[idx] : CATEGORIES_JA[idx]) : p.category;
-                div.innerHTML = `<div class="space-y-4">
-                    <span class="text-[9px] font-black px-3 py-1 rounded-full bg-accent/20 text-accent uppercase border border-accent/20">${escapeHTML(dC)}</span>
-                    <div class="flex items-start justify-between gap-2">
-                        <h3 id="card-title-${p.id}" class="text-lg md:text-xl font-black leading-tight group-hover:text-accent transition-colors">${escapeHTML(p.title)}</h3>
-                        <button onclick="event.stopPropagation(); window.translateContent('card-title-${p.id}', '', 'poll title')" class="translate-btn text-[10px] shrink-0 font-bold"><i class="fas fa-language"></i></button>
-                    </div>
-                    <div class="flex flex-wrap mt-1">${tagsHTML}</div>
-                </div>
-                <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase">
-                    <span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span>
-                </div>`;
+                div.innerHTML = `<div class="space-y-4"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-accent/20 text-accent uppercase border border-accent/20">${escapeHTML(dC)}</span><div class="flex items-start justify-between gap-2"><h3 id="card-title-${p.id}" class="text-lg md:text-xl font-black leading-tight group-hover:text-accent transition-colors">${escapeHTML(p.title)}</h3><button onclick="event.stopPropagation(); window.translateContent('card-title-${p.id}', '', 'poll title')" class="translate-btn text-[10px] font-bold"><i class="fas fa-language"></i></button></div></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold"><span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span></div>`;
                 fC.appendChild(div);
             });
             mP.forEach(p => {
@@ -566,13 +571,10 @@
             window.location.hash = ''; 
             document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); 
             document.getElementById('view-home').classList.remove('hidden'); 
-            const btns = document.querySelectorAll('aside button');
-            btns.forEach(b => b.classList.remove('active', 'text-white'));
-            const homeBtn = document.getElementById('navHomeBtn');
-            if (homeBtn) homeBtn.classList.add('active', 'text-white');
+            document.querySelectorAll('aside button').forEach(b => b.classList.remove('active', 'text-white'));
+            const hb = document.getElementById('navHomeBtn'); if (hb) hb.classList.add('active', 'text-white');
             window.loadPolls(); 
         };
-
         window.goCreatedPolls = () => { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'created'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-created').classList.remove('hidden'); window.loadFilteredPolls('created'); };
         window.goVotedPolls = () => { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'voted'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-voted').classList.remove('hidden'); window.loadFilteredPolls('voted'); };
         window.goDetail = (id) => { window.location.hash = `poll/${id}`; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-detail').classList.remove('hidden'); window.loadPollDetail(id); };
@@ -612,7 +614,7 @@
             content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-accent/10 text-accent font-black text-[9px] px-3 py-1 rounded-md uppercase border border-accent/20">${escapeHTML(p.category)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><div class="flex items-center justify-between gap-4"><h2 id="pollDetailTitle" class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><button onclick="window.translateContent('pollDetailTitle', '', 'poll title')" class="translate-btn text-[10px] font-bold"><i class="fas fa-language"></i> AI ${i18n('translate')}</button></div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative"><p id="pollDetailDesc">${escapeHTML(p.question)}</p><button onclick="window.translateContent('pollDetailDesc', '', 'poll description')" class="translate-btn absolute top-4 right-4 text-[9px] font-bold"><i class="fas fa-language"></i></button></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => {
                 const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
                 return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-accent/50' : ''}"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm" id="opt-text-${i}">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div><button onclick="event.stopPropagation(); window.translateContent('opt-text-${i}', '', 'poll option')" class="translate-btn text-[8px] block"><i class="fas fa-language"></i></button></div></div>`;
-            }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-accent text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-widest mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex items-center justify-center min-h-[250px]"><canvas id="pollChart"></canvas></div></div></div>`;
+            }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-accent text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4">${i18n('confirm')}</button>`:''}</div><div class="flex items-center justify-center min-h-[250px]"><canvas id="pollChart"></canvas></div></div></div>`;
             window.renderChart(p, 'doughnut'); window.loadComments(id);
         };
 
@@ -652,7 +654,7 @@
                     tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() });
                 });
                 window.loadPollDetail(currentPollId);
-            } catch (e) { if (e === "Already Voted") showMessage(i18n('notice'), "Already voted."); }
+            } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), "Already voted."); }
         };
 
         window.toggleLocalSelect = (idx) => {
@@ -673,7 +675,7 @@
                     tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() });
                 });
                 localSelectedIndices = []; window.loadPollDetail(currentPollId);
-            } catch (e) { if (e === "Already Voted") showMessage(i18n('notice'), "Already voted."); }
+            } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), "Already voted."); }
         };
 
         window.savePoll = async () => {
@@ -689,7 +691,7 @@
                 if (editMode) await updateDoc(doc(db, ...POLLS_PATH, editPollId), d);
                 else { Object.assign(d, { author: currentUser.displayName || 'User', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), votedUsers: [] }); await addDoc(collection(db, ...POLLS_PATH), d); }
                 document.getElementById('createModal').classList.add('hidden'); window.goHome();
-            } catch (e) { showMessage(i18n('notice'), e.message); } finally { saveBtn.disabled = false; }
+            } catch (e) { window.showMessage(i18n('notice'), e.message); } finally { saveBtn.disabled = false; }
         };
 
         window.confirmDeletePoll = async (type) => {
@@ -715,7 +717,10 @@
             } catch (err) { await signInAnonymously(auth).catch(()=>{}); }
         };
 
-        // --- 6. 初期化とリスナー ---
+        // --- 7. 初期化実行 ---
+        window.loadTheme();
+        initAuth();
+
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             window.changeLang(localStorage.getItem('mixvote_lang') || (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Tokyo' ? 'ja' : 'en'));
@@ -723,11 +728,12 @@
                 const res = await getIdTokenResult(user).catch(() => ({claims:{}}));
                 isAdmin = !!res.claims.admin || ADMIN_EMAILS.includes(user.email);
             }
-            document.getElementById('loginBtn').style.display = user && !user.isAnonymous ? 'none' : 'flex';
-            document.getElementById('userInfo').style.display = user && !user.isAnonymous ? 'flex' : 'none';
-            document.getElementById('openCreateBtn').style.display = user && !user.isAnonymous ? 'flex' : 'none';
-            document.getElementById('userNavGroup').classList.toggle('hidden', !user || user.isAnonymous);
-            if (user && !user.isAnonymous) document.getElementById('userName').textContent = user.displayName;
+            const isReg = user && !user.isAnonymous;
+            document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
+            document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
+            document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
+            document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
+            if (isReg) document.getElementById('userName').textContent = user.displayName;
             
             let isAgreed = false; try { isAgreed = localStorage.getItem('mixvote_agreed') === 'true'; } catch(e){}
             if (user && (isAgreed || window.sessionAgreed)) {
@@ -755,9 +761,7 @@
         document.getElementById('bgPicker').oninput = (e) => window.applyTheme(document.getElementById('accentPicker').value, e.target.value, document.getElementById('textPicker').value);
         document.getElementById('textPicker').oninput = (e) => window.applyTheme(document.getElementById('accentPicker').value, document.getElementById('bgPicker').value, e.target.value);
 
-        // アプリ起動
-        window.loadTheme();
-        initAuth();
+        window.addEventListener('hashchange', window.handleNavigation);
 
     </script>
 </body>
