@@ -135,7 +135,10 @@
         <div class="glass max-w-xs w-full rounded-[24px] p-6 text-center border border-white/10 shadow-2xl">
             <h3 id="msgTitle" class="text-lg font-black mb-3 uppercase italic text-white">Notice</h3>
             <p id="msgBody" class="text-slate-400 text-xs mb-6 leading-relaxed whitespace-pre-wrap"></p>
-            <button id="msgCloseBtn" class="w-full bg-white/5 text-white font-bold py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-white/10 mt-4 transition-colors">Close</button>
+            <div id="msgActions" class="flex gap-3 mt-4">
+                <button id="msgCloseBtn" class="flex-1 bg-white/5 text-white font-bold py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-white/10 transition-colors">Close</button>
+                <button id="msgConfirmBtn" class="flex-1 bg-cyan-500 text-slate-950 font-black py-3 rounded-xl uppercase text-[10px] tracking-widest hidden hover:bg-cyan-400 transition-colors">Confirm</button>
+            </div>
         </div>
     </div>
 
@@ -151,6 +154,18 @@
                 <button onclick="confirmDeletePoll('archive')" class="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl text-xs transition-all border border-white/5">アーカイブする (非表示化)</button>
                 <button id="permanentDeleteBtn" onclick="confirmDeletePoll('permanent')" class="w-full bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-xl text-xs transition-all shadow-lg shadow-red-500/20 hidden">完全に削除する (管理者専用)</button>
                 <button onclick="closeDeleteModal()" class="w-full bg-transparent text-slate-500 font-bold py-3 text-xs uppercase tracking-widest mt-2">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- コメント編集モーダル -->
+    <div id="editCommentModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass max-w-sm w-full rounded-[24px] p-6 border border-white/10 shadow-2xl">
+            <h3 class="text-lg font-black mb-4 text-white uppercase italic tracking-widest">Edit Comment</h3>
+            <textarea id="editCommentInput" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-sm text-white outline-none mb-4 focus:border-cyan-500 transition-colors" rows="3" maxlength="100"></textarea>
+            <div class="flex gap-3">
+                <button onclick="closeEditCommentModal()" class="flex-1 bg-white/5 text-white font-bold py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-white/10">Cancel</button>
+                <button id="saveCommentBtn" class="flex-1 bg-cyan-500 text-slate-950 font-black py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-cyan-400">Save</button>
             </div>
         </div>
     </div>
@@ -304,6 +319,8 @@
 
         let currentUser = null, isAdmin = false, selectedCategory = "全て", searchTerm = "", chartInstance = null, currentPollId = null, currentPollData = null, currentChartType = 'doughnut', editMode = false, editPollId = null;
         let unsubscribePolls = null, unsubscribeCreated = null, unsubscribeVoted = null, unsubscribeComments = null, localSelectedIndices = [];
+        let currentCommentsData = {}; // コメント本文保持用
+        let commentToEditId = null;
         window.sessionAgreed = false;
 
         const escapeHTML = (s = '') => typeof s !== 'string' ? '' : s.replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m]));
@@ -474,7 +491,6 @@
                     <div class="space-y-3">
                         ${p.options.map((opt, i) => {
                             const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
-                            // 誰でも投票可能（currentUserが存在すればOK、isAnonymousの制限なし）
                             return `<div ${canV ? (isM ? `onclick="toggleLocalSelect(${i})"` : `onclick="castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-cyan-500/50' : ''}">
                                 <div class="absolute inset-y-0 left-0 bg-cyan-500/5 transition-all duration-1000" style="width:${per}%"></div>
                                 <div class="relative z-10 flex items-center gap-3">
@@ -544,17 +560,65 @@
             });
         };
 
+        // コメント管理
         const loadComments = (pid) => {
             if (unsubscribeComments) unsubscribeComments();
             unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
                 const list = document.getElementById('commentsList'); if (!list) return;
                 list.innerHTML = s.empty ? '<p class="text-center text-[10px] text-slate-700 py-6 uppercase font-bold tracking-widest">No comments yet.</p>' : '';
+                currentCommentsData = {};
                 s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).forEach(c => {
-                    const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 space-y-1";
-                    div.innerHTML = `<div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest"><span class="text-cyan-400">${escapeHTML(maskString(c.author))}</span><span class="text-slate-600">${c.createdAt?.seconds ? new Date(c.createdAt.seconds*1000).toLocaleDateString() : ''}</span></div><p class="text-xs text-slate-300 leading-relaxed">${escapeHTML(c.text)}</p>`;
+                    currentCommentsData[c.id] = c.text;
+                    const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 space-y-1 relative group";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest">
+                            <span class="text-cyan-400">${escapeHTML(maskString(c.author))}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-slate-600">${c.createdAt?.seconds ? new Date(c.createdAt.seconds*1000).toLocaleDateString() : ''}</span>
+                                ${(isAdmin || (currentUser && c.userId === currentUser.uid)) ? `
+                                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="openEditCommentModal('${c.id}')" class="text-slate-500 hover:text-cyan-400 transition-colors"><i class="fas fa-edit"></i></button>
+                                        <button onclick="confirmDeleteComment('${c.id}')" class="text-slate-500 hover:text-red-400 transition-colors"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed pr-8">${escapeHTML(c.text)}</p>
+                    `;
                     list.appendChild(div);
                 });
             });
+        };
+
+        window.confirmDeleteComment = (cid) => {
+            showMessage("Delete Comment?", "このコメントを削除してもよろしいですか？", async () => {
+                try {
+                    await deleteDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', cid));
+                } catch (e) { showMessage("Error", "削除に失敗しました。"); }
+            });
+        };
+
+        window.openEditCommentModal = (cid) => {
+            commentToEditId = cid;
+            document.getElementById('editCommentInput').value = currentCommentsData[cid] || "";
+            document.getElementById('editCommentModal').classList.remove('hidden');
+        };
+
+        window.closeEditCommentModal = () => {
+            document.getElementById('editCommentModal').classList.add('hidden');
+            commentToEditId = null;
+        };
+
+        document.getElementById('saveCommentBtn').onclick = async () => {
+            const newText = document.getElementById('editCommentInput').value.trim();
+            if (!newText || !commentToEditId) return;
+            try {
+                await updateDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', commentToEditId), {
+                    text: newText,
+                    updatedAt: serverTimestamp()
+                });
+                closeEditCommentModal();
+            } catch (e) { showMessage("Error", "更新に失敗しました。"); }
         };
 
         document.getElementById('postCommentBtn').onclick = async () => {
