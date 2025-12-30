@@ -415,7 +415,7 @@
 
         // --- 管理者メールアドレスのリスト ---
         const ADMIN_EMAILS = [
-            "your-admin-email@example.com" // ここに自分のアドレスを記入
+            "kurihara1229@gmail.com"
         ];
 
         // --- Firebase Configuration ---
@@ -489,7 +489,7 @@
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     try {
                         await signInWithCustomToken(auth, __initial_auth_token);
-                    } catch (e) {
+                    } catch (tokenErr) {
                         await signInAnonymously(auth);
                     }
                 } else {
@@ -611,7 +611,6 @@
             const container = document.getElementById(eid);
             if (container) container.innerHTML = '<div class="col-span-full py-20 flex justify-center"><i class="fas fa-circle-notch spinner text-cyan-500 text-2xl"></i></div>';
 
-            // Clean up previous listeners
             if (type === 'created' && unsubscribeCreated) unsubscribeCreated();
             if (type === 'voted' && unsubscribeVoted) unsubscribeVoted();
 
@@ -677,7 +676,6 @@
             const isMulti = p.isMultipleChoice === true;
 
             const isOwner = currentUser && p.authorID && currentUser.uid === p.authorID;
-            // 管理者または作成者本人が編集・削除可能
             document.getElementById('adminControls').innerHTML = (isOwner || isAdmin) ? `
                 <button onclick="openEditPoll()" class="p-2 rounded-lg glass text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 border border-cyan-500/20" title="編集"><i class="fas fa-edit"></i></button>
                 <button onclick="openDeleteModal()" class="p-2 rounded-lg glass text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20" title="削除"><i class="fas fa-trash"></i></button>
@@ -713,7 +711,7 @@
                             <button id="submitMultiVoteBtn" onclick="submitMultipleVotes()" class="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all uppercase tracking-widest text-xs" style="display:none;">選択した項目に投票する</button>
                         </div>
                         <div class="flex flex-col items-center justify-center space-y-6">
-                            ${showRes ? `<div class="flex gap-2"><button id="btnChartDoughnut" onclick="updateChartType('doughnut')" class="px-4 py-1.5 rounded-lg text-[10px] font-black ${currentChartType === 'doughnut' ? 'bg-cyan-500 text-slate-950' : 'bg-white/5'}">DOUGHNUT</button><button id="btnChartBar" onclick="updateChartType('bar')" class="px-4 py-1.5 rounded-lg text-[10px] font-black ${currentChartType === 'bar' ? 'bg-cyan-500 text-slate-950' : 'bg-white/5'}">BAR</button></div><div class="w-full h-[300px] relative"><canvas id="pollChart"></canvas></div><div class="flex gap-2"><button onclick="downloadResults()" class="p-2.5 rounded-xl bg-white/5 text-cyan-400 border border-white/5 hover:bg-cyan-500/10 transition-all shadow-lg"><i class="fas fa-download"></i></button><button onclick="copyPollLink()" class="p-2.5 rounded-xl bg-white/5 text-pink-400 border border-white/5 hover:bg-pink-500/10 shadow-lg"><i class="fas fa-link"></i></button></div>` : `<div class="text-center p-12 w-full glass rounded-[32px] border-2 border-dashed border-white/5 flex flex-col items-center gap-4"><div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-slate-600 text-2xl"><i class="fas fa-lock"></i></div><span class="text-slate-500 text-xs font-bold uppercase tracking-widest">投票して結果を表示</span></div>`}
+                            ${showRes ? `<div class="flex gap-2"><button id="btnChartDoughnut" onclick="updateChartType('doughnut')" class="px-4 py-1.5 rounded-lg text-[10px] font-black ${currentChartType === 'doughnut' ? 'bg-cyan-500 text-slate-950' : 'bg-white/5'}">DOUGHNUT</button><button id="btnChartBar" onclick="updateChartType('bar')" class="px-4 py-1.5 rounded-lg text-[10px] font-black ${currentChartType === 'bar' ? 'bg-cyan-500 text-slate-950' : 'bg-white/5'}">BAR</button></div><div class="w-full h-[300px] relative"><canvas id="pollChart"></canvas></div><div class="flex gap-2"><button onclick="downloadResults()" class="p-2.5 rounded-xl bg-white/5 text-cyan-400 border border-white/5 hover:bg-cyan-500/10 shadow-lg"><i class="fas fa-download"></i></button><button onclick="copyPollLink()" class="p-2.5 rounded-xl bg-white/5 text-pink-400 border border-white/5 hover:bg-pink-500/10 shadow-lg"><i class="fas fa-link"></i></button></div>` : `<div class="text-center p-12 w-full glass rounded-[32px] border-2 border-dashed border-white/5 flex flex-col items-center gap-4"><div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-slate-600 text-2xl"><i class="fas fa-lock"></i></div><span class="text-slate-500 text-xs font-bold uppercase tracking-widest">投票して結果を表示</span></div>`}
                         </div>
                     </div>
                     ${(hasVoted || isExp) && p.is_quiz ? `<div class="bg-emerald-500/5 border border-emerald-500/20 p-6 rounded-[24px]"><h4 class="text-emerald-400 font-black text-[10px] uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fas fa-check-circle"></i> Correct Answer</h4><p class="text-white font-bold text-lg">${escapeHTML(p.options[p.correct_index])}</p><p class="text-slate-400 text-sm mt-3 leading-relaxed">${escapeHTML(p.explanation)}</p></div>` : ''}
@@ -739,7 +737,7 @@
         };
 
         window.castVote = async (idx) => {
-            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "サインインが必要です。");
+            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "投票にはGoogleサインインが必要です。");
             const ref = doc(db, ...POLLS_PATH, currentPollId);
             try {
                 await runTransaction(db, async (transaction) => {
@@ -758,7 +756,7 @@
             const saveBtn = document.getElementById('savePollBtn');
             const spinner = document.getElementById('saveBtnSpinner');
             try {
-                if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "サインインが必要です。");
+                if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "作成にはGoogleサインインが必要です。");
                 const t = document.getElementById('pollTitleInput').value.trim();
                 const newOptions = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean);
                 const cat = document.getElementById('pollCategoryInput').value;
@@ -795,7 +793,7 @@
                         return idx !== -1 ? oldVotes[idx] : 0;
                     });
                     await updateDoc(ref, d);
-                    showMessage("Updated", "更新しました。");
+                    showMessage("Updated", "アンケートを更新しました。");
                 } else {
                     Object.assign(d, { author: currentUser.displayName || 'User', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(newOptions.length).fill(0), votedUsers: [], likes: [], deleted: false });
                     await addDoc(collection(db, ...POLLS_PATH), d);
@@ -806,7 +804,7 @@
             } catch (e) { showMessage("Error", e.message || "処理に失敗しました。"); } finally { saveBtn.disabled = false; spinner.classList.add('hidden'); }
         };
 
-        // --- Auth initialization ---
+        // --- Auth & Setup ---
         const setupCategoryMenu = () => {
             const nav = document.getElementById('categoryNav');
             const select = document.getElementById('pollCategoryInput');
