@@ -201,7 +201,6 @@
                     <i class="fas fa-plus group-hover:rotate-90 transition-transform"></i> New Poll
                 </button>
 
-                <!-- Sidebar Categories -->
                 <div class="glass rounded-3xl p-5 border border-white/5">
                     <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4 pl-2">Categories</h3>
                     <nav id="categoryNav" class="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 custom-scrollbar min-h-[40px]"></nav>
@@ -346,6 +345,7 @@
         const BASE_PATH = ['artifacts', appId, 'public', 'data'];
         const POLLS_PATH = [...BASE_PATH, 'polls'];
 
+        const ARUARU_OPTIONS_TEXT = "あるある！\nいいね\n笑\n涙";
         const CATEGORIES = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
 
         // --- State ---
@@ -412,7 +412,7 @@
                 document.getElementById('appUI').classList.remove('hidden');
                 document.getElementById('tosModal').classList.add('hidden');
                 if (user) {
-                    setupCategoryMenu(); // カテゴリー再描画
+                    setupCategoryMenu();
                     loadPolls();
                 }
             } else {
@@ -464,7 +464,7 @@
             if (currentUser) loadPolls();
         };
 
-        // --- Category Logic (FIXED) ---
+        // --- Category Logic ---
         const setupCategoryMenu = () => {
             const nav = document.getElementById('categoryNav');
             const select = document.getElementById('pollCategoryInput');
@@ -503,9 +503,21 @@
             const quizBox = document.getElementById('quizFields');
             const sel = document.getElementById('pollCorrectIndexInput');
             const oi = document.getElementById('pollOptionsInput');
+            
+            // クイズ形式の表示制御
             const isQuiz = cat === "クイズ";
             if (quizBox) quizBox.classList.toggle('hidden', !isQuiz);
+
+            // あるある形式の自動補完ロジック
+            if (cat === "あるある" && !editMode) {
+                oi.value = ARUARU_OPTIONS_TEXT;
+                oi.disabled = true;
+            } else {
+                oi.disabled = false;
+            }
+
             if (!isQuiz) return;
+
             const options = oi.value.split('\n').map(s => s.trim()).filter(Boolean);
             if (sel) {
                 sel.innerHTML = '';
@@ -798,9 +810,15 @@
             if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから作成してください。");
             editMode = false;
             document.getElementById('modalTitle').textContent = "Create Poll";
-            document.getElementById('pollTitleInput').value = ""; document.getElementById('pollOptionsInput').value = "";
-            document.getElementById('pollDescInput').value = ""; document.getElementById('pollExplanationInput').value = "";
+            document.getElementById('pollTitleInput').value = ""; 
+            document.getElementById('pollOptionsInput').value = "";
+            document.getElementById('pollDescInput').value = ""; 
+            document.getElementById('pollExplanationInput').value = "";
             document.getElementById('createModal').classList.remove('hidden');
+            
+            // 入力フィールドの有効化（あるある等での無効化リセット）
+            document.getElementById('pollOptionsInput').disabled = false;
+            
             syncCorrectAnswerOptions();
         };
 
@@ -808,7 +826,11 @@
             try {
                 if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから作成してください。");
                 const t = document.getElementById('pollTitleInput').value.trim();
-                const o = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean);
+                
+                // textareaがdisabledでも値を取得
+                const oi = document.getElementById('pollOptionsInput');
+                const o = oi.value.split('\n').map(s=>s.trim()).filter(Boolean);
+                
                 const cat = document.getElementById('pollCategoryInput').value;
                 const dl = document.getElementById('pollDeadlineInput').value;
                 if (!t || o.length < 2) return showMessage("Error", "Title and at least 2 options are required.");
