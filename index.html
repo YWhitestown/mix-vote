@@ -614,6 +614,7 @@
             if (type === 'created' && unsubscribeCreated) unsubscribeCreated();
             if (type === 'voted' && unsubscribeVoted) unsubscribeVoted();
 
+            // fetch all non-deleted and filter in memory to avoid index requirements
             const q = query(collection(db, ...POLLS_PATH), where("deleted", "==", false));
             const listener = onSnapshot(q, (snapshot) => {
                 let polls = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -676,6 +677,7 @@
             const isMulti = p.isMultipleChoice === true;
 
             const isOwner = currentUser && p.authorID && currentUser.uid === p.authorID;
+            // Admin OR Owner can manage
             document.getElementById('adminControls').innerHTML = (isOwner || isAdmin) ? `
                 <button onclick="openEditPoll()" class="p-2 rounded-lg glass text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 border border-cyan-500/20" title="編集"><i class="fas fa-edit"></i></button>
                 <button onclick="openDeleteModal()" class="p-2 rounded-lg glass text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20" title="削除"><i class="fas fa-trash"></i></button>
@@ -804,7 +806,7 @@
             } catch (e) { showMessage("Error", e.message || "処理に失敗しました。"); } finally { saveBtn.disabled = false; spinner.classList.add('hidden'); }
         };
 
-        // --- Auth & Setup ---
+        // --- UI Setup ---
         const setupCategoryMenu = () => {
             const nav = document.getElementById('categoryNav');
             const select = document.getElementById('pollCategoryInput');
