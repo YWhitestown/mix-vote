@@ -114,6 +114,15 @@
             background: var(--accent);
             border-color: var(--accent);
         }
+
+        /* Spinner for loading states */
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="min-h-screen selection:bg-cyan-500 selection:text-slate-900">
@@ -177,8 +186,8 @@
                 <button onclick="confirmDeletePoll('archive')" class="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl text-xs transition-all border border-white/5">
                     アーカイブする (非表示化)
                 </button>
-                <button onclick="confirmDeletePoll('permanent')" class="w-full bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-xl text-xs transition-all shadow-lg shadow-red-500/20">
-                    完全に削除する
+                <button id="permanentDeleteBtn" onclick="confirmDeletePoll('permanent')" class="w-full bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-xl text-xs transition-all shadow-lg shadow-red-500/20 hidden">
+                    完全に削除する (管理者専用)
                 </button>
                 <button onclick="closeDeleteModal()" class="w-full bg-transparent text-slate-500 font-bold py-3 text-xs uppercase tracking-widest mt-2">
                     キャンセル
@@ -296,7 +305,6 @@
                             <div class="w-8 h-8 rounded-full glass flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:text-slate-900 transition-colors"><i class="fas fa-arrow-left"></i></div>
                             Back
                         </button>
-                        <!-- Admin Controls (populated dynamically) -->
                         <div id="adminControls" class="flex gap-2"></div>
                     </div>
                     <div id="pollDetailContent" class="glass rounded-[32px] p-8 md:p-10 border border-white/10 shadow-2xl relative overflow-hidden"></div>
@@ -343,7 +351,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- 複数回答オプション -->
                 <div id="multiChoiceField" class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between">
                     <div>
                         <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Settings</span>
@@ -371,14 +378,17 @@
             </div>
             <div class="flex gap-3 mt-8">
                 <button id="cancelCreateBtn" class="flex-1 bg-white/5 text-white font-bold py-4 rounded-xl text-xs hover:bg-white/10 transition-colors">Cancel</button>
-                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-xl text-xs shadow-lg shadow-cyan-500/20 hover:scale-[1.02] transition-transform">Save Poll</button>
+                <button id="savePollBtn" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-xl text-xs shadow-lg shadow-cyan-500/20 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+                    <i id="saveBtnSpinner" class="fas fa-circle-notch spinner hidden"></i>
+                    <span id="saveBtnText">Save Poll</span>
+                </button>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
-        import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+        import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, getIdTokenResult } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, runTransaction, Timestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
         // --- Firebase Configuration ---
@@ -399,14 +409,12 @@
         const BASE_PATH = ['artifacts', appId, 'public', 'data'];
         const POLLS_PATH = [...BASE_PATH, 'polls'];
 
-        // 管理者UIDリスト
-        const ADMIN_UIDS = ["YOUR_ADMIN_UID_1", "YOUR_ADMIN_UID_2"];
-
         const ARUARU_OPTIONS_TEXT = "あるある！\nいいね\n笑\n涙";
         const CATEGORIES = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
 
         // --- State ---
         let currentUser = null;
+        let isAdmin = false; // Custom Claimsによる管理者フラグ
         let selectedCategory = "全て";
         let searchTerm = "";
         let chartInstance = null;
@@ -436,7 +444,7 @@
             if (onConfirm) {
                 confirmBtn.classList.remove('hidden');
                 confirmBtn.onclick = () => { onConfirm(); modal.classList.add('hidden'); };
-                closeBtn.textContent = "Cancel";
+                closeBtn.textContent = "Confirm";
             } else {
                 confirmBtn.classList.add('hidden');
                 closeBtn.textContent = "Close";
@@ -456,8 +464,18 @@
             } catch (err) { await signInAnonymously(auth).catch(()=>{}); }
         };
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             currentUser = user;
+            if (user && !user.isAnonymous) {
+                // 管理者権限のチェック
+                try {
+                    const idTokenResult = await getIdTokenResult(user);
+                    isAdmin = !!idTokenResult.claims.admin;
+                } catch (e) { isAdmin = false; }
+            } else {
+                isAdmin = false;
+            }
+
             const isReg = user && !user.isAnonymous;
             document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
@@ -766,9 +784,6 @@
         window.openEditPoll = async () => {
             if (!currentPollId || !currentPollData) return;
             
-            // 作者UIDと自分のUIDをデバッグ出力
-            console.log("Current User UID:", currentUser?.uid, "Poll AuthorID:", currentPollData.authorID);
-            
             editMode = true;
             editPollId = currentPollId;
             const p = currentPollData;
@@ -780,12 +795,17 @@
             document.getElementById('pollCategoryInput').value = p.category;
             document.getElementById('pollMultiChoiceInput').checked = p.isMultipleChoice || false;
             
+            const deadlineInput = document.getElementById('pollDeadlineInput');
+            const deadlineDisplay = document.getElementById('deadlineDisplay');
+            
             if (p.deadline) {
                 const date = p.deadline.toDate();
                 const formattedDate = date.toISOString().slice(0, 16);
-                document.getElementById('pollDeadlineInput').value = formattedDate;
+                deadlineInput.value = formattedDate;
+                deadlineDisplay.textContent = date.toLocaleString();
             } else {
-                document.getElementById('pollDeadlineInput').value = "";
+                deadlineInput.value = "";
+                deadlineDisplay.textContent = "Select";
             }
 
             if (p.is_quiz) {
@@ -799,6 +819,8 @@
         };
 
         window.openDeleteModal = () => {
+            // 管理者のみハードデリートボタンを表示
+            document.getElementById('permanentDeleteBtn').classList.toggle('hidden', !isAdmin);
             document.getElementById('deleteOptionsModal').classList.remove('hidden');
         };
 
@@ -812,9 +834,15 @@
             try {
                 const ref = doc(db, ...POLLS_PATH, currentPollId);
                 if (type === 'archive') {
-                    await updateDoc(ref, { deleted: true });
+                    // ソフトデリート (監査ログ付き)
+                    await updateDoc(ref, { 
+                        deleted: true,
+                        deletedAt: serverTimestamp(),
+                        deletedBy: currentUser.uid
+                    });
                     showMessage("Archived", "アンケートをアーカイブに移動しました。");
                 } else {
+                    // ハードデリート
                     await deleteDoc(ref);
                     showMessage("Deleted", "アンケートを完全に削除しました。");
                 }
@@ -825,7 +853,37 @@
             }
         };
 
-        // --- Multi-Choice Local Logic ---
+        // --- Core Actions with Transactions ---
+        window.castVote = async (idx) => {
+            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから投票してください。");
+            
+            const ref = doc(db, ...POLLS_PATH, currentPollId);
+            try {
+                // トランザクションによるデータ整合性の確保
+                await runTransaction(db, async (transaction) => {
+                    const pollDoc = await transaction.get(ref);
+                    if (!pollDoc.exists()) throw "Document not found";
+                    
+                    const data = pollDoc.data();
+                    if (data.votedUsers && data.votedUsers.includes(currentUser.uid)) {
+                        throw "Already Voted";
+                    }
+
+                    const newVotes = [...data.votes];
+                    newVotes[idx] = (newVotes[idx] || 0) + 1;
+
+                    transaction.update(ref, { 
+                        votes: newVotes, 
+                        votedUsers: arrayUnion(currentUser.uid) 
+                    });
+                });
+                loadPollDetail(currentPollId);
+            } catch (e) { 
+                if (e === "Already Voted") showMessage("Notice", "すでに投票済みです。");
+                console.error("Vote Transaction Error:", e); 
+            }
+        };
+
         window.toggleLocalSelect = (idx) => {
             const el = document.getElementById(`opt-container-${idx}`);
             if (localSelectedIndices.includes(idx)) {
@@ -846,18 +904,52 @@
             if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから投票してください。");
             if (localSelectedIndices.length === 0) return;
 
+            const ref = doc(db, ...POLLS_PATH, currentPollId);
             try {
-                const ref = doc(db, ...POLLS_PATH, currentPollId);
-                const d = await getDoc(ref);
-                if (d.data().votedUsers?.includes(currentUser.uid)) return showMessage("Notice", "You already voted.");
-                
-                const v = [...d.data().votes];
-                localSelectedIndices.forEach(idx => v[idx]++);
-                
-                await updateDoc(ref, { votes: v, votedUsers: arrayUnion(currentUser.uid) });
+                await runTransaction(db, async (transaction) => {
+                    const pollDoc = await transaction.get(ref);
+                    if (!pollDoc.exists()) throw "Document not found";
+                    
+                    const data = pollDoc.data();
+                    if (data.votedUsers && data.votedUsers.includes(currentUser.uid)) {
+                        throw "Already Voted";
+                    }
+
+                    const newVotes = [...data.votes];
+                    localSelectedIndices.forEach(idx => {
+                        newVotes[idx] = (newVotes[idx] || 0) + 1;
+                    });
+
+                    transaction.update(ref, { 
+                        votes: newVotes, 
+                        votedUsers: arrayUnion(currentUser.uid) 
+                    });
+                });
                 localSelectedIndices = [];
                 loadPollDetail(currentPollId);
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                if (e === "Already Voted") showMessage("Notice", "すでに投票済みです。");
+                console.error("Multi-Vote Transaction Error:", e); 
+            }
+        };
+
+        document.getElementById('postCommentBtn').onclick = async () => {
+            const textarea = document.getElementById('commentText');
+            const t = textarea.value.trim();
+            if (!t || !currentUser || currentUser.isAnonymous) return;
+            
+            // ルール側でも制限するが、フロントでも100文字制限
+            if (t.length > 100) return showMessage("Error", "コメントは100文字以内で入力してください。");
+
+            try {
+                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { 
+                    author: currentUser.displayName || 'Guest', 
+                    userId: currentUser.uid, 
+                    text: t, 
+                    createdAt: serverTimestamp() 
+                });
+                textarea.value = '';
+            } catch (e) { console.error("Comment Error:", e); }
         };
 
         const loadPollDetail = async (id) => {
@@ -869,6 +961,7 @@
             if (!d.exists()) return goHome();
             const p = d.data();
             currentPollData = p; 
+            
             const total = p.votes?.reduce((s,v)=>s+v,0)||0;
             const hasVoted = p.votedUsers?.includes(currentUser.uid);
             const isExp = p.deadline && p.deadline.toDate() < new Date();
@@ -876,13 +969,13 @@
             const showRes = !p.is_quiz || hasVoted || isExp;
             const isMulti = p.isMultipleChoice === true;
 
-            //作者/管理者判定
-            const isOwner = currentUser && currentUser.uid === p.authorID;
-            const isAdmin = currentUser && ADMIN_UIDS.includes(currentUser.uid);
+            // 作者/管理者判定 (Custom Claims 対応)
+            const isOwner = currentUser && p.authorID && currentUser.uid === p.authorID;
+            const canManage = isOwner || isAdmin;
 
             const adminControls = document.getElementById('adminControls');
             if (adminControls) {
-                if (isOwner || isAdmin) {
+                if (canManage) {
                     adminControls.innerHTML = `
                         <button onclick="openEditPoll()" class="p-2 rounded-lg glass text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 transition-all border border-cyan-500/20" title="Edit Poll"><i class="fas fa-edit"></i></button>
                         <button onclick="openDeleteModal()" class="p-2 rounded-lg glass text-red-400 hover:bg-red-500 hover:text-white transition-all border border-red-500/20" title="Delete Poll"><i class="fas fa-trash"></i></button>
@@ -980,30 +1073,7 @@
                         <p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(c.text)}</p>`;
                     list.appendChild(div);
                 });
-            }, (err) => console.error("Snapshot error:", err));
-        };
-
-        // --- Core Actions ---
-        window.castVote = async (idx) => {
-            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから投票してください。");
-            try {
-                const ref = doc(db, ...POLLS_PATH, currentPollId);
-                const d = await getDoc(ref);
-                if (d.data().votedUsers?.includes(currentUser.uid)) return showMessage("Notice", "You already voted.");
-                const v = [...d.data().votes]; v[idx]++;
-                await updateDoc(ref, { votes: v, votedUsers: arrayUnion(currentUser.uid) });
-                loadPollDetail(currentPollId);
-            } catch (e) { console.error(e); }
-        };
-
-        document.getElementById('postCommentBtn').onclick = async () => {
-            const textarea = document.getElementById('commentText');
-            const t = textarea.value.trim();
-            if (!t || !currentUser || currentUser.isAnonymous) return;
-            try {
-                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { author: currentUser.displayName, userId: currentUser.uid, text: t, createdAt: serverTimestamp() });
-                textarea.value = '';
-            } catch (e) { console.error(e); }
+            }, (err) => console.error("Comment Snapshot error:", err));
         };
 
         document.getElementById('openCreateBtn').onclick = () => {
@@ -1017,15 +1087,22 @@
             document.getElementById('pollExplanationInput').value = "";
             document.getElementById('pollMultiChoiceInput').checked = false;
             document.getElementById('pollDeadlineInput').value = "";
+            document.getElementById('deadlineDisplay').textContent = "Select";
             document.getElementById('createModal').classList.remove('hidden');
             
             document.getElementById('pollOptionsInput').disabled = false;
             syncCorrectAnswerOptions();
         };
 
+        // --- Save / Update Action ---
         document.getElementById('savePollBtn').onclick = async () => {
+            const saveBtn = document.getElementById('savePollBtn');
+            const spinner = document.getElementById('saveBtnSpinner');
+            const btnText = document.getElementById('saveBtnText');
+
             try {
-                if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから作成してください。");
+                if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "サインインが必要です。");
+                
                 const t = document.getElementById('pollTitleInput').value.trim();
                 const oi = document.getElementById('pollOptionsInput');
                 const o = oi.value.split('\n').map(s=>s.trim()).filter(Boolean);
@@ -1033,12 +1110,17 @@
                 const dl = document.getElementById('pollDeadlineInput').value;
                 const isMulti = document.getElementById('pollMultiChoiceInput').checked;
 
-                if (!t || o.length < 2) return showMessage("Error", "Title and at least 2 options are required.");
+                if (!t || o.length < 2) return showMessage("Error", "タイトルと2つ以上の選択肢が必要です。");
                 
+                // UI Loading State
+                saveBtn.disabled = true;
+                spinner.classList.remove('hidden');
+                btnText.textContent = "Saving...";
+
                 let correctIndex = null;
                 if (cat === "クイズ") {
                     const v = document.getElementById('pollCorrectIndexInput').value;
-                    if (v === '' || v == null) return showMessage("Error", "Please select a correct answer.");
+                    if (v === '' || v == null) throw new Error("クイズは正解の選択が必要です。");
                     correctIndex = Number(v);
                 }
 
@@ -1057,8 +1139,10 @@
 
                 if (editMode && editPollId) {
                     const ref = doc(db, ...POLLS_PATH, editPollId);
+                    // 選択肢数が変わった場合の得票数調整
                     const oldDoc = await getDoc(ref);
-                    const oldVotes = oldDoc.data().votes || [];
+                    const oldData = oldDoc.data();
+                    const oldVotes = oldData.votes || [];
                     const newVotes = o.map((_, i) => oldVotes[i] || 0);
                     d.votes = newVotes;
                     
@@ -1075,25 +1159,40 @@
                         deleted: false
                     });
                     await addDoc(collection(db, ...POLLS_PATH), d);
-                    showMessage("Created", "アンケートを作成しました。");
+                    showMessage("Created", "新しいアンケートを作成しました。");
                 }
                 
                 document.getElementById('createModal').classList.add('hidden');
                 if (editMode) loadPollDetail(editPollId);
             } catch (e) {
                 console.error("Save error:", e);
-                showMessage("Operation Failed", `Reason: ${e.code || ''} ${e.message || 'Permission Denied'}`);
+                showMessage("Operation Failed", `Reason: ${e.message || 'Permission Denied'}`);
+            } finally {
+                saveBtn.disabled = false;
+                spinner.classList.add('hidden');
+                btnText.textContent = editMode ? "Update Poll" : "Create Poll";
             }
         };
 
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
         
         document.getElementById('loginBtn').onclick = async () => {
-            try { const provider = new GoogleAuthProvider(); await signInWithPopup(auth, provider); }
-            catch (e) { console.error("Login Error:", e); showMessage("Sign-in Failed", `Reason: ${e.code || ''} ${e.message || 'Popup blocked or unauthorized domain'}`); }
+            try { 
+                const provider = new GoogleAuthProvider(); 
+                await signInWithPopup(auth, provider); 
+            } catch (e) { 
+                console.error("Login Error:", e); 
+                showMessage("Sign-in Failed", `Reason: ${e.code === 'auth/popup-blocked' ? 'ポップアップがブロックされました。' : 'サインインできませんでした。'}`); 
+            }
         };
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
         
+        // Deadline Input UX
+        document.getElementById('pollDeadlineInput').onchange = (e) => {
+            const val = e.target.value;
+            document.getElementById('deadlineDisplay').textContent = val ? new Date(val).toLocaleString() : "Select";
+        };
+
         const dpc = document.getElementById('deadlinePickerContainer');
         if (dpc) dpc.onclick = () => { try { document.getElementById('pollDeadlineInput').showPicker(); } catch (e) { console.warn("showPicker error"); } };
 
