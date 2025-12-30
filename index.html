@@ -160,20 +160,26 @@
             <h2 class="text-2xl font-black text-white italic uppercase tracking-tighter mb-6" data-i18n="solutions_title">トラブル解決の手順</h2>
             <div class="space-y-6 text-sm text-slate-300">
                 <section>
-                    <h3 class="text-cyan-400 font-bold mb-2">1. ブラウザの保護機能を無効にする</h3>
-                    <p class="mb-2 text-xs leading-relaxed" data-i18n="edge_fix_1">Microsoft Edgeをお使いの場合、アドレスバー左側の 🛡️（盾）または 🔒（鍵）アイコンをクリックし、「このサイトの追跡防止」をオフにしてください。</p>
-                    <p class="text-xs leading-relaxed" data-i18n="edge_fix_2">Braveをお使いの場合は、ライオンアイコンをクリックして「Shields」をオフにしてください。</p>
+                    <h3 class="text-cyan-400 font-bold mb-2" data-i18n="solution_step1">1. ブラウザ設定・拡張機能の確認</h3>
+                    <ul class="space-y-3 text-xs leading-relaxed list-disc ml-4">
+                        <li data-i18n="edge_fix_1">Edgeをご使用の場合：🛡️ または 🔒 アイコンから「このサイトの追跡防止」をオフにしてください。</li>
+                        <li data-i18n="adblock_fix">広告ブロック（uBlock, AdBlock等）をご使用の場合：一時的に無効化、または <b>firestore.googleapis.com</b> を許可リストに追加してください。</li>
+                        <li data-i18n="inprivate_test"><b>InPrivate (シークレット) モード</b> で開き直して動作するか確認してください（拡張機能の影響を排除できます）。</li>
+                    </ul>
                 </section>
                 <section>
-                    <h3 class="text-cyan-400 font-bold mb-2">2. 広告ブロックを無効にする</h3>
-                    <p class="text-xs leading-relaxed" data-i18n="adblock_fix">uBlock Origin, AdBlock, Privacy Badger等の拡張機能をご使用の場合、このサイトでの動作を一時的に許可してください。Firestoreへの通信がブロックされるのを防ぎます。</p>
+                    <h3 class="text-cyan-400 font-bold mb-2" data-i18n="solution_step2">2. ネットワーク・DNSの確認</h3>
+                    <ul class="space-y-3 text-xs leading-relaxed list-disc ml-4">
+                        <li data-i18n="dns_check">DNSレベルのブロック（NextDNS, AdGuard DNS等）やルーターの保護機能により、Googleのサーバーへの通信が拒否されている可能性があります。</li>
+                        <li data-i18n="tethering_test">スマホの<b>テザリング</b>等、別のネットワーク環境でアクセスして改善するかお試しください。</li>
+                    </ul>
                 </section>
                 <section>
-                    <h3 class="text-cyan-400 font-bold mb-2">3. Google Chrome で試す</h3>
-                    <p class="text-xs leading-relaxed" data-i18n="chrome_check">Chromeは標準設定で動作しやすいため、上記で解決しない場合は Chrome での閲覧をお試しください。</p>
+                    <h3 class="text-cyan-400 font-bold mb-2" data-i18n="solution_step3">3. 他のブラウザで試す</h3>
+                    <p class="text-xs leading-relaxed" data-i18n="chrome_check">Google Chromeは標準設定で動作しやすいため、Edgeで止まる場合はChromeをお試しください。</p>
                 </section>
                 <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                    <p class="text-[10px] text-slate-500 font-bold italic" data-i18n="fundamental_fix">根本的な解決: Firebase Hosting等、同一ドメインでの配信により、これらの制限を回避できます。</p>
+                    <p class="text-[10px] text-slate-500 font-bold italic" data-i18n="fundamental_fix">開発者向け：Firebase Hosting等、同一ドメインでの配信により、これらの制限を回避できます。</p>
                 </div>
             </div>
             <button onclick="document.getElementById('troubleModal').classList.add('hidden')" class="w-full mt-8 bg-slate-800 text-white font-bold py-4 rounded-xl text-xs uppercase tracking-widest hover:bg-slate-700 transition-colors" data-i18n="close">閉じる</button>
@@ -451,10 +457,15 @@
                 loading_desc: "安全に接続中...", trouble_title: "読み込みが終わらない場合", 
                 trouble_desc: "ブラウザの追跡防止機能や広告ブロックによりサーバーとの通信が遮断されている可能性があります。",
                 view_solutions: "解決策を表示", solutions_title: "トラブル解決の手順",
-                edge_fix_1: "アドレスバー左側の 🛡️ または 🔒 アイコンから「このサイトの追跡防止」をオフにしてください。",
-                edge_fix_2: "Brave等をお使いの場合は保護機能（Shields）を一時的にオフにしてください。",
-                adblock_fix: "AdBlockやuBlock Origin、DNSセキュリティ等の拡張機能をご使用の場合、このサイトでの動作を一時的に許可してください。",
-                chrome_check: "Chromeは標準設定で動作しやすいため、Edge等で止まる場合は Chrome での閲覧をお試しください。",
+                solution_step1: "1. ブラウザ設定・拡張機能の確認",
+                edge_fix_1: "Edgeをご使用の場合：🛡️ または 🔒 アイコンから「このサイトの追跡防止」をオフにしてください。",
+                adblock_fix: "広告ブロック（uBlock Origin, AdBlock等）をご使用の場合：このサイトでの動作を一時的に許可、または <b>firestore.googleapis.com</b> を許可リストに追加してください。",
+                inprivate_test: "<b>InPrivate (シークレット) モード</b> で開き直して動作するか確認してください。",
+                solution_step2: "2. ネットワーク・DNSの確認",
+                dns_check: "DNSレベルのブロック（NextDNS, AdGuard DNS等）により通信が拒否されている可能性があります。",
+                tethering_test: "スマホの<b>テザリング</b>等、別のネットワーク環境でアクセスして改善するかお試しください。",
+                solution_step3: "3. 他のブラウザで試す",
+                chrome_check: "Google Chromeは標準設定で動作しやすいため、Chromeでの閲覧をお試しください。",
                 fundamental_fix: "根本解決: Firebase Hosting等、同一ドメインでの配信を推奨します。"
             },
             en: {
@@ -477,10 +488,15 @@
                 loading_desc: "Securely connecting...", trouble_title: "Stuck on loading?", 
                 trouble_desc: "Browser tracking prevention or ad-blockers might be blocking the connection to our servers.",
                 view_solutions: "View Solutions", solutions_title: "Troubleshooting Steps",
-                edge_fix_1: "Click the 🛡️ or 🔒 icon in the address bar and turn off 'Tracking prevention for this site'.",
-                edge_fix_2: "If you use Brave, please turn off 'Shields' for this site.",
-                adblock_fix: "If you use AdBlock, uBlock Origin, or privacy extensions, please allow this site to prevent blocking connection to Firestore.",
-                chrome_check: "If settings fail, please try using Google Chrome, which often works with default settings.",
+                solution_step1: "1. Browser Settings & Extensions",
+                edge_fix_1: "Edge: Click 🛡️ or 🔒 in the address bar and turn off 'Tracking prevention for this site'.",
+                adblock_fix: "Ad-blockers: Allow this site or add <b>firestore.googleapis.com</b> to the whitelist.",
+                inprivate_test: "Try <b>InPrivate (Incognito) mode</b> to see if extensions are interfering.",
+                solution_step2: "2. Network & DNS",
+                dns_check: "DNS filtering (NextDNS, Pi-hole, etc.) might be blocking the connection.",
+                tethering_test: "Try using a different network, like <b>mobile tethering</b>, to check for router-level blocks.",
+                solution_step3: "3. Try another browser",
+                chrome_check: "Google Chrome often works with default settings if other browsers fail.",
                 fundamental_fix: "Fundamental fix: Serving from the same domain (Firebase Hosting) is recommended."
             }
         };
@@ -501,9 +517,10 @@
             const t = UI_TEXT[currentLang];
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) el.textContent = t[key];
+                if (t[key]) el.innerHTML = t[key]; // Changed to innerHTML to support <b> tags in troubleshooting
             });
 
+            // Specific UI handling
             const lp = document.getElementById('latest_polls_label'); if(lp) lp.innerHTML = t.latest_polls_html;
             const tr = document.getElementById('trending_label'); if(tr) tr.innerHTML = t.trending_html;
             const gs = document.getElementById('globalSearch'); if(gs) gs.placeholder = t.search_placeholder;
