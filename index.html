@@ -354,7 +354,7 @@
         import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, getIdTokenResult } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, serverTimestamp, arrayUnion, runTransaction, Timestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-        // --- 1. 定数と初期データの定義 (最優先) ---
+        // --- 1. 定数と基本データの定義 ---
         const apiKey = ""; 
         const firebaseConfig = { apiKey: "AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE", authDomain: "mixvotesurvey.firebaseapp.com", projectId: "mixvotesurvey", storageBucket: "mixvotesurvey.firebasestorage.app", messagingSenderId: "352307389497", appId: "1:352307389497:web:0939fd29452d6c6afc59e8", measurementId: "G-ZWR5GHHL54" };
         const ADMIN_EMAILS = ["kurihara1229@gmail.com"];
@@ -375,7 +375,7 @@
             }
         };
 
-        // --- 2. 状態管理変数の初期化 ---
+        // --- 2. 状態管理 ---
         let currentLang = 'ja';
         let currentUser = null, isAdmin = false, selectedCategory = "全て", searchTerm = "", chartInstance = null, currentPollId = null, currentPollData = null, currentChartType = 'doughnut', editMode = false, editPollId = null;
         let unsubscribePolls = null, unsubscribeComments = null, localSelectedIndices = [];
@@ -389,7 +389,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mixvote-web';
         const POLLS_PATH = ['artifacts', appId, 'public', 'data', 'polls'];
 
-        // --- 3. ユーティリティ & UI表示関数 ---
+        // --- 3. コアロジック関数の定義 ---
         const hexToRgba = (hex, alpha) => {
             const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
             return `rgba(${r}, ${g}, ${b}, ${alpha})`;
@@ -411,8 +411,11 @@
             return label; 
         };
 
+        // --- 4. グローバル関数の登録 (window オブジェクトへ) ---
+
         window.showMessage = (title, body, onConfirm = null) => {
             const modal = document.getElementById('msgModal');
+            if (!modal) return;
             document.getElementById('msgTitle').textContent = title;
             document.getElementById('msgBody').textContent = body;
             const confirmBtn = document.getElementById('msgConfirmBtn');
@@ -427,6 +430,25 @@
             }
             modal.classList.remove('hidden');
         };
+
+        window.applyTheme = (accent, bg, text, save = true) => {
+            document.documentElement.style.setProperty('--accent', accent);
+            document.documentElement.style.setProperty('--accent-glow', hexToRgba(accent, 0.4));
+            document.documentElement.style.setProperty('--bg-dark', bg);
+            document.documentElement.style.setProperty('--text-main', text);
+            const aP = document.getElementById('accentPicker'), bP = document.getElementById('bgPicker'), tP = document.getElementById('textPicker');
+            if (aP) aP.value = accent; if (bP) bP.value = bg; if (tP) tP.value = text;
+            if (save) { try { localStorage.setItem('mixvote_theme', JSON.stringify({ accent, bg, text })); } catch(e){} }
+            if (currentPollData) window.renderChart(currentPollData, currentChartType); 
+        };
+
+        window.loadTheme = () => {
+            let theme = DEFAULT_THEME;
+            try { const saved = localStorage.getItem('mixvote_theme'); if (saved) theme = JSON.parse(saved); } catch(e){}
+            window.applyTheme(theme.accent, theme.bg, theme.text, false);
+        };
+
+        window.resetTheme = () => window.applyTheme(DEFAULT_THEME.accent, DEFAULT_THEME.bg, DEFAULT_THEME.text);
 
         window.setupCategoryMenu = () => {
             const nav = document.getElementById('categoryNav'), select = document.getElementById('pollCategoryInput');
@@ -456,26 +478,6 @@
             }
         };
 
-        // --- 4. テーマ & AI翻訳ロジック ---
-        window.applyTheme = (accent, bg, text, save = true) => {
-            document.documentElement.style.setProperty('--accent', accent);
-            document.documentElement.style.setProperty('--accent-glow', hexToRgba(accent, 0.4));
-            document.documentElement.style.setProperty('--bg-dark', bg);
-            document.documentElement.style.setProperty('--text-main', text);
-            const aP = document.getElementById('accentPicker'), bP = document.getElementById('bgPicker'), tP = document.getElementById('textPicker');
-            if (aP) aP.value = accent; if (bP) bP.value = bg; if (tP) tP.value = text;
-            if (save) { try { localStorage.setItem('mixvote_theme', JSON.stringify({ accent, bg, text })); } catch(e){} }
-            if (currentPollData) window.renderChart(currentPollData, currentChartType); 
-        };
-
-        window.loadTheme = () => {
-            let theme = DEFAULT_THEME;
-            try { const saved = localStorage.getItem('mixvote_theme'); if (saved) theme = JSON.parse(saved); } catch(e){}
-            window.applyTheme(theme.accent, theme.bg, theme.text, false);
-        };
-
-        window.resetTheme = () => window.applyTheme(DEFAULT_THEME.accent, DEFAULT_THEME.bg, DEFAULT_THEME.text);
-
         window.changeLang = (lang) => {
             const oldAll = i18n('all'), oldPop = i18n('popular_polls');
             currentLang = lang;
@@ -491,6 +493,7 @@
             window.loadPolls(); 
         };
 
+        // --- 5. AI翻訳機能 ---
         const callGemini = async (prompt) => {
             let delay = 1000;
             for (let i = 0; i < 5; i++) {
@@ -513,17 +516,17 @@
             const targetEl = document.getElementById(elementId);
             if (!targetEl) return;
             const originalText = text || targetEl.innerText;
-            const prompt = `Translate the following ${type} to ${currentLang === 'ja' ? 'English' : 'Japanese'}. Return ONLY translated text without quotes: "${originalText}"`;
+            const prompt = `Translate the following ${type} to ${currentLang === 'ja' ? 'English' : 'Japanese'}. Return ONLY translated text: "${originalText}"`;
             try {
                 targetEl.classList.add('translating');
                 const translated = await callGemini(prompt);
                 if (translated) targetEl.innerText = translated.trim();
             } catch (e) {
-                window.showMessage(i18n('notice'), "Translation service error. (403 Forbidden is common in restricted sandboxes)");
+                window.showMessage(i18n('notice'), "Translation service error. (403 is common in restricted sandboxes)");
             } finally { targetEl.classList.remove('translating'); }
         };
 
-        // --- 5. Firebase データ監視 & ナビゲーション ---
+        // --- 6. Firebase & ナビゲーション ---
         window.loadPolls = () => {
             if (!currentUser) return;
             if (unsubscribePolls) unsubscribePolls();
@@ -558,7 +561,7 @@
                         <button onclick="event.stopPropagation(); window.translateContent('card-title-${p.id}', '', 'poll title')" class="translate-btn text-[10px] shrink-0 font-bold"><i class="fas fa-language"></i></button>
                     </div>
                 </div>
-                <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold">
+                <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase">
                     <span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span>
                 </div>`;
                 fC.appendChild(div);
@@ -576,8 +579,8 @@
             window.location.hash = ''; 
             document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); 
             document.getElementById('view-home').classList.remove('hidden'); 
-            document.querySelectorAll('aside button').forEach(b => b.classList.remove('active', 'text-white'));
-            const hb = document.getElementById('navHomeBtn'); if (hb) hb.classList.add('active', 'text-white');
+            const hb = document.getElementById('navHomeBtn');
+            if (hb) hb.classList.add('active', 'text-white');
             window.loadPolls(); 
         };
 
@@ -615,10 +618,10 @@
             const p = d.data(); currentPollId = id; currentPollData = p;
             const total = p.votes?.reduce((s,v)=>s+v,0)||0, hasV = p.votedUsers?.includes(currentUser.uid), isExp = p.deadline && p.deadline.toDate() < new Date();
             const canV = !hasV && !isExp, isM = p.isMultipleChoice === true;
-            document.getElementById('adminControls').innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="window.openEditPoll()" class="p-2 rounded-lg glass text-accent border border-accent/20"><i class="fas fa-edit"></i></button><button onclick="window.openDeleteModal()" class="p-2 rounded-lg glass text-red-400 border border-red-500/20"><i class="fas fa-trash"></i></button>` : '';
-            const tagsHTML = (p.hashtags || []).map(t => `<span class="bg-accent/10 text-accent text-[10px] px-2 py-0.5 rounded-full border border-accent/20 mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('');
+            const adminArea = document.getElementById('adminControls');
+            if (adminArea) adminArea.innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="window.openEditPoll()" class="p-2 rounded-lg glass text-accent border border-accent/20"><i class="fas fa-edit"></i></button><button onclick="window.openDeleteModal()" class="p-2 rounded-lg glass text-red-400 border border-red-500/20"><i class="fas fa-trash"></i></button>` : '';
             const content = document.getElementById('pollDetailContent');
-            content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-accent/10 text-accent font-black text-[9px] px-3 py-1 rounded-md uppercase border border-accent/20">${escapeHTML(p.category)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><div class="flex items-center justify-between gap-4"><h2 id="pollDetailTitle" class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><button onclick="window.translateContent('pollDetailTitle', '', 'poll title')" class="translate-btn text-[10px] shrink-0 font-bold"><i class="fas fa-language"></i> AI ${i18n('translate')}</button></div><div class="flex flex-wrap">${tagsHTML}</div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 leading-relaxed relative"><p id="pollDetailDesc">${escapeHTML(p.question)}</p><button onclick="window.translateContent('pollDetailDesc', '', 'poll description')" class="translate-btn absolute top-4 right-4 text-[9px] font-bold"><i class="fas fa-language"></i></button></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => {
+            content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-accent/10 text-accent font-black text-[9px] px-3 py-1 rounded-md uppercase border border-accent/20">${escapeHTML(p.category)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><div class="flex items-center justify-between gap-4"><h2 id="pollDetailTitle" class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><button onclick="window.translateContent('pollDetailTitle', '', 'poll title')" class="translate-btn text-[10px] shrink-0 font-bold"><i class="fas fa-language"></i> AI ${i18n('translate')}</button></div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative"><p id="pollDetailDesc">${escapeHTML(p.question)}</p><button onclick="window.translateContent('pollDetailDesc', '', 'poll description')" class="translate-btn absolute top-4 right-4 text-[9px] font-bold"><i class="fas fa-language"></i></button></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => {
                 const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
                 return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-accent/50' : ''}"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm" id="opt-text-${i}">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div><button onclick="event.stopPropagation(); window.translateContent('opt-text-${i}', '', 'poll option')" class="translate-btn text-[8px] block"><i class="fas fa-language"></i></button></div></div>`;
             }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-accent text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex items-center justify-center min-h-[250px]"><canvas id="pollChart"></canvas></div></div></div>`;
@@ -650,13 +653,54 @@
             });
         };
 
-        // --- 6. ボタン・作成・削除管理 ---
+        window.confirmDeleteComment = (cid) => {
+            window.showMessage(i18n('delete_poll'), "Are you sure?", async () => {
+                try { await deleteDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', cid)); } catch (e) {}
+            });
+        };
+
+        window.castVote = async (idx) => {
+            if (!currentUser) return;
+            const ref = doc(db, ...POLLS_PATH, currentPollId);
+            try {
+                await runTransaction(db, async (tx) => {
+                    const snap = await tx.get(ref); const data = snap.data();
+                    if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted";
+                    const newVotes = [...data.votes]; newVotes[idx] = (newVotes[idx] || 0) + 1;
+                    tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() });
+                });
+                window.loadPollDetail(currentPollId);
+            } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), "Already voted."); }
+        };
+
+        window.toggleLocalSelect = (idx) => {
+            const el = document.getElementById(`opt-container-${idx}`);
+            if (localSelectedIndices.includes(idx)) { localSelectedIndices = localSelectedIndices.filter(i => i !== idx); el?.classList.remove('poll-option-selected'); }
+            else { localSelectedIndices.push(idx); el?.classList.add('poll-option-selected'); }
+            const btn = document.getElementById('submitMultiVoteBtn'); if (btn) btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none';
+        };
+
+        window.submitMultipleVotes = async () => {
+            if (!currentUser) return;
+            const ref = doc(db, ...POLLS_PATH, currentPollId);
+            try {
+                await runTransaction(db, async (tx) => {
+                    const snap = await tx.get(ref); const data = snap.data();
+                    if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted";
+                    const newVotes = [...data.votes]; localSelectedIndices.forEach(i => { newVotes[i] = (newVotes[i] || 0) + 1; });
+                    tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() });
+                });
+                localSelectedIndices = []; window.loadPollDetail(currentPollId);
+            } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), "Already voted."); }
+        };
+
         window.savePoll = async () => {
             const saveBtn = document.getElementById('savePollBtn');
             try {
                 if (!currentUser || currentUser.isAnonymous) throw new Error("Google login required.");
                 const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean);
                 if (!t || o.length < 2) throw new Error("Title and 2+ options required.");
+                if (o.length > 50) throw new Error("Max 50 options allowed.");
                 const hashtags = document.getElementById('pollHashtagsInput').value.split(/[ ,、]+/).map(t => t.replace(/^#/, '').trim()).filter(Boolean);
                 saveBtn.disabled = true;
                 const cat = document.getElementById('pollCategoryInput').value;
@@ -683,13 +727,17 @@
         };
 
         // イベント登録
-        document.getElementById('agreeTosBtn').onclick = () => { try { localStorage.setItem('mixvote_agreed', 'true'); } catch(e){} window.sessionAgreed = true; document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); window.goHome(); };
+        document.getElementById('agreeTosBtn').onclick = () => {
+            try { localStorage.setItem('mixvote_agreed', 'true'); } catch(e){}
+            window.sessionAgreed = true;
+            document.getElementById('tosModal').classList.add('hidden');
+            document.getElementById('appUI').classList.remove('hidden');
+            window.goHome();
+        };
+
         document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
         document.getElementById('openCreateBtn').onclick = () => { editMode = false; document.getElementById('pollTitleInput').value = ""; document.getElementById('pollDescInput').value = ""; document.getElementById('pollOptionsInput').value = ""; document.getElementById('createModal').classList.remove('hidden'); };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
-        document.getElementById('accentPicker').oninput = (e) => window.applyTheme(e.target.value, document.getElementById('bgPicker').value, document.getElementById('textPicker').value);
-        document.getElementById('bgPicker').oninput = (e) => window.applyTheme(document.getElementById('accentPicker').value, e.target.value, document.getElementById('textPicker').value);
-        document.getElementById('textPicker').oninput = (e) => window.applyTheme(document.getElementById('accentPicker').value, document.getElementById('bgPicker').value, e.target.value);
 
         // Firebase 起動
         onAuthStateChanged(auth, async (user) => {
