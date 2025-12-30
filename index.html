@@ -238,8 +238,9 @@
                         <input type="text" id="globalSearch" class="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-2.5 pl-10 pr-4 text-xs text-white outline-none focus:border-accent transition-all placeholder:opacity-30" placeholder="Search polls...">
                         <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-accent group-focus-within:opacity-100 transition-all text-xs"></i>
                     </div>
+                    <!-- 翻訳ヘルプボタン -->
                     <button onclick="window.openTranslateModal()" class="w-10 h-10 rounded-2xl glass hover:bg-white/10 flex items-center justify-center text-accent transition-all shrink-0" title="Translation Help">
-                        <i class="fas fa-language text-xl"></i>
+                        <i class="fas fa-language"></i>
                     </button>
                 </div>
 
@@ -325,15 +326,18 @@
             <main class="lg:col-span-9 pb-20">
                 <!-- Home View -->
                 <div id="view-home" class="view-content space-y-8 animate-in fade-in duration-500">
+                    <!-- ホーム画面用 翻訳ガイドバナー -->
                     <div id="homeTranslateGuide" class="browser-tip" onclick="window.openTranslateModal()">
                         <div class="w-14 h-14 bg-accent/20 rounded-2xl flex items-center justify-center text-accent shrink-0 shadow-lg">
                             <i class="fas fa-language text-3xl"></i>
                         </div>
                         <div class="flex-1">
                             <p class="font-black text-lg tracking-tight mb-0.5 i18n" data-key="home_translate_title">Translate Content</p>
-                            <p class="text-sm opacity-70 leading-snug i18n" data-key="home_translate_desc">Use browser "Translate" to read in any language.</p>
+                            <p class="text-sm opacity-70 leading-snug i18n" data-key="home_translate_desc">Use your browser's "Translate" feature to read polls in any language. Click here for step-by-step instructions.</p>
                         </div>
-                        <i class="fas fa-chevron-right opacity-30"></i>
+                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <i class="fas fa-chevron-right opacity-30"></i>
+                        </div>
                     </div>
 
                     <section class="space-y-10">
@@ -426,12 +430,14 @@
             ja: {
                 welcome_title: "Welcome to Mix Vote",
                 tos_content: `<p>安全なコミュニティ維持のため、ガイドラインに同意してください。</p><ul class="list-disc list-inside space-y-2"><li>他者の意見を尊重し、誹謗中傷は行わないでください。</li><li>多重投票や不正なデータ操作は禁止されています。</li><li>アンケートの作成やコメントにはGoogleサインインが必要です。</li><li><strong>投票はどなたでも自由にご参加いただけます。</strong></li></ul>`,
-                agree_btn: "同意して入室", login: "ログイン", logout: "ログアウト", welcome_user: "ようこそ", home: "ホーム", created_polls: "作成したアンケート", voted_polls: "投票済みアンケート", new_poll: "新規作成", language: "言語設定", categories: "カテゴリー", theme_custom: "テーマのカスタマイズ", accent: "アクセントカラー", background: "背景色", text_color: "文字色", default: "デフォルトに戻す", polls: "アンケート", recent_activity: "最近の活動", back: "戻る", discussion: "ディスカッション", post: "投稿する", create_poll: "アンケート作成", label_title: "タイトル", label_desc: "説明文", label_category: "カテゴリー", label_deadline: "投票期限", label_hashtags: "ハッシュタグ", label_multi: "複数回答を許可する", label_options: "選択肢 (最大50個)", options_hint: "※作成後は選択肢の数を変更できません", save_poll: "保存する", cancel: "キャンセル", save: "保存", confirm: "確定", close: "閉じる", delete_poll: "アンケートを削除", delete_confirm_text: "このアンケートをどのように処理しますか？", archive_btn: "アーカイブ (非表示にする)", permanent_delete_btn: "完全に削除する (管理者のみ)", edit_comment: "コメントを編集", votes: "票", popular_polls: "人気アンケート", latest_polls: "最新アンケート", no_polls: "アンケートが見つかりません", all: "全て", notice: "お知らせ", edition_tag: "Global Edition", select: "選択", translate_help: "翻訳の手順", browser_translate_hint: "翻訳するにはブラウザの翻訳機能をご利用ください。(詳細を表示)", home_translate_title: "翻訳して読むには", home_translate_desc: "ブラウザ（Chrome, Safari等）の全文翻訳機能を使うと、異言語のアンケートも一瞬で日本語/英語にして読むことができます。クリックして手順を確認。", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC版 Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">画面の何もないところを<span class="text-accent font-bold">右クリック</span>して、「日本語に翻訳」または「英語に翻訳」を選択してください。</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">アドレスバーの「<span class="text-accent font-bold">あA</span>」アイコンまたは翻訳ボタンをタップし、「翻訳」を選択します。</p></div></div>`
+                agree_btn: "同意して入室", login: "ログイン", logout: "ログアウト", welcome_user: "ようこそ", home: "ホーム", created_polls: "作成したアンケート", voted_polls: "投票済みアンケート", new_poll: "新規作成", language: "言語設定", categories: "カテゴリー", theme_custom: "テーマのカスタマイズ", accent: "アクセントカラー", background: "背景色", text_color: "文字色", default: "デフォルトに戻す", polls: "アンケート", recent_activity: "最近の活動", back: "戻る", discussion: "ディスカッション", post: "投稿する", create_poll: "アンケート作成", label_title: "タイトル", label_desc: "説明文", label_category: "カテゴリー", label_deadline: "投票期限", label_hashtags: "ハッシュタグ", label_multi: "複数回答を許可する", label_options: "選択肢 (最大50個)", options_hint: "※作成後は選択肢の数を変更できません", save_poll: "保存する", cancel: "キャンセル", save: "保存", confirm: "確定", close: "閉じる", delete_poll: "アンケートを削除", delete_confirm_text: "このアンケートをどのように処理しますか？", archive_btn: "アーカイブ (非表示にする)", permanent_delete_btn: "完全に削除する (管理者のみ)", edit_comment: "コメントを編集", votes: "票", popular_polls: "人気アンケート", latest_polls: "最新アンケート", no_polls: "アンケートが見つかりません", all: "全て", notice: "お知らせ", edition_tag: "Global Edition", select: "選択", translate_help: "翻訳の手順", browser_translate_hint: "翻訳するにはブラウザの翻訳機能をご利用ください。(詳細を表示)", home_translate_title: "翻訳して読むには", home_translate_desc: "ブラウザ（Chrome, Safari等）の全文翻訳機能を使うと、異言語のアンケートも一瞬で日本語/英語にして読むことができます。クリックして手順を確認。", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC版 Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">画面の何もないところを<span class="text-accent font-bold">右クリック</span>して、「日本語に翻訳」または「英語に翻訳」を選択してください。</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">アドレスバーの左端にある「<span class="text-accent font-bold">あA</span>」アイコンまたは翻訳ボタンをタップし、「翻訳」を選択します。</p></div></div>`,
+                share: "シェア", download_results: "結果をダウンロード", share_ready: "アンケート結果がコピーされました。", download_ready: "ダウンロードを開始します。"
             },
             en: {
                 welcome_title: "Welcome to Mix Vote",
                 tos_content: `<p>Please agree to the guidelines to maintain a safe community.</p><ul class="list-disc list-inside space-y-2"><li>Respect others' opinions and avoid harassment.</li><li>Multiple voting and data manipulation are prohibited.</li><li>Google Sign-in is required to create polls or post comments.</li><li><strong>Anyone can participate in voting freely.</strong></li></ul>`,
-                agree_btn: "Agree & Enter", login: "Sign In", logout: "Log Out", welcome_user: "Welcome", home: "Home", created_polls: "Created Polls", voted_polls: "Voted Polls", new_poll: "New Poll", language: "Language", categories: "Categories", theme_custom: "Theme Custom", accent: "Accent", background: "Background", text_color: "Text Color", default: "Default", polls: "Polls", recent_activity: "Recent Activity", back: "Back", discussion: "Discussion", post: "Post", create_poll: "Create Poll", label_title: "Title", label_desc: "Description", label_category: "Category", label_deadline: "Deadline", label_hashtags: "Hashtags", label_multi: "Allow Multiple Choice", label_options: "Options (Max 50)", options_hint: "Option count cannot be changed after creation.", save_poll: "Save Poll", cancel: "Cancel", save: "Save", confirm: "Confirm", close: "Close", delete_poll: "Delete Poll", delete_confirm_text: "How would you like to process this poll?", archive_btn: "Archive (Hide)", permanent_delete_btn: "Delete Permanently (Admin)", edit_comment: "Edit Comment", votes: "Votes", popular_polls: "Popular Polls", latest_polls: "Latest Polls", no_polls: "No polls found", all: "All", notice: "Notice", edition_tag: "Global Edition", select: "Select", translate_help: "Translation Guide", browser_translate_hint: "Please use browser's translate feature. (View Help)", home_translate_title: "How to Translate Content", home_translate_desc: "Use browser (Chrome, Safari, etc.) full-page translation to read polls in your language. Click for step-by-step instructions.", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed"><span class="text-accent font-bold">Right-click</span> anywhere on the page and select "Translate to English".</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">Tap the "<span class="text-accent font-bold">AA</span>" or translation icon in the address bar and select "Translate".</p></div></div>`
+                agree_btn: "Agree & Enter", login: "Sign In", logout: "Log Out", welcome_user: "Welcome", home: "Home", created_polls: "Created Polls", voted_polls: "Voted Polls", new_poll: "New Poll", language: "Language", categories: "Categories", theme_custom: "Theme Custom", accent: "Accent", background: "Background", text_color: "Text Color", default: "Default", polls: "Polls", recent_activity: "Recent Activity", back: "Back", discussion: "Discussion", post: "Post", create_poll: "Create Poll", label_title: "Title", label_desc: "Description", label_category: "Category", label_deadline: "Deadline", label_hashtags: "Hashtags", label_multi: "Allow Multiple Choice", label_options: "Options (Max 50)", options_hint: "Option count cannot be changed after creation.", save_poll: "Save Poll", cancel: "Cancel", save: "Save", confirm: "Confirm", close: "Close", delete_poll: "Delete Poll", delete_confirm_text: "How would you like to process this poll?", archive_btn: "Archive (Hide)", permanent_delete_btn: "Delete Permanently (Admin)", edit_comment: "Edit Comment", votes: "Votes", popular_polls: "Popular Polls", latest_polls: "Latest Polls", no_polls: "No polls found", all: "All", notice: "Notice", edition_tag: "Global Edition", select: "Select", translate_help: "Translation Guide", browser_translate_hint: "Please use browser's translate feature. (View Help)", home_translate_title: "How to Translate Content", home_translate_desc: "Use browser (Chrome, Safari, etc.) full-page translation to read polls in your language. Click for step-by-step instructions.", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed"><span class="text-accent font-bold">Right-click</span> anywhere on the page and select "Translate to English".</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">Tap the "<span class="text-accent font-bold">AA</span>" or translation icon at the left of the address bar and select "Translate".</p></div></div>`,
+                share: "Share", download_results: "Download Results", share_ready: "Link copied to clipboard.", download_ready: "Downloading started."
             }
         };
 
@@ -471,7 +477,7 @@
             return label; 
         };
 
-        // --- 4. グローバル関数 (window登録) ---
+        // --- 4. グローバル関数 ---
         window.showMessage = (title, body, onConfirm = null) => {
             const modal = document.getElementById('msgModal');
             if (!modal) return;
@@ -563,7 +569,54 @@
             window.loadPolls(); 
         };
 
-        // --- 5. Firebase データ & リスト描画 ---
+        // --- 5. Share & Download ---
+        window.sharePoll = (platform) => {
+            const title = encodeURIComponent(currentPollData.title);
+            const url = encodeURIComponent(window.location.href);
+            let shareUrl = "";
+
+            if (platform === 'x') shareUrl = `https://twitter.com/intent/tweet?text=${title}&url=${url}`;
+            else if (platform === 'fb') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            else if (platform === 'ig') {
+                const tempInput = document.createElement("input");
+                tempInput.value = window.location.href;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+                window.showMessage(i18n('share'), i18n('share_ready'));
+                return;
+            }
+
+            if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=400');
+        };
+
+        window.downloadPoll = () => {
+            const p = currentPollData;
+            const total = p.votes.reduce((a, b) => a + b, 0);
+            let text = `Mix Vote - Poll Results\n`;
+            text += `Title: ${p.title}\n`;
+            text += `Category: ${p.category}\n`;
+            text += `Total Votes: ${total}\n\n`;
+            text += `Results:\n`;
+            p.options.forEach((opt, i) => {
+                const v = p.votes[i] || 0;
+                const per = total > 0 ? Math.round(v / total * 100) : 0;
+                text += `- ${opt}: ${v} votes (${per}%)\n`;
+            });
+            text += `\nShared from Mix Vote Platform`;
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `poll_results_${currentPollId}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            window.showMessage(i18n('download_results'), i18n('download_ready'));
+        };
+
+        // --- 6. Firebase & ナビゲーション ---
         window.loadPolls = () => {
             if (!currentUser) return;
             if (unsubscribePolls) unsubscribePolls();
@@ -640,8 +693,8 @@
 
         window.loadFilteredPolls = (type) => {
             const listId = type === 'created' ? 'createdPollsList' : 'votedPollsList';
-            const unsubVar = type === 'created' ? unsubscribeCreated : unsubscribeVoted;
-            if (unsubVar) unsubVar();
+            if (type === 'created' && unsubscribeCreated) unsubscribeCreated();
+            if (type === 'voted' && unsubscribeVoted) unsubscribeVoted();
 
             const q = collection(db, ...POLLS_PATH);
             const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -684,10 +737,36 @@
             const canV = !hasV && !isExp, isM = p.isMultipleChoice === true;
             document.getElementById('adminControls').innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="window.openEditPoll()" class="p-2 rounded-lg glass text-accent border border-accent/20"><i class="fas fa-edit"></i></button><button onclick="window.openDeleteModal()" class="p-2 rounded-lg glass text-red-400 border border-red-500/20"><i class="fas fa-trash"></i></button>` : '';
             const content = document.getElementById('pollDetailContent');
-            content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-accent/10 text-accent font-black text-[9px] px-3 py-1 rounded-md uppercase border border-accent/20">${escapeHTML(p.category)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><h2 class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><div class="flex flex-wrap">${(p.hashtags || []).map(t => `<span class="bg-accent/10 text-accent text-[10px] px-2 py-0.5 rounded-full mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative leading-relaxed"><p>${escapeHTML(p.question)}</p></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => {
-                const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
-                return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-accent/50' : ''}"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div></div></div>`;
-            }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-accent text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex items-center justify-center min-h-[250px]"><canvas id="pollChart"></canvas></div></div></div>`;
+            
+            content.innerHTML = `<div class="space-y-8">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3"><span class="bg-accent/10 text-accent font-black text-[9px] px-3 py-1 rounded-md uppercase border border-accent/20">${escapeHTML(p.category)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div>
+                    <h2 class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2>
+                    <div class="flex flex-wrap">${(p.hashtags || []).map(t => `<span class="bg-accent/10 text-accent text-[10px] px-2 py-0.5 rounded-full mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>
+                    ${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative leading-relaxed"><p>${escapeHTML(p.question)}</p></div>` : ''}
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div class="space-y-3">
+                        ${p.options.map((opt, i) => {
+                            const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
+                            return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-accent/50' : ''}"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div></div></div>`;
+                        }).join('')}
+                        ${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-accent text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}
+                    </div>
+                    <div class="flex flex-col items-center justify-center min-h-[300px] gap-6">
+                        <div class="w-full h-[250px] flex items-center justify-center"><canvas id="pollChart"></canvas></div>
+                        <!-- Share & Download Buttons -->
+                        <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
+                            <button onclick="window.sharePoll('x')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all"><i class="fab fa-x-twitter"></i></button>
+                            <button onclick="window.sharePoll('fb')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-blue-400 hover:text-blue-300 transition-all"><i class="fab fa-facebook-f"></i></button>
+                            <button onclick="window.sharePoll('ig')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-pink-400 hover:text-pink-300 transition-all"><i class="fab fa-instagram"></i></button>
+                            <button onclick="window.downloadPoll()" class="px-4 py-2 rounded-xl glass hover:bg-accent/10 border border-white/5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent transition-all">
+                                <i class="fas fa-download"></i> ${i18n('download_results')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
             window.renderChart(p, 'doughnut'); window.loadComments(id);
         };
 
@@ -743,7 +822,7 @@
             } catch (err) { await signInAnonymously(auth).catch(()=>{}); }
         };
 
-        // --- 6. 実行開始 ---
+        // --- 7. 初期化 & Auth 実行 ---
         window.loadTheme();
         initAuth();
 
