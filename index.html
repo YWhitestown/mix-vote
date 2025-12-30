@@ -326,16 +326,22 @@
             appId: ""
         };
 
-        const firebaseConfig = (typeof __firebase_config !== 'undefined') 
-            ? JSON.parse(__firebase_config) 
-            : defaultFirebaseConfig;
+        // windowオブジェクトからグローバル変数を取得し、存在しない場合でもReferenceErrorを防ぐ
+        const getGlobal = (key) => {
+            try { return window[key]; } catch(e) { return undefined; }
+        };
+
+        const envConfigStr = getGlobal('__firebase_config');
+        const firebaseConfig = envConfigStr ? JSON.parse(envConfigStr) : defaultFirebaseConfig;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = (typeof __app_id !== 'undefined') ? __app_id : 'mixvotesurvey';
+        
+        const envAppId = getGlobal('__app_id');
+        const appId = envAppId || 'mixvotesurvey';
 
-        // Security Rulesに合わせたパス構造
+        // パス構造
         const POLLS_PATH = `artifacts/${appId}/public/data/polls`;
         const REPORTS_PATH = `artifacts/${appId}/public/data/reports`;
 
@@ -352,8 +358,9 @@
 
         async function initAuth() {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                const envToken = getGlobal('__initial_auth_token');
+                if (envToken) {
+                    await signInWithCustomToken(auth, envToken);
                 } else {
                     await signInAnonymously(auth);
                 }
@@ -443,8 +450,8 @@
             if (!p) return;
 
             const total = p.votes?.reduce((s,v)=>s+v,0)||0;
-            const hasVoted = p.votedUsers?.includes(currentUser.uid); // Security Rulesに合わせる
-            const isAuthor = p.authorID === currentUser.uid; // Security Rulesに合わせる
+            const hasVoted = p.votedUsers?.includes(currentUser.uid);
+            const isAuthor = p.authorID === currentUser.uid;
             const isEnded = p.deadline && new Date(p.deadline) < new Date();
             const showRes = hasVoted || isEnded || isAuthor;
 
@@ -527,13 +534,11 @@
             if (!currentUser) return;
             const ref = doc(db, POLLS_PATH, pid);
             const p = polls.find(x => x.id === pid);
-            // Security Rulesに合わせたチェック
             if (p.votedUsers?.includes(currentUser.uid)) return showMessage("通知", "既に投票済みです。");
             
             const newVotes = [...p.votes];
             newVotes[index] = (newVotes[index] || 0) + 1;
             
-            // Security Rulesに合わせたデータ更新（affectedKeys制約を考慮）
             await updateDoc(ref, {
                 votes: newVotes,
                 votedUsers: arrayUnion(currentUser.uid)
@@ -541,7 +546,6 @@
         };
 
         window.toggleLike = async (pid) => {
-            // Rulesにより匿名は制限される可能性あり
             if (currentUser.isAnonymous) return showMessage("ログインが必要です", "いいね機能を利用するには登録が必要です。");
             const ref = doc(db, POLLS_PATH, pid);
             const p = polls.find(x => x.id === pid);
@@ -578,7 +582,6 @@
         // --- Comments ---
         function loadComments(pid) {
             const list = document.getElementById('commentsList');
-            // Rulesに合わせてサブコレクションを参照
             onSnapshot(collection(db, POLLS_PATH, pid, 'comments'), (snap) => {
                 const comms = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
                 list.innerHTML = comms.map(c => `
@@ -600,7 +603,6 @@
             if (!selectedPollId || !currentUser || currentUser.isAnonymous) return;
             const text = document.getElementById('commentInput').value.trim();
             if (!text) return;
-            // Rulesに合わせたコメント作成
             await addDoc(collection(db, POLLS_PATH, selectedPollId, 'comments'), {
                 text,
                 author: currentUser.displayName || 'Anonymous',
@@ -613,7 +615,7 @@
         // --- User Page ---
         function renderMyPage() {
             const list = document.getElementById('myPollsList');
-            const myPolls = polls.filter(p => p.authorID === currentUser.uid); // Security Rulesに合わせる
+            const myPolls = polls.filter(p => p.authorID === currentUser.uid);
             list.innerHTML = myPolls.length ? myPolls.map(p => `
                 <div class="glass p-5 rounded-2xl border border-white/5 flex items-center justify-between gap-4">
                     <div>
@@ -643,7 +645,6 @@
         window.closeModal = () => document.getElementById('pollModal').classList.add('hidden');
 
         document.getElementById('savePollBtn').onclick = async () => {
-            // Rulesにより匿名は制限される
             if (currentUser.isAnonymous) return showMessage("エラー", "アンケート作成にはログインが必要です。");
 
             const title = document.getElementById('pollTitle').value.trim();
@@ -654,18 +655,17 @@
 
             if (!title || options.length < 2) return showMessage("エラー", "タイトルと2つ以上の選択肢が必要です。");
 
-            // Rulesに合わせたデータ構造
             const data = {
                 title,
                 description,
                 category,
                 options,
                 deadline,
-                authorID: currentUser.uid, // Rulesに合わせて authorID
+                authorID: currentUser.uid,
                 author: currentUser.displayName || 'Guest',
                 votes: new Array(options.length).fill(0),
                 likes: [],
-                votedUsers: [], // Rulesに合わせて votedUsers
+                votedUsers: [],
                 createdAt: serverTimestamp(),
                 deleted: false
             };
@@ -692,7 +692,17 @@
                 document.getElementById('displayUserName').innerText = maskName(user.displayName);
             }
 
-            if (localStorage.getItem('mixvote_agreed')) {
+            // localStorageアクセスの安全な確認
+            let agreed = false;
+            try {
+                agreed = localStorage.getItem('mixvote_agreed') === 'true';
+            } catch (e) {
+                console.warn("Storage access blocked by browser privacy settings.");
+                // ストレージがブロックされている場合はモーダルを表示したままにするか、インメモリで許可
+                agreed = window.sessionStorageAgreed === true;
+            }
+
+            if (agreed) {
                 document.getElementById('appContainer').classList.remove('hidden');
                 document.getElementById('tosModal').classList.add('hidden');
                 syncPolls();
@@ -703,7 +713,11 @@
         });
 
         document.getElementById('agreeTosBtn').onclick = () => {
-            localStorage.setItem('mixvote_agreed', 'true');
+            try {
+                localStorage.setItem('mixvote_agreed', 'true');
+            } catch (e) {
+                window.sessionStorageAgreed = true;
+            }
             document.getElementById('tosModal').classList.add('hidden');
             document.getElementById('appContainer').classList.remove('hidden');
             syncPolls();
