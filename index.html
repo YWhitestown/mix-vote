@@ -468,11 +468,11 @@
 
         /**
          * マスク処理関数
-         * 文字2個目(index 1)、3個目(index 2)、5個目(index 4)、6個目(index 5)を伏字にする
+         * 文字2個目(index 1)、5個目(index 4)、6個目(index 5)、8個目(index 7)、9個目(index 8)、10個目(index 9)、11個目(index 10)を伏字にする
          */
         const maskString = (s = '') => {
             if (!s || typeof s !== 'string') return s;
-            const indicesToMask = [1, 2, 4, 5];
+            const indicesToMask = [1, 4, 5, 7, 8, 9, 10];
             return s.split('').map((char, i) => indicesToMask.includes(i) ? '*' : char).join('');
         };
 
