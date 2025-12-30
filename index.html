@@ -399,6 +399,9 @@
         const BASE_PATH = ['artifacts', appId, 'public', 'data'];
         const POLLS_PATH = [...BASE_PATH, 'polls'];
 
+        // 管理者UIDリスト
+        const ADMIN_UIDS = ["YOUR_ADMIN_UID_1", "YOUR_ADMIN_UID_2"];
+
         const ARUARU_OPTIONS_TEXT = "あるある！\nいいね\n笑\n涙";
         const CATEGORIES = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
 
@@ -761,7 +764,11 @@
 
         // --- Edit & Delete Functions ---
         window.openEditPoll = async () => {
-            if (!currentPollId) return;
+            if (!currentPollId || !currentPollData) return;
+            
+            // 作者UIDと自分のUIDをデバッグ出力
+            console.log("Current User UID:", currentUser?.uid, "Poll AuthorID:", currentPollData.authorID);
+            
             editMode = true;
             editPollId = currentPollId;
             const p = currentPollData;
@@ -783,7 +790,6 @@
 
             if (p.is_quiz) {
                 document.getElementById('pollExplanationInput').value = p.explanation || "";
-                // 正解リストの同期が必要
                 syncCorrectAnswerOptions();
                 document.getElementById('pollCorrectIndexInput').value = String(p.correct_index);
             }
@@ -815,7 +821,7 @@
                 goHome();
             } catch (e) {
                 console.error("Delete error:", e);
-                showMessage("Error", "削除に失敗しました。権限を確認してください。");
+                showMessage("Error", `削除に失敗しました。理由: ${e.code || 'Permission Denied'}`);
             }
         };
 
@@ -870,10 +876,13 @@
             const showRes = !p.is_quiz || hasVoted || isExp;
             const isMulti = p.isMultipleChoice === true;
 
-            // Populate Admin Controls
+            //作者/管理者判定
+            const isOwner = currentUser && currentUser.uid === p.authorID;
+            const isAdmin = currentUser && ADMIN_UIDS.includes(currentUser.uid);
+
             const adminControls = document.getElementById('adminControls');
             if (adminControls) {
-                if (currentUser && currentUser.uid === p.authorID) {
+                if (isOwner || isAdmin) {
                     adminControls.innerHTML = `
                         <button onclick="openEditPoll()" class="p-2 rounded-lg glass text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 transition-all border border-cyan-500/20" title="Edit Poll"><i class="fas fa-edit"></i></button>
                         <button onclick="openDeleteModal()" class="p-2 rounded-lg glass text-red-400 hover:bg-red-500 hover:text-white transition-all border border-red-500/20" title="Delete Poll"><i class="fas fa-trash"></i></button>
@@ -922,7 +931,7 @@
                                 }).join('')}
                                 
                                 <button id="submitMultiVoteBtn" onclick="submitMultipleVotes()" class="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all uppercase tracking-widest text-xs" style="display:none;">
-                                    Vote Selected Items
+                                    選択した項目に投票する
                                 </button>
                             </div>
 
@@ -1047,7 +1056,6 @@
                 };
 
                 if (editMode && editPollId) {
-                    // 編集時は既存の投票数を調整（選択肢が減った場合など）
                     const ref = doc(db, ...POLLS_PATH, editPollId);
                     const oldDoc = await getDoc(ref);
                     const oldVotes = oldDoc.data().votes || [];
