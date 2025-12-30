@@ -354,9 +354,7 @@
             if (user && (localStorage.getItem('mixvote_agreed') || window.sessionAgreed)) {
                 document.getElementById('appUI').classList.remove('hidden'); document.getElementById('tosModal').classList.add('hidden');
                 setupCategoryMenu(); handleNavigation();
-            } else if (!user) {
-                // まだ認証中
-            } else {
+            } else if (user) {
                 document.getElementById('tosModal').classList.remove('hidden'); document.getElementById('appUI').classList.add('hidden');
             }
         });
@@ -461,7 +459,7 @@
             const d = await getDoc(doc(db, ...POLLS_PATH, id)); if (!d.exists()) return goHome();
             const p = d.data(); currentPollId = id; currentPollData = p;
             const total = p.votes?.reduce((s,v)=>s+v,0)||0, hasV = p.votedUsers?.includes(currentUser.uid), isExp = p.deadline && p.deadline.toDate() < new Date();
-            const canV = !hasV && !isExp, showR = !p.is_quiz || hasV || isExp, isM = p.isMultipleChoice === true;
+            const canV = !hasV && !isExp, isM = p.isMultipleChoice === true;
             
             document.getElementById('adminControls').innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="openEditPoll()" class="p-2 rounded-lg glass text-cyan-400 border border-cyan-500/20"><i class="fas fa-edit"></i></button><button onclick="openDeleteModal()" class="p-2 rounded-lg glass text-red-400 border border-red-500/20"><i class="fas fa-trash"></i></button>` : '';
             
@@ -476,6 +474,7 @@
                     <div class="space-y-3">
                         ${p.options.map((opt, i) => {
                             const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
+                            // 誰でも投票可能（currentUserが存在すればOK、isAnonymousの制限なし）
                             return `<div ${canV ? (isM ? `onclick="toggleLocalSelect(${i})"` : `onclick="castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-cyan-500/50' : ''}">
                                 <div class="absolute inset-y-0 left-0 bg-cyan-500/5 transition-all duration-1000" style="width:${per}%"></div>
                                 <div class="relative z-10 flex items-center gap-3">
@@ -556,6 +555,18 @@
                     list.appendChild(div);
                 });
             });
+        };
+
+        document.getElementById('postCommentBtn').onclick = async () => {
+            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "コメント投稿にはGoogleログインが必要です。");
+            const txt = document.getElementById('commentText').value.trim();
+            if (!txt) return;
+            try {
+                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), {
+                    userId: currentUser.uid, author: currentUser.displayName || "User", text: txt, createdAt: serverTimestamp()
+                });
+                document.getElementById('commentText').value = '';
+            } catch (e) { showMessage("Error", "Could not post comment."); }
         };
 
         const setupCategoryMenu = () => {
