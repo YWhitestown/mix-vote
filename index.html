@@ -491,6 +491,7 @@
                     <div class="space-y-3">
                         ${p.options.map((opt, i) => {
                             const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
+                            // 誰でも投票可能（currentUserが存在すればOK、isAnonymousの制限なし）
                             return `<div ${canV ? (isM ? `onclick="toggleLocalSelect(${i})"` : `onclick="castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-cyan-500/50' : ''}">
                                 <div class="absolute inset-y-0 left-0 bg-cyan-500/5 transition-all duration-1000" style="width:${per}%"></div>
                                 <div class="relative z-10 flex items-center gap-3">
