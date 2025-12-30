@@ -180,7 +180,7 @@
                     </div>
                     <div class="hidden md:block">
                         <h1 class="text-xl font-black tracking-tighter text-white uppercase italic leading-none">Mix Vote</h1>
-                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] length-none">Growth Edition</p>
+                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] leading-none">Growth Edition</p>
                     </div>
                 </div>
 
@@ -324,7 +324,36 @@
         window.sessionAgreed = false;
 
         const escapeHTML = (s = '') => typeof s !== 'string' ? '' : s.replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m]));
-        const maskString = (s = '') => { if (!s || typeof s !== 'string') return s; const indices = [1, 4, 5, 7, 8, 9, 10]; return s.split('').map((char, i) => indices.includes(i) ? '*' : char).join(''); };
+        
+        /**
+         * 改良版マスク文字列関数
+         * クライアントサイドでのマスクは「気休め」であることを前提に、
+         * メールアドレス等の個人情報をより自然に保護するように設計。
+         */
+        const maskString = (s = '') => { 
+            if (!s || typeof s !== 'string') return s;
+            
+            // メールアドレスの場合：ローカル部分を適応的に隠し、ドメインを一部残す
+            if (s.includes('@')) {
+                const [local, domain] = s.split('@');
+                if (local.length <= 1) return `*@${domain}`;
+                if (local.length <= 4) return `${local[0]}***@${domain}`;
+                // 指定されたインデックス（2, 5, 6, 8, 9, 10, 11）を意識しつつ、ローカル部分を強く隠す
+                const maskedLocal = local.split('').map((c, i) => {
+                    const indices = [1, 4, 5, 7, 8, 9, 10];
+                    return (indices.includes(i) || i > 1) ? '*' : c;
+                }).join('');
+                return `${maskedLocal}@${domain}`;
+            }
+
+            // 一般的な名前の場合：
+            if (s.length <= 1) return s;
+            const indicesToMask = [1, 4, 5, 7, 8, 9, 10];
+            return s.split('').map((char, i) => {
+                // 文字数が足りない場合は末尾以外を隠すなどの調整
+                return indicesToMask.includes(i) ? '*' : char;
+            }).join('');
+        };
 
         const showMessage = (title, body, onConfirm = null) => {
             const modal = document.getElementById('msgModal');
@@ -386,7 +415,11 @@
                 if (searchTerm) polls = polls.filter(p => p.title.toLowerCase().includes(searchTerm));
                 
                 if (selectedCategory === "人気アンケート") {
-                    polls.sort((a, b) => (b.votes?.reduce((s, v) => s + v, 0) || 0) - (a.votes?.reduce((s, v) => s + v, 0) || 0));
+                    polls.sort((a, b) => {
+                        const totalA = a.votes?.reduce((s, v) => s + v, 0) || 0;
+                        const totalB = b.votes?.reduce((s, v) => s + v, 0) || 0;
+                        return totalB - totalA;
+                    });
                     document.getElementById('homeSectionTitle').innerHTML = 'Popular <span class="text-slate-600 font-normal not-italic text-lg md:text-xl">Polls</span>';
                 } else {
                     polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
