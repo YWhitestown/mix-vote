@@ -143,6 +143,15 @@
             transform: translateY(-2px) scale(1.01);
             box-shadow: 0 20px 40px -15px var(--accent-glow);
         }
+
+        /* お知らせ用スタイル */
+        .info-banner {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 24px;
+            margin-bottom: 24px;
+        }
     </style>
 </head>
 <body class="min-h-screen selection:bg-cyan-500 selection:text-slate-900">
@@ -335,8 +344,27 @@
                             <p class="font-black text-lg tracking-tight mb-0.5 i18n" data-key="home_translate_title">Translate Content</p>
                             <p class="text-sm opacity-70 leading-snug i18n" data-key="home_translate_desc">Use your browser's "Translate" feature to read polls in any language. Click here for step-by-step instructions.</p>
                         </div>
-                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                            <i class="fas fa-chevron-right opacity-30"></i>
+                        <i class="fas fa-chevron-right opacity-30"></i>
+                    </div>
+
+                    <!-- ログイン必要性のお知らせバナー -->
+                    <div id="loginNoticeBanner" class="info-banner flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <div class="flex gap-3 items-center">
+                            <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-amber-400">
+                                <i class="fas fa-user-lock text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="font-black text-sm i18n" data-key="home_login_notice_title">Login Required for Creation & Discussion</p>
+                                <p class="text-xs opacity-50 i18n" data-key="home_login_notice_desc">Sign in with Google to create your own polls or join the discussion.</p>
+                            </div>
+                        </div>
+                        <div class="md:ml-auto flex gap-4 px-2">
+                            <div class="flex items-center gap-2 text-[10px] font-bold text-green-400 uppercase tracking-widest">
+                                <i class="fas fa-check-circle"></i> <span class="i18n" data-key="voting">Voting</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px] font-bold text-amber-400 uppercase tracking-widest opacity-80">
+                                <i class="fas fa-key"></i> <span class="i18n" data-key="creation">Creation</span>
+                            </div>
                         </div>
                     </div>
 
@@ -378,6 +406,12 @@
                         <button onclick="window.goHome()" class="opacity-50 hover:opacity-100 uppercase text-[10px] tracking-widest font-bold transition-all"><i class="fas fa-arrow-left"></i> <span class="i18n" data-key="back">Back</span></button>
                         <div id="adminControls" class="flex gap-2"></div>
                     </div>
+                    
+                    <div id="translateGuideDetail" class="browser-tip" onclick="window.openTranslateModal()">
+                        <i class="fas fa-info-circle text-lg"></i>
+                        <span class="i18n font-bold" data-key="browser_translate_hint">To translate the content, please use your browser's translate feature. (Click for help)</span>
+                    </div>
+
                     <div id="pollDetailContent" class="glass rounded-[32px] p-8 md:p-10 border border-white/10 shadow-2xl relative overflow-hidden"></div>
                     <div class="glass rounded-[32px] p-8 border border-white/10 space-y-6">
                         <h3 class="text-lg font-black flex items-center gap-3 uppercase tracking-widest"><span class="w-1.5 h-6 bg-accent rounded-full"></span> <span class="i18n" data-key="discussion">Discussion</span></h3>
@@ -431,13 +465,15 @@
                 welcome_title: "Welcome to Mix Vote",
                 tos_content: `<p>安全なコミュニティ維持のため、ガイドラインに同意してください。</p><ul class="list-disc list-inside space-y-2"><li>他者の意見を尊重し、誹謗中傷は行わないでください。</li><li>多重投票や不正なデータ操作は禁止されています。</li><li>アンケートの作成やコメントにはGoogleサインインが必要です。</li><li><strong>投票はどなたでも自由にご参加いただけます。</strong></li></ul>`,
                 agree_btn: "同意して入室", login: "ログイン", logout: "ログアウト", welcome_user: "ようこそ", home: "ホーム", created_polls: "作成したアンケート", voted_polls: "投票済みアンケート", new_poll: "新規作成", language: "言語設定", categories: "カテゴリー", theme_custom: "テーマのカスタマイズ", accent: "アクセントカラー", background: "背景色", text_color: "文字色", default: "デフォルトに戻す", polls: "アンケート", recent_activity: "最近の活動", back: "戻る", discussion: "ディスカッション", post: "投稿する", create_poll: "アンケート作成", label_title: "タイトル", label_desc: "説明文", label_category: "カテゴリー", label_deadline: "投票期限", label_hashtags: "ハッシュタグ", label_multi: "複数回答を許可する", label_options: "選択肢 (最大50個)", options_hint: "※作成後は選択肢の数を変更できません", save_poll: "保存する", cancel: "キャンセル", save: "保存", confirm: "確定", close: "閉じる", delete_poll: "アンケートを削除", delete_confirm_text: "このアンケートをどのように処理しますか？", archive_btn: "アーカイブ (非表示にする)", permanent_delete_btn: "完全に削除する (管理者のみ)", edit_comment: "コメントを編集", votes: "票", popular_polls: "人気アンケート", latest_polls: "最新アンケート", no_polls: "アンケートが見つかりません", all: "全て", notice: "お知らせ", edition_tag: "Global Edition", select: "選択", translate_help: "翻訳の手順", browser_translate_hint: "翻訳するにはブラウザの翻訳機能をご利用ください。(詳細を表示)", home_translate_title: "翻訳して読むには", home_translate_desc: "ブラウザ（Chrome, Safari等）の全文翻訳機能を使うと、異言語のアンケートも一瞬で日本語/英語にして読むことができます。クリックして手順を確認。", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC版 Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">画面の何もないところを<span class="text-accent font-bold">右クリック</span>して、「日本語に翻訳」または「英語に翻訳」を選択してください。</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">アドレスバーの左端にある「<span class="text-accent font-bold">あA</span>」アイコンまたは翻訳ボタンをタップし、「翻訳」を選択します。</p></div></div>`,
-                share: "シェア", download_results: "結果をダウンロード", share_ready: "アンケート結果がコピーされました。", download_ready: "ダウンロードを開始します。"
+                share: "シェア", download_results: "結果をダウンロード", share_ready: "アンケート結果がコピーされました。", download_ready: "ダウンロードを開始します。",
+                home_login_notice_title: "作成・コメントにはログインが必要です", home_login_notice_desc: "アンケートの作成やディスカッションへの参加には、Googleログインが必須となります。", voting: "投票は誰でも可能", creation: "作成はログイン必須"
             },
             en: {
                 welcome_title: "Welcome to Mix Vote",
                 tos_content: `<p>Please agree to the guidelines to maintain a safe community.</p><ul class="list-disc list-inside space-y-2"><li>Respect others' opinions and avoid harassment.</li><li>Multiple voting and data manipulation are prohibited.</li><li>Google Sign-in is required to create polls or post comments.</li><li><strong>Anyone can participate in voting freely.</strong></li></ul>`,
-                agree_btn: "Agree & Enter", login: "Sign In", logout: "Log Out", welcome_user: "Welcome", home: "Home", created_polls: "Created Polls", voted_polls: "Voted Polls", new_poll: "New Poll", language: "Language", categories: "Categories", theme_custom: "Theme Custom", accent: "Accent", background: "Background", text_color: "Text Color", default: "Default", polls: "Polls", recent_activity: "Recent Activity", back: "Back", discussion: "Discussion", post: "Post", create_poll: "Create Poll", label_title: "Title", label_desc: "Description", label_category: "Category", label_deadline: "Deadline", label_hashtags: "Hashtags", label_multi: "Allow Multiple Choice", label_options: "Options (Max 50)", options_hint: "Option count cannot be changed after creation.", save_poll: "Save Poll", cancel: "Cancel", save: "Save", confirm: "Confirm", close: "Close", delete_poll: "Delete Poll", delete_confirm_text: "How would you like to process this poll?", archive_btn: "Archive (Hide)", permanent_delete_btn: "Delete Permanently (Admin)", edit_comment: "Edit Comment", votes: "Votes", popular_polls: "Popular Polls", latest_polls: "Latest Polls", no_polls: "No polls found", all: "All", notice: "Notice", edition_tag: "Global Edition", select: "Select", translate_help: "Translation Guide", browser_translate_hint: "Please use browser's translate feature. (View Help)", home_translate_title: "How to Translate Content", home_translate_desc: "Use browser (Chrome, Safari, etc.) full-page translation to read polls in your language. Click for step-by-step instructions.", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed"><span class="text-accent font-bold">Right-click</span> anywhere on the page and select "Translate to English".</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">Tap the "<span class="text-accent font-bold">AA</span>" or translation icon at the left of the address bar and select "Translate".</p></div></div>`,
-                share: "Share", download_results: "Download Results", share_ready: "Link copied to clipboard.", download_ready: "Downloading started."
+                agree_btn: "Agree & Enter", login: "Sign In", logout: "Log Out", welcome_user: "Welcome", home: "Home", created_polls: "Created Polls", voted_polls: "Voted Polls", new_poll: "New Poll", language: "Language", categories: "Categories", theme_custom: "Theme Custom", accent: "Accent", background: "Background", text_color: "Text Color", default: "Default", polls: "Polls", recent_activity: "Recent Activity", back: "Back", discussion: "Discussion", post: "Post", create_poll: "Create Poll", label_title: "Title", label_desc: "Description", label_category: "Category", label_deadline: "Deadline", label_hashtags: "Hashtags", label_multi: "Allow Multiple Choice", label_options: "Options (Max 50)", options_hint: "Option count cannot be changed after creation.", save_poll: "Save Poll", cancel: "Cancel", save: "Save", confirm: "Confirm", close: "Close", delete_poll: "Delete Poll", delete_confirm_text: "How would you like to process this poll?", archive_btn: "Archive (Hide)", permanent_delete_btn: "Delete Permanently (Admin)", edit_comment: "Edit Comment", votes: "Votes", popular_polls: "Popular Polls", latest_polls: "Latest Polls", no_polls: "No polls found", all: "All", notice: "Notice", edition_tag: "Global Edition", select: "Select", translate_help: "Translation Guide", browser_translate_hint: "To translate the content, please use your browser's translate feature. (View Help)", home_translate_title: "How to Translate Content", home_translate_desc: "Use browser (Chrome, Safari, etc.) full-page translation to read polls in your language. Click for step-by-step instructions.", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed"><span class="text-accent font-bold">Right-click</span> anywhere on the page and select "Translate to English".</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">Tap the "<span class="text-accent font-bold">AA</span>" or translation icon at the left of the address bar and select "Translate".</p></div></div>`,
+                share: "Share", download_results: "Download Results", share_ready: "Link copied to clipboard.", download_ready: "Downloading started.",
+                home_login_notice_title: "Login Required for Creation & Discussion", home_login_notice_desc: "You must sign in with Google to create your own polls or participate in Discussions.", voting: "Anyone can vote", creation: "Login to Create"
             }
         };
 
