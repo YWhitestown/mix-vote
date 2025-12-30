@@ -180,7 +180,7 @@
                     </div>
                     <div class="hidden md:block">
                         <h1 class="text-xl font-black tracking-tighter text-white uppercase italic leading-none">Mix Vote</h1>
-                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] leading-none">Growth Edition</p>
+                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] length-none">Growth Edition</p>
                     </div>
                 </div>
 
@@ -335,7 +335,7 @@
             if (onConfirm) {
                 confirmBtn.classList.remove('hidden');
                 confirmBtn.onclick = () => { onConfirm(); modal.classList.add('hidden'); };
-                closeBtn.textContent = "Confirm";
+                closeBtn.textContent = "Cancel"; // FIXED: Labels are now Confirm and Cancel
             } else {
                 confirmBtn.classList.add('hidden');
                 closeBtn.textContent = "Close";
