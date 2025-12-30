@@ -117,7 +117,7 @@
                 <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2">
                     <i class="fas fa-exclamation-triangle"></i> <span data-i18n="trouble_title">読み込みが終わらない場合</span>
                 </h3>
-                <p class="text-slate-400 text-xs leading-relaxed mb-4" data-i18n="trouble_desc">ブラウザの追跡防止機能やサードパーティCookieの制限により、認証がブロックされている可能性があります。</p>
+                <p class="text-slate-400 text-xs leading-relaxed mb-4" data-i18n="trouble_desc">ブラウザの追跡防止機能や広告ブロックにより、サーバーとの通信が遮断されている可能性があります。</p>
                 <button onclick="showTroubleshooting()" class="w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest transition-all">
                     <i class="fas fa-tools mr-2"></i> <span data-i18n="view_solutions">解決策を表示</span>
                 </button>
@@ -160,16 +160,20 @@
             <h2 class="text-2xl font-black text-white italic uppercase tracking-tighter mb-6" data-i18n="solutions_title">トラブル解決の手順</h2>
             <div class="space-y-6 text-sm text-slate-300">
                 <section>
-                    <h3 class="text-cyan-400 font-bold mb-2">1. Microsoft Edge をお使いの場合</h3>
-                    <p class="mb-3 text-xs leading-relaxed" data-i18n="edge_fix_1">アドレスバー左側の 🛡️（盾）または 🔒（鍵）アイコンをクリックし、「このサイトの追跡防止」をオフにしてください。</p>
-                    <p class="text-xs leading-relaxed" data-i18n="edge_fix_2">設定 ＞ Cookie とサイトのアクセス許可 ＞ 「サードパーティの Cookie をブロックする」をオフにすることでも改善します。</p>
+                    <h3 class="text-cyan-400 font-bold mb-2">1. ブラウザの保護機能を無効にする</h3>
+                    <p class="mb-2 text-xs leading-relaxed" data-i18n="edge_fix_1">Microsoft Edgeをお使いの場合、アドレスバー左側の 🛡️（盾）または 🔒（鍵）アイコンをクリックし、「このサイトの追跡防止」をオフにしてください。</p>
+                    <p class="text-xs leading-relaxed" data-i18n="edge_fix_2">Braveをお使いの場合は、ライオンアイコンをクリックして「Shields」をオフにしてください。</p>
                 </section>
                 <section>
-                    <h3 class="text-cyan-400 font-bold mb-2">2. Google Chrome で試す</h3>
-                    <p class="text-xs leading-relaxed" data-i18n="chrome_check">Chromeでは比較的標準設定で動作しやすいため、Edgeで止まる場合はChromeをお試しください。</p>
+                    <h3 class="text-cyan-400 font-bold mb-2">2. 広告ブロックを無効にする</h3>
+                    <p class="text-xs leading-relaxed" data-i18n="adblock_fix">uBlock Origin, AdBlock, Privacy Badger等の拡張機能をご使用の場合、このサイトでの動作を一時的に許可してください。Firestoreへの通信がブロックされるのを防ぎます。</p>
+                </section>
+                <section>
+                    <h3 class="text-cyan-400 font-bold mb-2">3. Google Chrome で試す</h3>
+                    <p class="text-xs leading-relaxed" data-i18n="chrome_check">Chromeは標準設定で動作しやすいため、上記で解決しない場合は Chrome での閲覧をお試しください。</p>
                 </section>
                 <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                    <p class="text-[10px] text-slate-500 font-bold italic" data-i18n="fundamental_fix">根本的な解決: Firebase Hosting等、同一ドメインでの配信を推奨します。</p>
+                    <p class="text-[10px] text-slate-500 font-bold italic" data-i18n="fundamental_fix">根本的な解決: Firebase Hosting等、同一ドメインでの配信により、これらの制限を回避できます。</p>
                 </div>
             </div>
             <button onclick="document.getElementById('troubleModal').classList.add('hidden')" class="w-full mt-8 bg-slate-800 text-white font-bold py-4 rounded-xl text-xs uppercase tracking-widest hover:bg-slate-700 transition-colors" data-i18n="close">閉じる</button>
@@ -445,11 +449,12 @@
                 voted_notice: "すでに投票済みです。", auth_required: "サインインが必要です。", error_missing: "タイトルと2つ以上の選択肢が必要です。",
                 delete_confirm: "このアンケートをアーカイブ（削除）しますか？", delete_comment_confirm: "コメントを削除しますか？",
                 loading_desc: "安全に接続中...", trouble_title: "読み込みが終わらない場合", 
-                trouble_desc: "ブラウザの追跡防止機能により認証がブロックされている可能性があります。",
+                trouble_desc: "ブラウザの追跡防止機能や広告ブロックによりサーバーとの通信が遮断されている可能性があります。",
                 view_solutions: "解決策を表示", solutions_title: "トラブル解決の手順",
                 edge_fix_1: "アドレスバー左側の 🛡️ または 🔒 アイコンから「このサイトの追跡防止」をオフにしてください。",
-                edge_fix_2: "「Cookie とサイトのアクセス許可」でサードパーティCookieを許可することでも改善します。",
-                chrome_check: "Edgeで動作しない場合は Chrome での閲覧をお試しください。",
+                edge_fix_2: "Brave等をお使いの場合は保護機能（Shields）を一時的にオフにしてください。",
+                adblock_fix: "AdBlockやuBlock Origin、DNSセキュリティ等の拡張機能をご使用の場合、このサイトでの動作を一時的に許可してください。",
+                chrome_check: "Chromeは標準設定で動作しやすいため、Edge等で止まる場合は Chrome での閲覧をお試しください。",
                 fundamental_fix: "根本解決: Firebase Hosting等、同一ドメインでの配信を推奨します。"
             },
             en: {
@@ -470,11 +475,12 @@
                 voted_notice: "Already voted.", auth_required: "Sign in required.", error_missing: "Title and at least 2 options are required.",
                 delete_confirm: "Archive this poll?", delete_comment_confirm: "Delete comment?",
                 loading_desc: "Securely connecting...", trouble_title: "Stuck on loading?", 
-                trouble_desc: "Browser tracking prevention might be blocking the authentication.",
+                trouble_desc: "Browser tracking prevention or ad-blockers might be blocking the connection to our servers.",
                 view_solutions: "View Solutions", solutions_title: "Troubleshooting Steps",
                 edge_fix_1: "Click the 🛡️ or 🔒 icon in the address bar and turn off 'Tracking prevention for this site'.",
-                edge_fix_2: "Enabling 'Third-party cookies' in browser settings may also help.",
-                chrome_check: "If Edge fails, please try using Google Chrome.",
+                edge_fix_2: "If you use Brave, please turn off 'Shields' for this site.",
+                adblock_fix: "If you use AdBlock, uBlock Origin, or privacy extensions, please allow this site to prevent blocking connection to Firestore.",
+                chrome_check: "If settings fail, please try using Google Chrome, which often works with default settings.",
                 fundamental_fix: "Fundamental fix: Serving from the same domain (Firebase Hosting) is recommended."
             }
         };
@@ -547,7 +553,7 @@
             const timer = setTimeout(() => {
                 const hint = document.getElementById('troubleshootingHint');
                 if (hint) hint.classList.remove('hidden');
-            }, 5000);
+            }, 4000);
 
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -668,7 +674,9 @@
                 }).slice(0,6);
                 renderPollList('latestPolls', latest);
                 renderPollList('popularPolls', popular);
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error("Poll loading failed. This might be blocked by browser/extensions.", e);
+            }
         };
 
         const renderPollList = (eid, polls) => {
@@ -804,7 +812,7 @@
                     if (container) container.innerHTML = html;
                     if (showRes) renderChart(p, 'doughnut');
                     loadComments(id);
-                }, (err) => console.error(err));
+                }, (err) => console.error("Snapshot error. Communication might be blocked.", err));
             } catch (e) { console.error(e); }
         };
 
@@ -989,8 +997,8 @@
             });
         };
 
-        const oi = document.getElementById('pollOptionsInput');
-        if (oi) { oi.addEventListener('input', updateQuizOptions); }
+        const oi_listener = document.getElementById('pollOptionsInput');
+        if (oi_listener) { oi_listener.addEventListener('input', updateQuizOptions); }
 
         const pci = document.getElementById('pollCategoryInput');
         if (pci) {
@@ -1003,11 +1011,11 @@
             };
         }
 
-        const dpc = document.getElementById('deadlinePickerContainer');
-        if (dpc) dpc.onclick = () => document.getElementById('pollDeadlineInput').showPicker();
+        const dpc_picker = document.getElementById('deadlinePickerContainer');
+        if (dpc_picker) dpc_picker.onclick = () => document.getElementById('pollDeadlineInput').showPicker();
         
-        const lb = document.getElementById('loginBtn'); 
-        if(lb) lb.onclick = async () => {
+        const lb_btn = document.getElementById('loginBtn'); 
+        if(lb_btn) lb_btn.onclick = async () => {
             try {
                 await signInWithPopup(auth, new GoogleAuthProvider());
             } catch (e) {
@@ -1015,7 +1023,7 @@
                 showMessage("Login Error", e?.message || String(e));
             }
         };
-        const lob = document.getElementById('logoutBtn'); if(lob) lob.onclick = () => auth.signOut();
+        const lob_btn = document.getElementById('logoutBtn'); if(lob_btn) lob_btn.onclick = () => auth.signOut();
         
         initAuth();
     </script>
