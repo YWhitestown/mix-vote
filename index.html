@@ -158,7 +158,7 @@
                     </div>
                     <div class="hidden md:block">
                         <h1 class="text-xl font-black tracking-tighter text-white uppercase italic">Mix <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">Vote</span></h1>
-                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] leading-none">Growth Edition</p>
+                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] のleading-none">Growth Edition</p>
                     </div>
                 </div>
 
@@ -327,25 +327,17 @@
         import { getAuth, signInWithPopup, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, runTransaction, Timestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-        // --- Configuration Logic ---
-        const FALLBACK_CONFIG = {
+        // --- Firebase Configuration ---
+        // 環境変数に依存せず、確実に正しいプロジェクト設定を使用します
+        const firebaseConfig = {
             apiKey: "AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE",
             authDomain: "mixvotesurvey.firebaseapp.com",
             projectId: "mixvotesurvey",
+            storageBucket: "mixvotesurvey.appspot.com",
             messagingSenderId: "352307389497",
             appId: "1:352307389497:web:0939fd29452d6c6afc59e8"
         };
 
-        const parseInjectedConfig = () => {
-            try {
-                if (typeof __firebase_config === 'undefined' || !__firebase_config) return null;
-                const c = JSON.parse(__firebase_config);
-                if (!c?.apiKey || typeof c.apiKey !== 'string' || !c.apiKey.startsWith("AIza")) return null;
-                return c;
-            } catch { return null; }
-        };
-
-        const firebaseConfig = parseInjectedConfig() || FALLBACK_CONFIG;
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -354,10 +346,6 @@
         const BASE_PATH = ['artifacts', appId, 'public', 'data'];
         const POLLS_PATH = [...BASE_PATH, 'polls'];
         const REPORTS_PATH = [...BASE_PATH, 'reports'];
-
-        // パスとappIdのデバッグログを出力
-        console.log("Resolved appId =", appId);
-        console.log("POLLS_PATH =", POLLS_PATH.join('/'));
 
         const CATEGORIES = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
 
@@ -410,8 +398,7 @@
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
-            // 認証状態のデバッグログ
-            console.log("Auth State Changed - UID:", user?.uid, "Anonymous:", user?.isAnonymous, "Provider:", user?.providerData?.map(p => p.providerId));
+            console.log("Auth Status:", user?.uid, "Anonymous:", user?.isAnonymous, "Provider:", user?.providerData?.map(p => p.providerId));
             
             const isReg = user && !user.isAnonymous;
             document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
@@ -449,7 +436,7 @@
 
         window.goMyPage = () => {
             if (!currentUser || currentUser.isAnonymous) {
-                showMessage("Login Required", "Googleでサインインしてからマイページにアクセスしてな！");
+                showMessage("Login Required", "Googleでサインインしてからマイページにアクセスしてください。");
                 return;
             }
             window.location.hash = 'mypage';
@@ -554,7 +541,6 @@
                     div.className = "poll-card glass rounded-[24px] p-6 cursor-pointer border border-white/5 hover:border-cyan-500/50 text-white relative flex flex-col justify-between";
                     div.onclick = () => goDetail(p.id);
                     
-                    // createdAtがnull（作成直後）の場合を考慮した安全な日付表示
                     const createdLabel = p.createdAt?.seconds
                         ? new Date(p.createdAt.seconds * 1000).toLocaleDateString()
                         : 'Saving...';
@@ -573,7 +559,6 @@
                 });
             } catch (e) {
                 console.error("Load My Polls Error:", e);
-                showMessage("Error", "Failed to load your polls.");
             }
         };
 
@@ -662,7 +647,7 @@
 
         // --- Core Actions ---
         window.castVote = async (idx) => {
-            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから投票してな！");
+            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから投票してください。");
             try {
                 const ref = doc(db, ...POLLS_PATH, currentPollId);
                 const d = await getDoc(ref);
@@ -686,7 +671,7 @@
         };
 
         document.getElementById('openCreateBtn').onclick = () => {
-            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから作成してな！");
+            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから作成してください。");
             editMode = false;
             document.getElementById('modalTitle').textContent = "Create Poll";
             document.getElementById('pollTitleInput').value = "";
@@ -699,9 +684,8 @@
 
         document.getElementById('savePollBtn').onclick = async () => {
             try {
-                // 認証チェックを明示的に強化
                 if (!currentUser || currentUser.isAnonymous) {
-                    return showMessage("Auth Required", "Googleでサインインしてから作成してな！匿名では作成できへんで。");
+                    return showMessage("Auth Required", "Googleでサインインしてから作成してください。");
                 }
                 
                 const t = document.getElementById('pollTitleInput').value.trim();
@@ -744,7 +728,6 @@
                 loadPolls();
                 if (editMode) loadPollDetail(editPollId);
             } catch (e) {
-                // permission-denied などが見えるように詳細化
                 console.error("Create error full:", e);
                 showMessage("Operation Failed", `Reason: ${e.code || ''} ${e.message || 'Permission Denied'}`);
             }
@@ -758,7 +741,7 @@
                 await signInWithPopup(auth, provider);
             } catch (e) {
                 console.error("Login Error:", e);
-                showMessage("Sign-in Failed", `Reason: ${e.code || ''} ${e.message || 'Popup blocked or unauthorized domain'}`);
+                showMessage("Sign-in Failed", e.message || "Popup blocked or unauthorized domain.");
             }
         };
 
@@ -768,9 +751,7 @@
         if (dpc) dpc.onclick = () => {
             try {
                 document.getElementById('pollDeadlineInput').showPicker();
-            } catch (e) {
-                console.warn("Browser does not support showPicker()");
-            }
+            } catch (e) { console.warn("showPicker error"); }
         };
 
         initAuth();
