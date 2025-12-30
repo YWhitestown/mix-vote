@@ -98,6 +98,22 @@
             filter: invert(1) brightness(2);
             cursor: pointer;
         }
+
+        /* Checkbox styling */
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .poll-option-selected .custom-checkbox {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
     </style>
 </head>
 <body class="min-h-screen selection:bg-cyan-500 selection:text-slate-900">
@@ -300,6 +316,17 @@
                         </div>
                     </div>
                 </div>
+                <!-- 複数回答オプション -->
+                <div id="multiChoiceField" class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+                    <div>
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Settings</span>
+                        <p class="text-xs font-bold text-white">複数回答（複数選択）を許可する</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="pollMultiChoiceInput" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                    </label>
+                </div>
                 <div>
                     <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2">Options (One per line)</label>
                     <textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-cyan-500 outline-none transition-colors font-mono" rows="4" placeholder="Option 1&#10;Option 2"></textarea>
@@ -360,6 +387,7 @@
         let editPollId = null;
         let unsubscribePolls = null;
         let unsubscribeComments = null;
+        let localSelectedIndices = []; // 複数回答用の選択状態
 
         // --- Security: XSS Prevention ---
         const escapeHTML = (s = '') => {
@@ -501,15 +529,30 @@
             if (!catSelect) return;
             const cat = catSelect.value;
             const quizBox = document.getElementById('quizFields');
+            const multiChoiceBox = document.getElementById('multiChoiceField');
             const sel = document.getElementById('pollCorrectIndexInput');
             const oi = document.getElementById('pollOptionsInput');
+            const mi = document.getElementById('pollMultiChoiceInput');
             
-            // クイズ形式の表示制御
             const isQuiz = cat === "クイズ";
+            const isAruaru = cat === "あるある";
+            
             if (quizBox) quizBox.classList.toggle('hidden', !isQuiz);
 
+            // 複数回答オプションの表示制御
+            if (multiChoiceBox) {
+                if (isQuiz || isAruaru) {
+                    multiChoiceBox.classList.add('hidden');
+                    mi.checked = false;
+                    mi.disabled = true;
+                } else {
+                    multiChoiceBox.classList.remove('hidden');
+                    mi.disabled = false;
+                }
+            }
+
             // あるある形式の自動補完ロジック
-            if (cat === "あるある" && !editMode) {
+            if (isAruaru && !editMode) {
                 oi.value = ARUARU_OPTIONS_TEXT;
                 oi.disabled = true;
             } else {
@@ -691,9 +734,47 @@
             showMessage("Copied!", "アンケートのリンクをコピーしました。Instagram等のSNSに貼り付けて共有できます。");
         };
 
+        // --- Multi-Choice Local Logic ---
+        window.toggleLocalSelect = (idx) => {
+            const el = document.getElementById(`opt-container-${idx}`);
+            if (localSelectedIndices.includes(idx)) {
+                localSelectedIndices = localSelectedIndices.filter(i => i !== idx);
+                el?.classList.remove('poll-option-selected');
+            } else {
+                localSelectedIndices.push(idx);
+                el?.classList.add('poll-option-selected');
+            }
+            
+            // 投票ボタンの表示制御
+            const submitBtn = document.getElementById('submitMultiVoteBtn');
+            if (submitBtn) {
+                submitBtn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none';
+            }
+        };
+
+        window.submitMultipleVotes = async () => {
+            if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから投票してください。");
+            if (localSelectedIndices.length === 0) return;
+
+            try {
+                const ref = doc(db, ...POLLS_PATH, currentPollId);
+                const d = await getDoc(ref);
+                if (d.data().votedUsers?.includes(currentUser.uid)) return showMessage("Notice", "You already voted.");
+                
+                const v = [...d.data().votes];
+                localSelectedIndices.forEach(idx => v[idx]++);
+                
+                await updateDoc(ref, { votes: v, votedUsers: arrayUnion(currentUser.uid) });
+                localSelectedIndices = [];
+                loadPollDetail(currentPollId);
+            } catch (e) { console.error(e); }
+        };
+
         const loadPollDetail = async (id) => {
             if (!currentUser) return;
             currentPollId = id;
+            localSelectedIndices = []; // 選択リセット
+            
             const d = await getDoc(doc(db, ...POLLS_PATH, id));
             if (!d.exists()) return goHome();
             const p = d.data();
@@ -703,13 +784,17 @@
             const isExp = p.deadline && p.deadline.toDate() < new Date();
             const canVote = !hasVoted && !isExp;
             const showRes = !p.is_quiz || hasVoted || isExp;
+            const isMulti = p.isMultipleChoice === true;
 
             const contentArea = document.getElementById('pollDetailContent');
             if (contentArea) {
                 contentArea.innerHTML = `
                     <div class="space-y-8">
                         <div class="space-y-4">
-                            <span class="bg-cyan-500/10 text-cyan-400 font-black text-[9px] px-3 py-1 rounded-md uppercase">${escapeHTML(p.category)}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-cyan-500/10 text-cyan-400 font-black text-[9px] px-3 py-1 rounded-md uppercase">${escapeHTML(p.category)}</span>
+                                ${isMulti ? '<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase">複数回答可</span>' : ''}
+                            </div>
                             <h2 class="text-3xl md:text-4xl font-black text-white leading-tight">${escapeHTML(p.title)}</h2>
                             ${p.question ? `<div class="bg-white/5 p-6 rounded-3xl text-slate-300 text-sm leading-relaxed whitespace-pre-wrap border border-white/5">${escapeHTML(p.question)}</div>` : ''}
                         </div>
@@ -720,11 +805,16 @@
                                     const v = p.votes[i]||0; const per = total>0?Math.round(v/total*100):0;
                                     if (showRes) {
                                         return `
-                                            <div ${canVote ? `onclick="castVote(${i})"` : ''} class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-2xl p-5 flex justify-between items-center group ${canVote ? 'cursor-pointer hover:border-cyan-500/50 hover:bg-white/[0.08] active:scale-[0.98]' : ''} transition-all">
+                                            <div id="opt-container-${i}" ${canVote ? (isMulti ? `onclick="toggleLocalSelect(${i})"` : `onclick="castVote(${i})"`) : ''} class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-2xl p-5 flex justify-between items-center group ${canVote ? 'cursor-pointer hover:border-cyan-500/50 hover:bg-white/[0.08] active:scale-[0.98]' : ''} transition-all">
                                                 <div class="absolute inset-y-0 left-0 bg-cyan-500/5 transition-all duration-1000" style="width:${per}%"></div>
-                                                <span class="z-10 font-bold text-sm text-slate-200">${escapeHTML(opt)}</span>
-                                                <div class="z-10 text-right"><div class="font-black text-white text-lg">${per}%</div><div class="text-[9px] text-slate-500 font-bold uppercase">${v} votes</div></div>
-                                                ${canVote ? '<i class="fas fa-chevron-right z-10 text-slate-700 group-hover:text-cyan-400 ml-4"></i>' : ''}
+                                                <div class="z-10 flex items-center gap-4">
+                                                    ${canVote && isMulti ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>' : ''}
+                                                    <span class="font-bold text-sm text-slate-200">${escapeHTML(opt)}</span>
+                                                </div>
+                                                <div class="z-10 text-right">
+                                                    <div class="font-black text-white text-lg">${per}%</div>
+                                                    <div class="text-[9px] text-slate-500 font-bold uppercase">${v} votes</div>
+                                                </div>
                                             </div>`;
                                     }
                                     return `
@@ -733,6 +823,10 @@
                                             <i class="fas fa-chevron-right text-slate-700 group-hover:text-cyan-400"></i>
                                         </button>`;
                                 }).join('')}
+                                
+                                <button id="submitMultiVoteBtn" onclick="submitMultipleVotes()" class="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black py-4 rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all uppercase tracking-widest text-xs" style="display:none;">
+                                    Vote Selected Items
+                                </button>
                             </div>
 
                             <div class="flex flex-col items-center justify-center space-y-6">
@@ -814,11 +908,10 @@
             document.getElementById('pollOptionsInput').value = "";
             document.getElementById('pollDescInput').value = ""; 
             document.getElementById('pollExplanationInput').value = "";
+            document.getElementById('pollMultiChoiceInput').checked = false;
             document.getElementById('createModal').classList.remove('hidden');
             
-            // 入力フィールドの有効化（あるある等での無効化リセット）
             document.getElementById('pollOptionsInput').disabled = false;
-            
             syncCorrectAnswerOptions();
         };
 
@@ -826,23 +919,37 @@
             try {
                 if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "Googleでサインインしてから作成してください。");
                 const t = document.getElementById('pollTitleInput').value.trim();
-                
-                // textareaがdisabledでも値を取得
                 const oi = document.getElementById('pollOptionsInput');
                 const o = oi.value.split('\n').map(s=>s.trim()).filter(Boolean);
-                
                 const cat = document.getElementById('pollCategoryInput').value;
                 const dl = document.getElementById('pollDeadlineInput').value;
+                const isMulti = document.getElementById('pollMultiChoiceInput').checked;
+
                 if (!t || o.length < 2) return showMessage("Error", "Title and at least 2 options are required.");
+                
                 let correctIndex = null;
                 if (cat === "クイズ") {
                     const v = document.getElementById('pollCorrectIndexInput').value;
                     if (v === '' || v == null) return showMessage("Error", "Please select a correct answer.");
                     correctIndex = Number(v);
                 }
-                const d = { title: t, question: document.getElementById('pollDescInput').value, category: cat, options: o, deadline: dl ? Timestamp.fromDate(new Date(dl)) : null, is_quiz: cat === "クイズ", correct_index: correctIndex, explanation: document.getElementById('pollExplanationInput').value, updatedAt: serverTimestamp() };
+
+                const d = { 
+                    title: t, 
+                    question: document.getElementById('pollDescInput').value, 
+                    category: cat, 
+                    options: o, 
+                    deadline: dl ? Timestamp.fromDate(new Date(dl)) : null, 
+                    is_quiz: cat === "クイズ", 
+                    isMultipleChoice: isMulti,
+                    correct_index: correctIndex, 
+                    explanation: document.getElementById('pollExplanationInput').value, 
+                    updatedAt: serverTimestamp() 
+                };
+
                 if (editMode) await updateDoc(doc(db, ...POLLS_PATH, editPollId), d);
                 else { Object.assign(d, { author: currentUser.displayName || 'Guest', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), votedUsers: [], likes: [] }); await addDoc(collection(db, ...POLLS_PATH), d); }
+                
                 document.getElementById('createModal').classList.add('hidden');
                 if (editMode) loadPollDetail(editPollId);
             } catch (e) {
