@@ -294,7 +294,7 @@
                     <span class="text-xs font-bold text-white">複数回答（複数選択）を許可する</span>
                     <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="pollMultiChoiceInput" class="sr-only peer"><div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div></label>
                 </div>
-                <div><label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2">Options (One per line)</label><textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm font-mono transition-colors" rows="4" placeholder="Option 1&#10;Option 2"></textarea><p id="createOptionsHint" class="hidden text-[8px] text-cyan-400 mt-2 font-bold uppercase tracking-wider">※ 一度作成すると、後から選択肢の数を変更することはできません。</p><p id="editOptionsHint" class="hidden text-[8px] text-amber-500 mt-2 font-bold uppercase tracking-wider">※ 編集モードでは選択肢の数は変更できません。</p></div>
+                <div><label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2">Options (One per line, Max 50)</label><textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm font-mono transition-colors" rows="4" placeholder="Option 1&#10;Option 2"></textarea><p id="createOptionsHint" class="hidden text-[8px] text-cyan-400 mt-2 font-bold uppercase tracking-wider">※ 一度作成すると、後から選択肢の数を変更することはできません。最大50個まで入力可能です。</p><p id="editOptionsHint" class="hidden text-[8px] text-amber-500 mt-2 font-bold uppercase tracking-wider">※ 編集モードでは選択肢の数は変更できません。</p></div>
                 <div id="quizFields" class="hidden bg-cyan-500/5 p-5 rounded-2xl border border-cyan-500/20 space-y-4">
                     <div><label class="text-[9px] font-black text-cyan-400 uppercase tracking-widest block mb-2">Correct Answer</label><select id="pollCorrectIndexInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-white text-xs"></select></div>
                     <div><label class="text-[9px] font-black text-cyan-400 uppercase tracking-widest block mb-2">Explanation</label><textarea id="pollExplanationInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-white text-xs" rows="2" placeholder="Explain why..."></textarea></div>
@@ -416,7 +416,11 @@
         const renderHomePolls = (polls) => {
             const fC = document.getElementById('latestPollsFeatured'), mC = document.getElementById('latestPollsMore');
             fC.innerHTML = ''; mC.innerHTML = '';
-            const fP = polls.slice(0, 5), mP = polls.slice(5, 55);
+            
+            // ホーム画面表示上限: 合計50件 (注目5件 + 最近45件)
+            const fP = polls.slice(0, 5);
+            const mP = polls.slice(5, 50); 
+            
             if (!polls.length) { fC.innerHTML = '<p class="text-slate-700 py-10 text-center uppercase text-xs">No polls found.</p>'; return; }
             document.getElementById('morePollsSection').classList.toggle('hidden', !mP.length);
 
@@ -591,6 +595,7 @@
             });
         };
 
+        // コメント管理
         const loadComments = (pid) => {
             if (unsubscribeComments) unsubscribeComments();
             unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
@@ -692,7 +697,10 @@
             try {
                 if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "作成にはGoogleログインが必要です。");
                 const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean);
+                
+                // バリデーション: タイトル、最低2つ、最大50つの選択肢
                 if (!t || o.length < 2) throw new Error("タイトルと2つ以上の選択肢が必要です。");
+                if (o.length > 50) throw new Error("選択肢の上限は50個までです。");
                 
                 const tagsRaw = document.getElementById('pollHashtagsInput').value;
                 const hashtags = tagsRaw.split(/[ ,、]+/).map(t => t.replace(/^#/, '').trim()).filter(Boolean);
@@ -717,7 +725,11 @@
                     await addDoc(collection(db, ...POLLS_PATH), d);
                 }
                 document.getElementById('createModal').classList.add('hidden'); goHome();
-            } catch (e) { showMessage("Error", e.message); } finally { saveBtn.disabled = false; }
+            } catch (e) { showErrorNotification(e.message); } finally { saveBtn.disabled = false; }
+        };
+
+        const showErrorNotification = (msg) => {
+            showMessage("Input Error", msg);
         };
 
         window.openEditPoll = () => { 
