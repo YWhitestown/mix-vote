@@ -320,40 +320,27 @@
 
         let currentUser = null, isAdmin = false, selectedCategory = "全て", searchTerm = "", chartInstance = null, currentPollId = null, currentPollData = null, currentChartType = 'doughnut', editMode = false, editPollId = null;
         let unsubscribePolls = null, unsubscribeCreated = null, unsubscribeVoted = null, unsubscribeComments = null, localSelectedIndices = [];
-        let currentCommentsData = {}; // コメント本文保持用
+        let currentCommentsData = {}; 
         let commentToEditId = null;
         window.sessionAgreed = false;
 
         const escapeHTML = (s = '') => typeof s !== 'string' ? '' : s.replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m]));
         
-        /**
-         * 改良版マスク文字列関数
-         * クライアントサイドでのマスクは「気休め」であることを前提に、
-         * メールアドレス等の個人情報をより自然に保護するように設計。
-         */
         const maskString = (s = '') => { 
             if (!s || typeof s !== 'string') return s;
-            
-            // メールアドレスの場合：ローカル部分を適応的に隠し、ドメインを一部残す
             if (s.includes('@')) {
                 const [local, domain] = s.split('@');
                 if (local.length <= 1) return `*@${domain}`;
                 if (local.length <= 4) return `${local[0]}***@${domain}`;
-                // 指定されたインデックス（2, 5, 6, 8, 9, 10, 11）を意識しつつ、ローカル部分を強く隠す
                 const maskedLocal = local.split('').map((c, i) => {
                     const indices = [1, 4, 5, 7, 8, 9, 10];
                     return (indices.includes(i) || i > 1) ? '*' : c;
                 }).join('');
                 return `${maskedLocal}@${domain}`;
             }
-
-            // 一般的な名前の場合：
             if (s.length <= 1) return s;
             const indicesToMask = [1, 4, 5, 7, 8, 9, 10];
-            return s.split('').map((char, i) => {
-                // 文字数が足りない場合は末尾以外を隠すなどの調整
-                return indicesToMask.includes(i) ? '*' : char;
-            }).join('');
+            return s.split('').map((char, i) => indicesToMask.includes(i) ? '*' : char).join('');
         };
 
         const showMessage = (title, body, onConfirm = null) => {
@@ -365,7 +352,7 @@
             if (onConfirm) {
                 confirmBtn.classList.remove('hidden');
                 confirmBtn.onclick = () => { onConfirm(); modal.classList.add('hidden'); };
-                closeBtn.textContent = "Cancel"; // FIXED: Labels are now Confirm and Cancel
+                closeBtn.textContent = "Cancel"; 
             } else {
                 confirmBtn.classList.add('hidden');
                 closeBtn.textContent = "Close";
@@ -385,8 +372,8 @@
             currentUser = user;
             if (user && !user.isAnonymous) {
                 try {
-                    const idTokenResult = await getIdTokenResult(user);
-                    isAdmin = !!idTokenResult.claims.admin || ADMIN_EMAILS.includes(user.email);
+                    const res = await getIdTokenResult(user);
+                    isAdmin = !!res.claims.admin || ADMIN_EMAILS.includes(user.email);
                 } catch (e) { isAdmin = ADMIN_EMAILS.includes(user.email); }
             } else { isAdmin = false; }
             
@@ -416,11 +403,7 @@
                 if (searchTerm) polls = polls.filter(p => p.title.toLowerCase().includes(searchTerm));
                 
                 if (selectedCategory === "人気アンケート") {
-                    polls.sort((a, b) => {
-                        const totalA = a.votes?.reduce((s, v) => s + v, 0) || 0;
-                        const totalB = b.votes?.reduce((s, v) => s + v, 0) || 0;
-                        return totalB - totalA;
-                    });
+                    polls.sort((a, b) => (b.votes?.reduce((s, v) => s + v, 0) || 0) - (a.votes?.reduce((s, v) => s + v, 0) || 0));
                     document.getElementById('homeSectionTitle').innerHTML = 'Popular <span class="text-slate-600 font-normal not-italic text-lg md:text-xl">Polls</span>';
                 } else {
                     polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
@@ -539,7 +522,6 @@
                     <div class="space-y-3">
                         ${p.options.map((opt, i) => {
                             const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
-                            // 誰でも投票可能（currentUserが存在すればOK、isAnonymousの制限なし）
                             return `<div ${canV ? (isM ? `onclick="toggleLocalSelect(${i})"` : `onclick="castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-cyan-500/50' : ''}">
                                 <div class="absolute inset-y-0 left-0 bg-cyan-500/5 transition-all duration-1000" style="width:${per}%"></div>
                                 <div class="relative z-10 flex items-center gap-3">
@@ -609,7 +591,6 @@
             });
         };
 
-        // コメント管理
         const loadComments = (pid) => {
             if (unsubscribeComments) unsubscribeComments();
             unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
@@ -713,7 +694,6 @@
                 const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean);
                 if (!t || o.length < 2) throw new Error("タイトルと2つ以上の選択肢が必要です。");
                 
-                // ハッシュタグの処理：スペース、カンマ、読点で区切る
                 const tagsRaw = document.getElementById('pollHashtagsInput').value;
                 const hashtags = tagsRaw.split(/[ ,、]+/).map(t => t.replace(/^#/, '').trim()).filter(Boolean);
 
