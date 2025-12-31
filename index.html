@@ -59,7 +59,7 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* カテゴリー専用：スマートフォンでの縦書き設定 */
+        /* カテゴリー専用：スマートフォンでの縦書き設定（サイドバーのブロックのみ適用） */
         @media (max-width: 1023px) {
             .category-vertical-text {
                 writing-mode: vertical-rl;
@@ -166,7 +166,7 @@
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
 
-    <!-- モーダル各種（省略なし） -->
+    <!-- モーダル各種 -->
     <div id="translateModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
         <div class="glass max-w-md w-full rounded-[32px] p-8 border border-white/10 shadow-2xl">
             <div class="flex items-center gap-3 mb-6">
@@ -317,6 +317,7 @@
             <!-- メイン -->
             <main class="lg:col-span-9 pb-20">
                 <div id="view-home" class="view-content space-y-8 animate-in fade-in duration-500">
+                    <!-- 翻訳ガイド -->
                     <div id="homeTranslateGuide" class="browser-tip" onclick="window.openTranslateModal()">
                         <div class="w-14 h-14 bg-[rgba(var(--accent-rgb),0.2)] rounded-2xl flex items-center justify-center text-[color:var(--accent)] shrink-0 shadow-lg">
                             <i class="fas fa-language text-3xl"></i>
@@ -443,26 +444,13 @@
         function i18n(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
 
         /**
-         * カテゴリー表示のみに適用される整形関数
-         * 他の文字（タイトル等）が混ざらないよう、カテゴリーラベル専用として使用します。
+         * サイドバー（カテゴリーブロック）専用の文字列整形
          */
-        function formatCategoryString(text) {
+        function formatSidebarCategoryString(text) {
             if (currentLang === 'ja' && window.innerWidth < 1024) {
-                // 日本語かつスマホ表示時のみ、長音符を縦向き記号に変換
                 return text.replace(/ー/g, '｜');
             }
             return text;
-        }
-
-        /**
-         * カテゴリーラベル用のHTML生成
-         * 縦書きクラスと整形されたテキストを返します。
-         */
-        function getCategoryLabelHTML(internalCat, extraClasses = "") {
-            const idx = CATEGORIES_JA.indexOf(internalCat);
-            const text = idx > -1 ? (currentLang === 'en' ? CATEGORIES_EN[idx] : CATEGORIES_JA[idx]) : internalCat;
-            const formattedText = formatCategoryString(text);
-            return `<span class="category-vertical-text ${extraClasses}">${escapeHTML(formattedText)}</span>`;
         }
 
         function setActiveNav(id) {
@@ -470,6 +458,14 @@
             if (btns) btns.forEach(b => b.classList.remove('active', 'text-white'));
             const btn = document.getElementById(id);
             if (btn) btn.classList.add('active', 'text-white');
+        }
+
+        /**
+         * 一般的な表示用。縦書き変換を行わず通常の翻訳テキストを返す。
+         */
+        function getDisplayCat(internalCat) {
+            const idx = CATEGORIES_JA.indexOf(internalCat);
+            return idx > -1 ? (currentLang === 'en' ? CATEGORIES_EN[idx] : CATEGORIES_JA[idx]) : internalCat;
         }
 
         function getInternalCategoryName(label) {
@@ -509,14 +505,12 @@
             const tE = document.getElementById('homeSectionTitle');
             if (tE) {
                 const head = selectedCategory === FILTER_POPULAR ? i18n('popular_polls') : i18n('latest_polls');
-                // タイトル文字（他の文字）は横書きのまま。カテゴリー名が含まれる場合のみ変換
+                // ヘッダータイトルの文言は横書きのままにする
                 if (currentLang === 'en' && head.includes(' ')) {
                     const words = head.split(' ');
                     tE.innerHTML = `${words[0]} <span class="opacity-40 font-normal not-italic">${words.slice(1).join(' ')}</span>`;
                 } else { 
-                    // カテゴリー選択時はカテゴリー名の長音符を調整
-                    const isCatSelected = selectedCategory !== FILTER_ALL && selectedCategory !== FILTER_POPULAR;
-                    tE.innerHTML = isCatSelected ? formatCategoryString(head) : head; 
+                    tE.innerHTML = head; 
                 }
             }
             document.documentElement.lang = currentLang;
@@ -555,20 +549,18 @@
             if (!polls.length) { fC.innerHTML = `<p class="opacity-30 py-10 text-center uppercase text-xs">${i18n('no_polls')}</p>`; return; }
             document.getElementById('morePollsSection').classList.toggle('hidden', !mP.length);
             fP.forEach(p => {
-                const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div');
+                const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category);
                 div.className = "poll-card glass-panel rounded-[24px] p-6 md:p-8 cursor-pointer flex flex-col justify-between group";
                 div.onclick = () => window.goDetail(p.id);
-                // カテゴリーラベルのみ縦書き
-                const catLabel = getCategoryLabelHTML(p.category, "text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)] mb-4");
-                div.innerHTML = `<div class="space-y-4 flex flex-col items-start">${catLabel}<h3 class="text-lg md:text-xl font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3><div class="flex flex-wrap mt-1">${(p.hashtags || []).map(t => `<span class="text-[10px] text-[color:var(--accent)] opacity-80 mr-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span></div>`;
+                // カード内のカテゴリーは横書きのまま
+                div.innerHTML = `<div class="space-y-4 flex flex-col items-start"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-lg md:text-xl font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3><div class="flex flex-wrap mt-1">${(p.hashtags || []).map(t => `<span class="text-[10px] text-[color:var(--accent)] opacity-80 mr-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span></div>`;
                 fC.appendChild(div);
             });
             mP.forEach(p => {
-                const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dStr = p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString() : '';
+                const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category), dStr = p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString() : '';
                 div.className = "poll-card glass rounded-[16px] p-4 cursor-pointer flex flex-col justify-between";
                 div.onclick = () => window.goDetail(p.id);
-                const catLabel = getCategoryLabelHTML(p.category, "text-[8px] font-bold opacity-40 uppercase mb-2");
-                div.innerHTML = `<div class="space-y-2 flex flex-col items-start">${catLabel}<h3 class="text-xs font-bold leading-snug line-clamp-2">${escapeHTML(p.title)}</h3></div><div class="mt-3 text-[8px] opacity-30 font-bold border-t border-white/5 pt-2 flex justify-between uppercase"><span>${total} ${i18n('votes_abbr')}</span><span>${dStr}</span></div>`;
+                div.innerHTML = `<div class="space-y-2 flex flex-col items-start"><span class="text-[8px] font-bold opacity-40 uppercase">${escapeHTML(dC)}</span><h3 class="text-xs font-bold leading-snug line-clamp-2">${escapeHTML(p.title)}</h3></div><div class="mt-3 text-[8px] opacity-30 font-bold border-t border-white/5 pt-2 flex justify-between uppercase"><span>${total} ${i18n('votes_abbr')}</span><span>${dStr}</span></div>`;
                 mC.appendChild(div);
             });
         }
@@ -638,23 +630,23 @@
             specialItems.forEach(item => {
                 const btn = document.createElement('button');
                 btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left flex items-center ${selectedCategory === item.id ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'}`;
-                // 長音符を含む可能性があるラベルのみ変換
-                btn.innerHTML = `<span class="category-vertical-text">${formatCategoryString(item.label)}</span>`;
+                // サイドバー内のこのカテゴリーラベルのみ縦書き変換
+                btn.innerHTML = `<span class="category-vertical-text">${formatSidebarCategoryString(item.label)}</span>`;
                 btn.onclick = () => { selectedCategory = item.id; setupCategoryMenu(); window.goHome(); };
                 nav.appendChild(btn);
             });
             
-            // 各カテゴリー（サイドバー内）
+            // 各カテゴリー（サイドバー内のみ縦書き変換を適用）
             const catsDisplay = currentLang === 'ja' ? CATEGORIES_JA : CATEGORIES_EN;
             catsDisplay.forEach((catLabel, idx) => {
                 const internalName = CATEGORIES_JA[idx];
                 const btn = document.createElement('button');
                 btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left flex items-center ${selectedCategory === internalName ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'}`;
-                btn.innerHTML = `<span class="category-vertical-text">${formatCategoryString(catLabel)}</span>`;
+                btn.innerHTML = `<span class="category-vertical-text">${formatSidebarCategoryString(catLabel)}</span>`;
                 btn.onclick = () => { selectedCategory = internalName; setupCategoryMenu(); window.goHome(); };
                 nav.appendChild(btn);
                 
-                // セレクトボックス内は縦書きにしない（OS標準UIのため）
+                // セレクトボックス内（作成モーダル等）は横書き
                 const opt = document.createElement('option');
                 opt.value = internalName; opt.textContent = catLabel; select.appendChild(opt);
             });
@@ -668,7 +660,7 @@
             window.loadPolls(); 
         }
 
-        // --- 4. Window オブジェクトへの割り当て (即時に登録) ---
+        // --- 4. Window オブジェクトへの割り当て ---
         window.setActiveNav = setActiveNav; window.changeLang = changeLang; window.applyTheme = applyTheme; window.loadTheme = loadTheme; window.resetTheme = resetTheme; window.goHome = goHome; window.goDetail = goDetail; window.updateUIStrings = updateUIStrings; window.setupCategoryMenu = setupCategoryMenu; window.applyFilters = applyFilters; window.initAuth = initAuth; window.handleNavigation = handleNavigation; window.renderHomePolls = renderHomePolls; window.showMessage = showMessage; window.escapeHTML = escapeHTML; window.maskString = maskString;
         window.closeTranslateModal = () => document.getElementById('translateModal').classList.add('hidden');
         window.openTranslateModal = () => document.getElementById('translateModal').classList.remove('hidden');
@@ -697,32 +689,8 @@
             });
         };
 
-        window.sharePoll = function(platform) {
-            if (!currentPollData) return;
-            const title = encodeURIComponent(currentPollData.title), url = encodeURIComponent(window.location.href);
-            let shareUrl = "";
-            if (platform === 'x') shareUrl = `https://twitter.com/intent/tweet?text=${title}&url=${url}`;
-            else if (platform === 'fb') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-            else if (platform === 'ig') {
-                const temp = document.createElement("input"); temp.value = window.location.href; document.body.appendChild(temp);
-                temp.select(); document.execCommand("copy"); document.body.removeChild(temp);
-                showMessage(i18n('share'), i18n('share_ready')); return;
-            }
-            if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=400');
-        };
-
-        window.downloadPoll = function() {
-            if (!currentPollData) return;
-            const p = currentPollData; const total = p.votes.reduce((a, b) => a + b, 0);
-            let text = `Mix Vote - Poll Results\nTitle: ${p.title}\nCategory: ${p.category}\nTotal Votes: ${total}\n\nResults:\n`;
-            p.options.forEach((opt, i) => { const v = p.votes[i] || 0; const per = total > 0 ? Math.round(v / total * 100) : 0; text += `- ${opt}: ${v} votes (${per}%)\n`; });
-            const blob = new Blob([text], { type: 'text/plain' }); const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `poll_results_${currentPollId}.txt`; a.click();
-            URL.revokeObjectURL(url); showMessage(i18n('download_results'), i18n('download_results'));
-        };
-
         window.loadPollDetail = async function(id) {
-            localSelectedIndices = []; let localVoted = false; try { localVoted = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(id); } catch(e) {}
+            localVoted = false; try { localVoted = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(id); } catch(e) {}
             const d = await getDoc(doc(db, ...POLLS_PATH, id)); if (!d.exists()) return goHome();
             const p = d.data(); currentPollId = id; currentPollData = p;
             const total = p.votes?.reduce((s,v)=>s+v,0)||0, hasV = (currentUser && p.votedUsers?.includes(currentUser.uid)) || localVoted;
@@ -730,82 +698,24 @@
             document.getElementById('adminControls').innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="window.openEditPoll()" class="p-2 rounded-lg glass text-[color:var(--accent)]"><i class="fas fa-edit"></i></button><button onclick="window.openDeleteModal()" class="p-2 rounded-lg glass text-red-400"><i class="fas fa-trash"></i></button>` : '';
             
             const content = document.getElementById('pollDetailContent');
-            // アンケート詳細内のカテゴリーラベル
-            const catLabel = getCategoryLabelHTML(p.category, "bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] font-black text-[9px] px-3 py-1 rounded-md uppercase border border-[rgba(var(--accent-rgb),0.2)]");
-            
-            content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3">${catLabel}${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><h2 class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><div class="flex flex-wrap">${(p.hashtags || []).map(t => `<span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] text-[10px] px-2 py-0.5 rounded-full mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative leading-relaxed"><p>${escapeHTML(p.question)}</p></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => { const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0; return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-[rgba(var(--accent-rgb),0.5)]' : ''}"><div class="absolute inset-y-0 left-0 bg-[rgba(var(--accent-rgb),0.05)] transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div></div></div>`; }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-[color:var(--accent)] text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex flex-col items-center justify-center min-h-[300px] gap-6"><div class="flex gap-2 p-1 bg-black/20 rounded-xl mb-2"><button onclick="window.setChartType('doughnut')" data-type="doughnut" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-pie mr-1"></i> Doughnut</button><button onclick="window.setChartType('bar')" data-type="bar" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-bar mr-1"></i> Bar</button></div><div class="w-full h-[250px] flex items-center justify-center"><canvas id="pollChart"></canvas></div><div class="flex flex-wrap items-center justify-center gap-2 mt-4"><button onclick="window.sharePoll('x')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all"><i class="fab fa-x-twitter"></i></button><button onclick="window.sharePoll('fb')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-blue-400 hover:text-blue-300 transition-all"><i class="fab fa-facebook-f"></i></button><button onclick="window.sharePoll('ig')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-pink-400 hover:text-pink-300 transition-all"><i class="fab fa-instagram"></i></button><button onclick="window.downloadPoll()" class="px-4 py-2 rounded-xl glass hover:bg-[rgba(var(--accent-rgb),0.1)] border border-white/5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[color:var(--accent)] transition-all"><i class="fas fa-download"></i> ${i18n('download_results')}</button></div></div></div></div>`;
+            const dC = getDisplayCat(p.category);
+            // 詳細画面のカテゴリーラベルは横書き
+            content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] font-black text-[9px] px-3 py-1 rounded-md uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><h2 class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><div class="flex flex-wrap">${(p.hashtags || []).map(t => `<span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] text-[10px] px-2 py-0.5 rounded-full mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative leading-relaxed"><p>${escapeHTML(p.question)}</p></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => { const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0; return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-[rgba(var(--accent-rgb),0.5)]' : ''}"><div class="absolute inset-y-0 left-0 bg-[rgba(var(--accent-rgb),0.05)] transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div></div></div>`; }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-[color:var(--accent)] text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex flex-col items-center justify-center min-h-[300px] gap-6"><div class="flex gap-2 p-1 bg-black/20 rounded-xl mb-2"><button onclick="window.setChartType('doughnut')" data-type="doughnut" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-pie mr-1"></i> Doughnut</button><button onclick="window.setChartType('bar')" data-type="bar" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-bar mr-1"></i> Bar</button></div><div class="w-full h-[250px] flex items-center justify-center"><canvas id="pollChart"></canvas></div></div></div></div>`;
             window.renderChart(p, currentChartType); window.loadComments(id);
         };
 
-        window.loadComments = (pid) => {
-            if (unsubscribeComments) unsubscribeComments();
-            unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
-                const list = document.getElementById('commentsList'); if (!list) return;
-                list.innerHTML = s.empty ? `<p class="text-center text-[10px] opacity-30 py-6 uppercase font-bold tracking-widest">${i18n('no_comments')}</p>` : '';
-                currentCommentsData = {};
-                s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).forEach(c => {
-                    currentCommentsData[c.id] = c.text;
-                    const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 space-y-1 relative group";
-                    const dStr = c.createdAt?.seconds ? new Date(c.createdAt.seconds*1000).toLocaleDateString() : '';
-                    div.innerHTML = `<div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest"><span class="text-[color:var(--accent)]">${escapeHTML(maskString(c.author))}</span><div class="flex items-center gap-3"><span class="opacity-30">${dStr}</span><div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">${(isAdmin || (currentUser && c.userId === currentUser.uid)) ? `<button onclick="window.openEditCommentModal('${c.id}')" class="opacity-50 hover:text-[color:var(--accent)] hover:opacity-100 transition-all"><i class="fas fa-edit"></i></button><button onclick="window.confirmDeleteComment('${c.id}')" class="opacity-50 hover:text-red-400 hover:opacity-100 transition-all"><i class="fas fa-trash"></i></button>` : ''}</div></div></div><p class="text-xs opacity-70 leading-relaxed pr-8">${escapeHTML(c.text)}</p>`;
-                    list.appendChild(div);
-                });
-            }, (err) => console.error(err));
-        };
-
-        window.postComment = async () => {
-            const input = document.getElementById('commentText'), text = input.value.trim();
-            if (!text || !currentUser || currentUser.isAnonymous) return;
-            try { await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { userId: currentUser.uid, author: currentUser.displayName || 'User', text: text, createdAt: serverTimestamp() }); input.value = ''; showMessage(i18n('notice'), i18n('comment_posted')); } catch (e) { console.error(e); }
-        };
-
-        window.confirmDeleteComment = (cid) => { showMessage(i18n('notice'), i18n('delete_comment_confirm'), async () => { try { await deleteDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', cid)); } catch (e) {} }); };
-        window.confirmDeletePoll = async function(type) { 
-            window.closeDeleteModal(); try { const ref = doc(db, ...POLLS_PATH, currentPollId); 
-            if (type === 'archive') await updateDoc(ref, { deleted: true, deletedAt: serverTimestamp(), deletedBy: currentUser.uid }); 
-            else if (type === 'permanent') await deleteDoc(ref); goHome(); } catch (e) { showMessage(i18n('notice'), i18n('permission_denied')); } 
-        };
-        window.castVote = async function(idx) { if (!currentUser) return; try { if (JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(currentPollId)) { showMessage(i18n('notice'), i18n('already_voted')); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; newVotes[idx] = (newVotes[idx] || 0) + 1; tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const h = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); h.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(h)); } catch(e) {} window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") showMessage(i18n('notice'), i18n('already_voted')); } };
-        window.toggleLocalSelect = function(idx) { const el = document.getElementById(`opt-container-${idx}`); if (localSelectedIndices.includes(idx)) { localSelectedIndices = localSelectedIndices.filter(i => i !== idx); el?.classList.remove('poll-option-selected'); } else { localSelectedIndices.push(idx); el?.classList.add('poll-option-selected'); } const btn = document.getElementById('submitMultiVoteBtn'); if (btn) btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none'; };
-        window.submitMultipleVotes = async function() { if (!currentUser) return; try { if (JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(currentPollId)) { showMessage(i18n('notice'), i18n('already_voted')); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; localSelectedIndices.forEach(i => { newVotes[i] = (newVotes[i] || 0) + 1; }); tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const h = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); h.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(h)); } catch(e) {} localSelectedIndices = []; window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") showMessage(i18n('notice'), i18n('already_voted')); } };
-
-        window.savePoll = async function() { 
-            const saveBtn = document.getElementById('savePollBtn'); try { if (!currentUser || currentUser.isAnonymous) throw new Error("Google login required."); const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean); if (!t || o.length < 2) throw new Error("Title and 2+ options required."); const deadlineVal = document.getElementById('pollDeadlineInput').value, deadlineTs = deadlineVal ? Timestamp.fromDate(new Date(deadlineVal)) : null, isM = !!document.getElementById('pollMultiChoiceInput').checked, cat = document.getElementById('pollCategoryInput').value, hashtags = document.getElementById('pollHashtagsInput').value.split(/[,\s]+/).map(s => s.trim().replace(/^#/, '')).filter(Boolean).slice(0, 10);
-            saveBtn.disabled = true; const d = { title: t, question: document.getElementById('pollDescInput').value.trim(), category: getInternalCategoryName(cat), options: o, hashtags: hashtags, isMultipleChoice: isM, deadline: deadlineTs, updatedAt: serverTimestamp(), deleted: false }; if (editMode) await updateDoc(doc(db, ...POLLS_PATH, editPollId), d); else { Object.assign(d, { author: currentUser.displayName || 'User', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), votedUsers: [] }); await addDoc(collection(db, ...POLLS_PATH), d); } document.getElementById('createModal').classList.add('hidden'); showMessage(i18n('notice'), i18n('save_success')); goHome(); } catch (e) { showMessage(i18n('notice'), e.message); } finally { saveBtn.disabled = false; } 
-        };
-        window.openEditPoll = function() { 
-            editMode = true; editPollId = currentPollId; document.getElementById('modalTitle').textContent = i18n('edit_poll'); document.getElementById('pollTitleInput').value = currentPollData.title; document.getElementById('pollDescInput').value = currentPollData.question || ""; document.getElementById('pollCategoryInput').value = currentPollData.category; document.getElementById('pollHashtagsInput').value = (currentPollData.hashtags || []).map(h => `#${h}`).join(' '); document.getElementById('pollOptionsInput').value = currentPollData.options.join('\n'); document.getElementById('pollMultiChoiceInput').checked = !!currentPollData.isMultipleChoice;
-            if (currentPollData.deadline) { const date = currentPollData.deadline.toDate(); const localISO = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16); document.getElementById('pollDeadlineInput').value = localISO; } else { document.getElementById('pollDeadlineInput').value = ""; }
-            document.getElementById('createModal').classList.remove('hidden'); 
-        };
-        window.goCreatedPolls = function() { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'created'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-created').classList.remove('hidden'); setActiveNav('navCreatedBtn'); window.loadFilteredPolls('created'); };
-        window.goVotedPolls = function() { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'voted'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-voted').classList.remove('hidden'); setActiveNav('navVotedBtn'); window.loadFilteredPolls('voted'); };
-        window.loadFilteredPolls = function(type) {
-            const listId = type === 'created' ? 'createdPollsList' : 'votedPollsList';
-            if (type === 'created' && unsubscribeCreated) unsubscribeCreated(); if (type === 'voted' && unsubscribeVoted) unsubscribeVoted();
-            const unsubscribe = onSnapshot(collection(db, ...POLLS_PATH), (snapshot) => {
-                let polls = snapshot.docs.map(d => ({id: d.id, ...d.data()})).filter(p => !p.deleted);
-                if (type === 'created' && currentUser) polls = polls.filter(p => p.authorID === currentUser.uid); else if (currentUser) polls = polls.filter(p => p.votedUsers?.includes(currentUser.uid));
-                polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)); window.renderPollList(listId, polls);
-            }, (err) => console.error(err));
-            if (type === 'created') unsubscribeCreated = unsubscribe; else unsubscribeVoted = unsubscribe;
-        };
         window.renderPollList = function(eid, polls) {
             const c = document.getElementById(eid); if (!c) return;
             c.innerHTML = polls.length ? '' : `<div class="col-span-full py-20 text-center opacity-30 font-bold uppercase tracking-widest text-xs">${i18n('no_polls')}</div>`;
             polls.forEach(p => {
-                const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dStr = p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString() : '';
+                const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category), dStr = p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString() : '';
                 div.className = "poll-card glass rounded-[24px] p-6 cursor-pointer flex flex-col justify-between group";
                 div.onclick = () => window.goDetail(p.id);
-                const catLabel = getCategoryLabelHTML(p.category, "text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)] mb-4");
-                div.innerHTML = `<div class="space-y-4 flex flex-col items-start">${catLabel}<h3 class="text-sm md:text-base font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>${total} ${i18n('votes')}</span><span>${dStr}</span></div>`;
+                // リスト表示内も横書き
+                div.innerHTML = `<div class="space-y-4 flex flex-col items-start"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-sm md:text-base font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>${total} ${i18n('votes')}</span><span>${dStr}</span></div>`;
                 c.appendChild(div);
             });
         };
-        window.closeEditCommentModal = () => { document.getElementById('editCommentModal').classList.add('hidden'); commentToEditId = null; };
-        window.openEditCommentModal = (cid) => { commentToEditId = cid; document.getElementById('editCommentInput').value = currentCommentsData[cid] || ""; document.getElementById('editCommentModal').classList.remove('hidden'); };
-        window.closeDeleteModal = () => document.getElementById('deleteOptionsModal').classList.add('hidden');
-        window.openDeleteModal = () => { document.getElementById('permanentDeleteBtn').classList.toggle('hidden', !isAdmin); document.getElementById('deleteOptionsModal').classList.remove('hidden'); };
 
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
@@ -825,13 +735,6 @@
 
         const searchInput = document.getElementById('globalSearch');
         if (searchInput) { let t = null; searchInput.addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => { searchTerm = (e.target.value || "").trim(); applyFilters(); }, 150); }); }
-
-        document.getElementById('saveCommentBtn').onclick = async () => {
-            if (!commentToEditId || !currentUser || currentUser.isAnonymous) return;
-            const text = document.getElementById('editCommentInput').value.trim();
-            if (!text) return;
-            try { await updateDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', commentToEditId), { text, updatedAt: serverTimestamp() }); window.closeEditCommentModal(); showMessage(i18n('notice'), i18n('comment_updated')); } catch (e) { showMessage(i18n('notice'), "Failed to update comment."); }
-        };
 
         document.getElementById('agreeTosBtn').onclick = () => { try { localStorage.setItem('mixvote_agreed', 'true'); } catch(e){} window.sessionAgreed = true; document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); goHome(); };
         document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
