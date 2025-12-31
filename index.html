@@ -29,7 +29,6 @@
         .dynamic-text { color: var(--text-main); }
         h1, h2, h3, h4, label { color: var(--text-main); }
 
-        /* 背景アニメーション */
         .bg-blob {
             position: fixed;
             width: 600px; height: 600px;
@@ -59,9 +58,9 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* カテゴリー専用：スマートフォンでの縦書き設定（サイドバーのブロックのみ適用） */
+        /* サイドバー専用：スマートフォンでの縦書き設定 */
         @media (max-width: 1023px) {
-            .category-vertical-text {
+            .sidebar-vertical-text {
                 writing-mode: vertical-rl;
                 text-orientation: upright;
                 letter-spacing: 0.1em;
@@ -166,7 +165,7 @@
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
 
-    <!-- モーダル各種 -->
+    <!-- 翻訳ガイド用モーダル -->
     <div id="translateModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
         <div class="glass max-w-md w-full rounded-[32px] p-8 border border-white/10 shadow-2xl">
             <div class="flex items-center gap-3 mb-6">
@@ -180,6 +179,7 @@
         </div>
     </div>
 
+    <!-- 同意モーダル -->
     <div id="tosModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
         <div class="glass max-w-2xl w-full rounded-3xl p-8 shadow-2xl border border-white/10 text-center">
             <h2 class="text-2xl font-black text-[color:var(--accent)] uppercase italic mb-6 i18n" data-key="welcome_title">Welcome to Mix Vote</h2>
@@ -188,6 +188,7 @@
         </div>
     </div>
 
+    <!-- 通知モーダル -->
     <div id="msgModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="glass max-w-xs w-full rounded-[24px] p-6 text-center border border-white/10 shadow-2xl">
             <h3 id="msgTitle" class="text-lg font-black mb-3 uppercase italic text-[color:var(--accent)] i18n" data-key="notice">Notice</h3>
@@ -199,6 +200,7 @@
         </div>
     </div>
 
+    <!-- 削除モーダル -->
     <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-red-500/20 shadow-2xl">
             <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -214,6 +216,7 @@
         </div>
     </div>
 
+    <!-- コメント編集モーダル -->
     <div id="editCommentModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="glass max-w-sm w-full rounded-[24px] p-6 border border-white/10 shadow-2xl">
             <h3 class="text-lg font-black mb-4 uppercase italic tracking-widest i18n" data-key="edit_comment">Edit Comment</h3>
@@ -317,7 +320,6 @@
             <!-- メイン -->
             <main class="lg:col-span-9 pb-20">
                 <div id="view-home" class="view-content space-y-8 animate-in fade-in duration-500">
-                    <!-- 翻訳ガイド -->
                     <div id="homeTranslateGuide" class="browser-tip" onclick="window.openTranslateModal()">
                         <div class="w-14 h-14 bg-[rgba(var(--accent-rgb),0.2)] rounded-2xl flex items-center justify-center text-[color:var(--accent)] shrink-0 shadow-lg">
                             <i class="fas fa-language text-3xl"></i>
@@ -439,12 +441,13 @@
         let selectedCategory = FILTER_ALL, unsubscribePollsRealtime = null, unsubscribeCreated = null, unsubscribeVoted = null, unsubscribeComments = null, localSelectedIndices = [], allPollsCache = [], currentCommentsData = {}, commentToEditId = null;
         window.sessionAgreed = false;
 
-        // --- 3. 宣言型関数の定義 (Hoisting 確保) ---
+        // --- 3. 宣言型関数の定義 ---
 
         function i18n(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
 
         /**
          * サイドバー（カテゴリーブロック）専用の文字列整形
+         * スマートフォン表示かつ日本語の場合のみ、長音符を縦向き記号に変換
          */
         function formatSidebarCategoryString(text) {
             if (currentLang === 'ja' && window.innerWidth < 1024) {
@@ -461,7 +464,7 @@
         }
 
         /**
-         * 一般的な表示用。縦書き変換を行わず通常の翻訳テキストを返す。
+         * 横書き用：通常のカテゴリー名を表示
          */
         function getDisplayCat(internalCat) {
             const idx = CATEGORIES_JA.indexOf(internalCat);
@@ -505,13 +508,10 @@
             const tE = document.getElementById('homeSectionTitle');
             if (tE) {
                 const head = selectedCategory === FILTER_POPULAR ? i18n('popular_polls') : i18n('latest_polls');
-                // ヘッダータイトルの文言は横書きのままにする
                 if (currentLang === 'en' && head.includes(' ')) {
                     const words = head.split(' ');
                     tE.innerHTML = `${words[0]} <span class="opacity-40 font-normal not-italic">${words.slice(1).join(' ')}</span>`;
-                } else { 
-                    tE.innerHTML = head; 
-                }
+                } else { tE.innerHTML = head; }
             }
             document.documentElement.lang = currentLang;
         }
@@ -552,7 +552,7 @@
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category);
                 div.className = "poll-card glass-panel rounded-[24px] p-6 md:p-8 cursor-pointer flex flex-col justify-between group";
                 div.onclick = () => window.goDetail(p.id);
-                // カード内のカテゴリーは横書きのまま
+                // アンケート内カテゴリーは横書き
                 div.innerHTML = `<div class="space-y-4 flex flex-col items-start"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-lg md:text-xl font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3><div class="flex flex-wrap mt-1">${(p.hashtags || []).map(t => `<span class="text-[10px] text-[color:var(--accent)] opacity-80 mr-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span></div>`;
                 fC.appendChild(div);
             });
@@ -625,28 +625,25 @@
             const nav = document.getElementById('categoryNav'), select = document.getElementById('pollCategoryInput');
             if (!nav || !select) return; nav.innerHTML = ''; select.innerHTML = '';
             
-            // 特別項目
             const specialItems = [{ id: FILTER_ALL, label: i18n('all') }, { id: FILTER_POPULAR, label: i18n('popular_polls') }];
             specialItems.forEach(item => {
                 const btn = document.createElement('button');
                 btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left flex items-center ${selectedCategory === item.id ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'}`;
-                // サイドバー内のこのカテゴリーラベルのみ縦書き変換
-                btn.innerHTML = `<span class="category-vertical-text">${formatSidebarCategoryString(item.label)}</span>`;
+                // サイドバー内カテゴリーのみ縦書き変換を適用
+                btn.innerHTML = `<span class="sidebar-vertical-text">${formatSidebarCategoryString(item.label)}</span>`;
                 btn.onclick = () => { selectedCategory = item.id; setupCategoryMenu(); window.goHome(); };
                 nav.appendChild(btn);
             });
             
-            // 各カテゴリー（サイドバー内のみ縦書き変換を適用）
             const catsDisplay = currentLang === 'ja' ? CATEGORIES_JA : CATEGORIES_EN;
             catsDisplay.forEach((catLabel, idx) => {
                 const internalName = CATEGORIES_JA[idx];
                 const btn = document.createElement('button');
                 btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left flex items-center ${selectedCategory === internalName ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'}`;
-                btn.innerHTML = `<span class="category-vertical-text">${formatSidebarCategoryString(catLabel)}</span>`;
+                btn.innerHTML = `<span class="sidebar-vertical-text">${formatSidebarCategoryString(catLabel)}</span>`;
                 btn.onclick = () => { selectedCategory = internalName; setupCategoryMenu(); window.goHome(); };
                 nav.appendChild(btn);
                 
-                // セレクトボックス内（作成モーダル等）は横書き
                 const opt = document.createElement('option');
                 opt.value = internalName; opt.textContent = catLabel; select.appendChild(opt);
             });
@@ -690,18 +687,47 @@
         };
 
         window.loadPollDetail = async function(id) {
-            localVoted = false; try { localVoted = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(id); } catch(e) {}
+            let localVoted = false; try { localVoted = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(id); } catch(e) {}
             const d = await getDoc(doc(db, ...POLLS_PATH, id)); if (!d.exists()) return goHome();
             const p = d.data(); currentPollId = id; currentPollData = p;
             const total = p.votes?.reduce((s,v)=>s+v,0)||0, hasV = (currentUser && p.votedUsers?.includes(currentUser.uid)) || localVoted;
             const isExp = p.deadline && p.deadline.toDate() < new Date(), canV = !hasV && !isExp, isM = p.isMultipleChoice === true;
+            const isReg = currentUser && !currentUser.isAnonymous;
+            
+            // 管理ボタンの更新
             document.getElementById('adminControls').innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="window.openEditPoll()" class="p-2 rounded-lg glass text-[color:var(--accent)]"><i class="fas fa-edit"></i></button><button onclick="window.openDeleteModal()" class="p-2 rounded-lg glass text-red-400"><i class="fas fa-trash"></i></button>` : '';
             
+            // コメント入力エリアの表示切替
+            document.getElementById('commentInputArea').classList.toggle('hidden', !isReg);
+
             const content = document.getElementById('pollDetailContent');
             const dC = getDisplayCat(p.category);
-            // 詳細画面のカテゴリーラベルは横書き
             content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] font-black text-[9px] px-3 py-1 rounded-md uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><h2 class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><div class="flex flex-wrap">${(p.hashtags || []).map(t => `<span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] text-[10px] px-2 py-0.5 rounded-full mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative leading-relaxed"><p>${escapeHTML(p.question)}</p></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => { const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0; return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-[rgba(var(--accent-rgb),0.5)]' : ''}"><div class="absolute inset-y-0 left-0 bg-[rgba(var(--accent-rgb),0.05)] transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div></div></div>`; }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-[color:var(--accent)] text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex flex-col items-center justify-center min-h-[300px] gap-6"><div class="flex gap-2 p-1 bg-black/20 rounded-xl mb-2"><button onclick="window.setChartType('doughnut')" data-type="doughnut" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-pie mr-1"></i> Doughnut</button><button onclick="window.setChartType('bar')" data-type="bar" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-bar mr-1"></i> Bar</button></div><div class="w-full h-[250px] flex items-center justify-center"><canvas id="pollChart"></canvas></div></div></div></div>`;
-            window.renderChart(p, currentChartType); window.loadComments(id);
+            
+            window.renderChart(p, currentChartType);
+            window.loadComments(id);
+        };
+
+        window.loadComments = (pid) => {
+            if (unsubscribeComments) unsubscribeComments();
+            unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
+                const list = document.getElementById('commentsList'); if (!list) return;
+                list.innerHTML = s.empty ? `<p class="text-center text-[10px] opacity-30 py-6 uppercase font-bold tracking-widest">${i18n('no_comments')}</p>` : '';
+                currentCommentsData = {};
+                s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).forEach(c => {
+                    currentCommentsData[c.id] = c.text;
+                    const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 space-y-1 relative group";
+                    const dStr = c.createdAt?.seconds ? new Date(c.createdAt.seconds*1000).toLocaleDateString() : '';
+                    div.innerHTML = `<div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest"><span class="text-[color:var(--accent)]">${escapeHTML(maskString(c.author))}</span><div class="flex items-center gap-3"><span class="opacity-30">${dStr}</span><div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">${(isAdmin || (currentUser && c.userId === currentUser.uid)) ? `<button onclick="window.openEditCommentModal('${c.id}')" class="opacity-50 hover:text-[color:var(--accent)] hover:opacity-100 transition-all"><i class="fas fa-edit"></i></button><button onclick="window.confirmDeleteComment('${c.id}')" class="opacity-50 hover:text-red-400 hover:opacity-100 transition-all"><i class="fas fa-trash"></i></button>` : ''}</div></div></div><p class="text-xs opacity-70 leading-relaxed pr-8">${escapeHTML(c.text)}</p>`;
+                    list.appendChild(div);
+                });
+            }, (err) => console.error(err));
+        };
+
+        window.postComment = async () => {
+            const input = document.getElementById('commentText'), text = input.value.trim();
+            if (!text || !currentUser || currentUser.isAnonymous) return;
+            try { await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { userId: currentUser.uid, author: currentUser.displayName || 'User', text: text, createdAt: serverTimestamp() }); input.value = ''; showMessage(i18n('notice'), i18n('comment_posted')); } catch (e) { console.error(e); }
         };
 
         window.renderPollList = function(eid, polls) {
@@ -711,10 +737,41 @@
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category), dStr = p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString() : '';
                 div.className = "poll-card glass rounded-[24px] p-6 cursor-pointer flex flex-col justify-between group";
                 div.onclick = () => window.goDetail(p.id);
-                // リスト表示内も横書き
                 div.innerHTML = `<div class="space-y-4 flex flex-col items-start"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-sm md:text-base font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>${total} ${i18n('votes')}</span><span>${dStr}</span></div>`;
                 c.appendChild(div);
             });
+        };
+
+        window.confirmDeleteComment = (cid) => { showMessage(i18n('notice'), i18n('delete_comment_confirm'), async () => { try { await deleteDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', cid)); } catch (e) {} }); };
+        window.confirmDeletePoll = async function(type) { 
+            window.closeDeleteModal(); try { const ref = doc(db, ...POLLS_PATH, currentPollId); 
+            if (type === 'archive') await updateDoc(ref, { deleted: true, deletedAt: serverTimestamp(), deletedBy: currentUser.uid }); 
+            else if (type === 'permanent') await deleteDoc(ref); goHome(); } catch (e) { showMessage(i18n('notice'), i18n('permission_denied')); } 
+        };
+        window.castVote = async function(idx) { if (!currentUser) return; try { if (JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(currentPollId)) { showMessage(i18n('notice'), i18n('already_voted')); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; newVotes[idx] = (newVotes[idx] || 0) + 1; tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const h = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); h.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(h)); } catch(e) {} window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") showMessage(i18n('notice'), i18n('already_voted')); } };
+        window.toggleLocalSelect = function(idx) { const el = document.getElementById(`opt-container-${idx}`); if (localSelectedIndices.includes(idx)) { localSelectedIndices = localSelectedIndices.filter(i => i !== idx); el?.classList.remove('poll-option-selected'); } else { localSelectedIndices.push(idx); el?.classList.add('poll-option-selected'); } const btn = document.getElementById('submitMultiVoteBtn'); if (btn) btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none'; };
+        window.submitMultipleVotes = async function() { if (!currentUser) return; try { if (JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(currentPollId)) { showMessage(i18n('notice'), i18n('already_voted')); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; localSelectedIndices.forEach(i => { newVotes[i] = (newVotes[i] || 0) + 1; }); tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const h = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); h.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(h)); } catch(e) {} localSelectedIndices = []; window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") showMessage(i18n('notice'), i18n('already_voted')); } };
+
+        window.savePoll = async function() { 
+            const saveBtn = document.getElementById('savePollBtn'); try { if (!currentUser || currentUser.isAnonymous) throw new Error("Google login required."); const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean); if (!t || o.length < 2) throw new Error("Title and 2+ options required."); const deadlineVal = document.getElementById('pollDeadlineInput').value, deadlineTs = deadlineVal ? Timestamp.fromDate(new Date(deadlineVal)) : null, isM = !!document.getElementById('pollMultiChoiceInput').checked, cat = document.getElementById('pollCategoryInput').value, hashtags = document.getElementById('pollHashtagsInput').value.split(/[,\s]+/).map(s => s.trim().replace(/^#/, '')).filter(Boolean).slice(0, 10);
+            saveBtn.disabled = true; const d = { title: t, question: document.getElementById('pollDescInput').value.trim(), category: getInternalCategoryName(cat), options: o, hashtags: hashtags, isMultipleChoice: isM, deadline: deadlineTs, updatedAt: serverTimestamp(), deleted: false }; if (editMode) await updateDoc(doc(db, ...POLLS_PATH, editPollId), d); else { Object.assign(d, { author: currentUser.displayName || 'User', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), votedUsers: [] }); await addDoc(collection(db, ...POLLS_PATH), d); } document.getElementById('createModal').classList.add('hidden'); showMessage(i18n('notice'), i18n('save_success')); goHome(); } catch (e) { showMessage(i18n('notice'), e.message); } finally { saveBtn.disabled = false; } 
+        };
+        window.openEditPoll = function() { 
+            editMode = true; editPollId = currentPollId; document.getElementById('modalTitle').textContent = i18n('edit_poll'); document.getElementById('pollTitleInput').value = currentPollData.title; document.getElementById('pollDescInput').value = currentPollData.question || ""; document.getElementById('pollCategoryInput').value = currentPollData.category; document.getElementById('pollHashtagsInput').value = (currentPollData.hashtags || []).map(h => `#${h}`).join(' '); document.getElementById('pollOptionsInput').value = currentPollData.options.join('\n'); document.getElementById('pollMultiChoiceInput').checked = !!currentPollData.isMultipleChoice;
+            if (currentPollData.deadline) { const date = currentPollData.deadline.toDate(); const localISO = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16); document.getElementById('pollDeadlineInput').value = localISO; } else { document.getElementById('pollDeadlineInput').value = ""; }
+            document.getElementById('createModal').classList.remove('hidden'); 
+        };
+        window.goCreatedPolls = function() { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'created'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-created').classList.remove('hidden'); setActiveNav('navCreatedBtn'); window.loadFilteredPolls('created'); };
+        window.goVotedPolls = function() { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'voted'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-voted').classList.remove('hidden'); setActiveNav('navVotedBtn'); window.loadFilteredPolls('voted'); };
+        window.loadFilteredPolls = function(type) {
+            const listId = type === 'created' ? 'createdPollsList' : 'votedPollsList';
+            if (type === 'created' && unsubscribeCreated) unsubscribeCreated(); if (type === 'voted' && unsubscribeVoted) unsubscribeVoted();
+            const unsubscribe = onSnapshot(collection(db, ...POLLS_PATH), (snapshot) => {
+                let polls = snapshot.docs.map(d => ({id: d.id, ...d.data()})).filter(p => !p.deleted);
+                if (type === 'created' && currentUser) polls = polls.filter(p => p.authorID === currentUser.uid); else if (currentUser) polls = polls.filter(p => p.votedUsers?.includes(currentUser.uid));
+                polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)); window.renderPollList(listId, polls);
+            }, (err) => console.error(err));
+            if (type === 'created') unsubscribeCreated = unsubscribe; else unsubscribeVoted = unsubscribe;
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -729,7 +786,15 @@
             document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
             if (isReg) document.getElementById('userName').textContent = user.displayName;
             let isAgreed = false; try { isAgreed = localStorage.getItem('mixvote_agreed') === 'true'; } catch(e){}
-            if (user && (isAgreed || window.sessionAgreed)) { document.getElementById('appUI').classList.remove('hidden'); document.getElementById('tosModal').classList.add('hidden'); handleNavigation(); } else if (user) { document.getElementById('tosModal').classList.remove('hidden'); document.getElementById('appUI').classList.add('hidden'); }
+            
+            if (user && (isAgreed || window.sessionAgreed)) { 
+                document.getElementById('appUI').classList.remove('hidden'); 
+                document.getElementById('tosModal').classList.add('hidden'); 
+                handleNavigation(); 
+            } else if (user) { 
+                document.getElementById('tosModal').classList.remove('hidden'); 
+                document.getElementById('appUI').classList.add('hidden'); 
+            }
             window.initRealtimePolls();
         });
 
