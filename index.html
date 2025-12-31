@@ -654,23 +654,29 @@
         }
 
         async function initAuth() {
+            // リダイレクト結果を回収（ここ一箇所に集約）
             try {
                 const r = await getRedirectResult(auth);
-                if (r?.user) console.log('Redirect user restored:', r.user.uid, r.user.isAnonymous);
+                if (r?.user) {
+                    console.log('Redirect result successful:', r.user.uid, r.user.isAnonymous);
+                    // 結果が回収できたら、その後の匿名ログイン等は不要なので終了
+                    return;
+                }
             } catch (e) {
                 console.error("Redirect recovery error:", e);
                 if (e.code === 'auth/unauthorized-domain') {
                     showMessage(i18n('notice'), i18n('auth_unauthorized_domain'));
-                } else {
-                    showMessage(i18n('notice'), `${e.code || 'redirect-error'}: ${e.message || e}`);
                 }
             }
 
+            // すでにGoogle等でログイン済みの場合は、匿名ログインで上書きしない
             if (auth.currentUser && !auth.currentUser.isAnonymous) return;
 
+            // 完全に未ログインの場合のみ、匿名ログインを試行
             if (!auth.currentUser) {
                 try {
                     await signInAnonymously(auth);
+                    console.log('Anonymous sign-in complete');
                 } catch (err) {
                     console.error("Auth init error:", err);
                 }
@@ -968,16 +974,6 @@
         onAuthStateChanged(auth, async (user) => {
             console.log('AUTH:', user?.uid, user?.isAnonymous, user?.providerData);
             
-            try {
-                const rr = await getRedirectResult(auth);
-                if (rr?.user) console.log('REDIRECT RESULT:', rr.user.uid, rr.user.isAnonymous);
-            } catch (e) {
-                console.error('REDIRECT RESULT ERROR:', e);
-                if (e.code === 'auth/unauthorized-domain') {
-                    showMessage(i18n('notice'), i18n('auth_unauthorized_domain'));
-                }
-            }
-
             currentUser = user;
             const initialLang = localStorage.getItem('mixvote_lang') || (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Tokyo' ? 'ja' : 'en');
             changeLang(initialLang);
@@ -993,7 +989,7 @@
             document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
             document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
             
-            // モバイル用ヘッダー追加ボタンの切り替え（追加分）
+            // モバイル用ヘッダー追加ボタンの切り替え
             const createBtnMob = document.getElementById('openCreateBtnHeader');
             if (createBtnMob) createBtnMob.style.display = isReg ? 'flex' : 'none';
 
@@ -1071,7 +1067,6 @@
 
         document.getElementById('logoutBtn').onclick = () => signOut(auth);
         
-        // アンケート作成用関数
         const triggerCreatePoll = () => { 
             editMode = false; 
             document.getElementById('modalTitle').textContent = i18n('create_poll'); 
@@ -1087,7 +1082,6 @@
             document.getElementById('createModal').classList.remove('hidden'); 
         };
 
-        // サイドバーとヘッダーの両方のボタンにイベントを適用
         document.getElementById('openCreateBtn').onclick = triggerCreatePoll;
         const btnHeader = document.getElementById('openCreateBtnHeader');
         if (btnHeader) btnHeader.onclick = triggerCreatePoll;
