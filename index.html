@@ -171,7 +171,7 @@
     </div>
 
     <!-- 削除モーダル -->
-    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-red-500/20 shadow-2xl">
             <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
@@ -395,7 +395,7 @@
                     <span class="text-xs font-bold i18n" data-key="label_multi">Allow Multiple Choice</span>
                     <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="pollMultiChoiceInput" class="sr-only peer"><div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[color:var(--accent)]"></div></label>
                 </div>
-                <div><label class="text-[9px] font-black opacity-50 uppercase tracking-widest block mb-2 i18n" data-key="label_options">Options (Max 50)</label><textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm font-mono outline-none focus:border-[color:var(--accent)] transition-colors" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3&#10;Option 4"></textarea><p id="createOptionsHint" class="hidden text-[8px] text-[color:var(--accent)] mt-2 font-bold uppercase tracking-wider i18n" data-key="options_hint">Option count cannot be changed once created.</p></div>
+                <div><label class="text-[9px] font-black opacity-50 uppercase tracking-widest block mb-2 i18n" data-key="label_options">Options (Max 50)</label><textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm font-mono outline-none focus:border-[color:var(--accent)] transition-colors" rows="4" placeholder="あるある！&#10;いいね&#10;笑&#10;涙"></textarea><p id="createOptionsHint" class="hidden text-[8px] text-[color:var(--accent)] mt-2 font-bold uppercase tracking-wider i18n" data-key="options_hint">Option count cannot be changed once created.</p></div>
             </div>
             <div class="flex gap-3 mt-8"><button id="cancelCreateBtn" class="flex-1 i18n bg-white/5 text-white font-bold py-4 rounded-xl text-xs hover:bg-white/10 transition-colors" data-key="cancel">Cancel</button><button id="savePollBtn" class="flex-1 bg-[color:var(--accent)] text-slate-950 font-black py-4 rounded-xl text-xs shadow-lg transition-transform flex items-center justify-center gap-2" onclick="window.savePoll()"><i id="saveBtnSpinner" class="fas fa-circle-notch spinner hidden"></i><span id="saveBtnText" class="i18n" data-key="save_poll">Save Poll</span></button></div>
         </div>
@@ -798,13 +798,13 @@
             try { await updateDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', commentToEditId), { text, updatedAt: serverTimestamp() }); window.closeEditCommentModal(); showMessage(i18n('notice'), i18n('comment_updated')); } catch (e) { showMessage(i18n('notice'), "Failed to update comment."); }
         };
 
-        // 修正：「あるある」選択時の自動4択入力をご指定の内容に更新
+        // 「あるある」選択時の自動4択入力をご指定の内容に更新
         document.getElementById('pollCategoryInput').addEventListener('change', (e) => {
             if (e.target.value === 'あるある') {
                 const optInput = document.getElementById('pollOptionsInput');
                 if (!optInput.value.trim()) {
                     if (currentLang === 'ja') {
-                        optInput.value = "あるある！\nいいね\n笑\n涙";
+                        optInput.value = "あるある！\nいいね、\n笑\n涙";
                     } else {
                         optInput.value = "Relatable\nSo True\nEveryday Life\nCommon Situations";
                     }
