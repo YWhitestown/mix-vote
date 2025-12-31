@@ -245,6 +245,7 @@
                         <input type="text" id="globalSearch" class="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-2.5 pl-10 pr-4 text-xs text-white outline-none focus:border-accent transition-all placeholder:opacity-30" placeholder="Search polls...">
                         <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-accent group-focus-within:opacity-100 transition-all text-xs"></i>
                     </div>
+                    <!-- 翻訳ヘルプボタン -->
                     <button onclick="window.openTranslateModal()" class="w-10 h-10 rounded-2xl glass hover:bg-white/10 flex items-center justify-center text-accent transition-all shrink-0" title="Translation Help">
                         <i class="fas fa-language text-xl"></i>
                     </button>
@@ -287,6 +288,7 @@
                     <i class="fas fa-plus group-hover:rotate-90 transition-transform"></i> <span class="i18n" data-key="new_poll">New Poll</span>
                 </button>
 
+                <!-- 言語切り替え -->
                 <div class="glass rounded-3xl p-5 border border-white/5">
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] opacity-50 mb-4 pl-2 i18n" data-key="language">Language</h3>
                     <div class="flex gap-2 p-1 bg-black/20 rounded-xl">
@@ -300,6 +302,7 @@
                     <nav id="categoryNav" class="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 custom-scrollbar"></nav>
                 </div>
 
+                <!-- テーマ設定 -->
                 <div class="glass rounded-3xl p-5 border border-white/5">
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] opacity-50 mb-4 pl-2 i18n" data-key="theme_custom">Theme Custom</h3>
                     <div class="space-y-4 px-2">
@@ -320,22 +323,28 @@
                         </button>
                     </div>
                 </div>
+
+                <div class="text-[9px] opacity-40 font-medium px-2 leading-relaxed">
+                    <p>&copy; 2025 Mix Vote Project.</p>
+                </div>
             </aside>
 
             <!-- メイン -->
             <main class="lg:col-span-9 pb-20">
                 <div id="view-home" class="view-content space-y-8 animate-in fade-in duration-500">
+                    <!-- ホーム画面用 翻訳ガイドバナー -->
                     <div id="homeTranslateGuide" class="browser-tip" onclick="window.openTranslateModal()">
                         <div class="w-14 h-14 bg-accent/20 rounded-2xl flex items-center justify-center text-accent shrink-0 shadow-lg">
                             <i class="fas fa-language text-3xl"></i>
                         </div>
                         <div class="flex-1">
                             <p class="font-black text-lg tracking-tight mb-0.5 i18n" data-key="home_translate_title">Translate Content</p>
-                            <p class="text-sm opacity-70 leading-snug i18n" data-key="home_translate_desc">Use browser "Translate" to read in any language.</p>
+                            <p class="text-sm opacity-70 leading-snug i18n" data-key="home_translate_desc">Use your browser's "Translate" feature to read polls in any language.</p>
                         </div>
                         <i class="fas fa-chevron-right opacity-30"></i>
                     </div>
 
+                    <!-- ログイン必要性のお知らせバナー -->
                     <div id="loginNoticeBanner" class="info-banner flex flex-col md:flex-row gap-4 items-start md:items-center">
                         <div class="flex gap-3 items-center text-amber-400">
                             <i class="fas fa-user-lock text-xl"></i>
@@ -400,7 +409,7 @@
                         <h3 class="text-lg font-black flex items-center gap-3 uppercase tracking-widest"><span class="w-1.5 h-6 bg-accent rounded-full"></span> <span class="i18n" data-key="discussion">Discussion</span></h3>
                         <div id="commentInputArea" class="hidden relative">
                             <textarea id="commentText" maxlength="100" class="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-5 text-sm text-white outline-none focus:ring-1 focus:ring-accent transition-all min-h-[100px]" placeholder="Share your thoughts..."></textarea>
-                            <button id="postCommentBtn" class="absolute bottom-4 right-4 bg-accent hover:brightness-110 text-slate-950 px-6 py-2 rounded-xl font-bold text-xs transition-all shadow-lg i18n" data-key="post">Post</button>
+                            <button id="postCommentBtn" onclick="window.postComment()" class="absolute bottom-4 right-4 bg-accent hover:brightness-110 text-slate-950 px-6 py-2 rounded-xl font-bold text-xs transition-all shadow-lg i18n" data-key="post">Post</button>
                         </div>
                         <div id="commentsList" class="space-y-4"></div>
                     </div>
@@ -447,16 +456,16 @@
             ja: {
                 welcome_title: "Welcome to Mix Vote",
                 tos_content: `<p>安全なコミュニティ維持のため、ガイドラインに同意してください。</p><ul class="list-disc list-inside space-y-2"><li>他者の意見を尊重し、誹謗中傷は行わないでください。</li><li>多重投票や不正なデータ操作は禁止されています。</li><li>アンケートの作成やコメントにはGoogleサインインが必要です。</li><li><strong>投票はどなたでも自由にご参加いただけます。</strong></li></ul>`,
-                agree_btn: "同意して入室", login: "ログイン", logout: "ログアウト", welcome_user: "ようこそ", home: "ホーム", created_polls: "作成したアンケート", voted_polls: "投票済みアンケート", new_poll: "新規作成", language: "言語設定", categories: "カテゴリー", theme_custom: "テーマのカスタマイズ", accent: "アクセントカラー", background: "背景色", text_color: "文字色", default: "デフォルトに戻す", polls: "アンケート", recent_activity: "最近の活動", back: "戻る", discussion: "ディスカッション", post: "投稿する", create_poll: "アンケート作成", label_title: "タイトル", label_desc: "説明文", label_category: "カテゴリー", label_deadline: "投票期限", label_hashtags: "ハッシュタグ", label_multi: "複数回答を許可する", label_options: "選択肢 (最大50個)", options_hint: "※作成後は選択肢の数を変更できません", save_poll: "保存する", cancel: "キャンセル", save: "保存", confirm: "確定", close: "閉じる", delete_poll: "アンケートを削除", delete_confirm_text: "このアンケートをどのように処理しますか？", archive_btn: "アーカイブ (非表示にする)", permanent_delete_btn: "完全に削除する (管理者のみ)", edit_comment: "コメントを編集", votes: "票", popular_polls: "人気アンケート", latest_polls: "最新アンケート", no_polls: "アンケートが見つかりません", all: "全て", notice: "お知らせ", edition_tag: "Global Edition", select: "選択", translate_help: "翻訳の手順", browser_translate_hint: "翻訳するにはブラウザの翻訳機能をご利用ください。(詳細を表示)", home_translate_title: "翻訳して読むには", home_translate_desc: "ブラウザ（Chrome, Safari等）の全文翻訳機能を使うと、異言語の内容も一瞬で翻訳できます。クリックして手順を確認。", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC版 Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">画面の何もないところを<span class="text-accent font-bold">右クリック</span>して、「日本語に翻訳」または「英語に翻訳」を選択してください。</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">アドレスバーの左端にある「<span class="text-accent font-bold">あA</span>」アイコンまたは翻訳ボタンをタップし、「翻訳」を選択します。</p></div></div>`,
+                agree_btn: "同意して入室", login: "ログイン", logout: "ログアウト", welcome_user: "ようこそ", home: "ホーム", created_polls: "作成したアンケート", voted_polls: "投票済みアンケート", new_poll: "新規作成", language: "言語設定", categories: "カテゴリー", theme_custom: "テーマのカスタマイズ", accent: "アクセントカラー", background: "背景色", text_color: "文字色", default: "デフォルトに戻す", polls: "アンケート", recent_activity: "最近の活動", back: "戻る", discussion: "ディスカッション", post: "投稿する", create_poll: "アンケート作成", edit_poll: "アンケート編集", label_title: "タイトル", label_desc: "説明文", label_category: "カテゴリー", label_deadline: "投票期限", label_hashtags: "ハッシュタグ", label_multi: "複数回答を許可する", label_options: "選択肢 (最大50個)", options_hint: "※作成後は選択肢の数を変更できません", save_poll: "保存する", cancel: "キャンセル", save: "保存", confirm: "確定", close: "閉じる", delete_poll: "アンケートを削除", delete_confirm_text: "このアンケートをどのように処理しますか？", archive_btn: "アーカイブ (非表示にする)", permanent_delete_btn: "完全に削除する (管理者のみ)", edit_comment: "コメントを編集", votes: "票", popular_polls: "人気アンケート", latest_polls: "最新アンケート", no_polls: "アンケートが見つかりません", all: "全て", notice: "お知らせ", edition_tag: "Global Edition", select: "選択", translate_help: "翻訳の手順", browser_translate_hint: "翻訳するにはブラウザの翻訳機能をご利用ください。(詳細を表示)", home_translate_title: "内容の翻訳について", home_translate_desc: "ブラウザ（Chrome, Safari等）の標準翻訳機能を使うと、異言語のアンケートも一瞬で翻訳できます。ここをクリックして手順を確認。", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC版 Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">画面の何もないところを<span class="text-accent font-bold">右クリック</span>して、「日本語に翻訳」または「英語に翻訳」を選択してください。</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">アドレスバーの左端にある「<span class="text-accent font-bold">あA</span>」アイコンまたは翻訳ボタンをタップし、「翻訳」を選択します。</p></div></div>`,
                 share: "シェア", download_results: "結果をダウンロード", share_ready: "リンクがコピーされました。", download_ready: "ダウンロードを開始します。",
-                home_login_notice_title: "ログインが必要です", home_login_notice_desc: "アンケート作成とディスカッション参加にはログインが必要です。", voting: "投票は誰でも可能", creation: "作成はログイン必須"
+                home_login_notice_title: "作成・コメントにはログインが必要です", home_login_notice_desc: "アンケートの作成やディスカッションへの参加にはログインが必須となります。", voting: "投票は誰でも可能", creation: "作成はログイン必須"
             },
             en: {
                 welcome_title: "Welcome to Mix Vote",
                 tos_content: `<p>Please agree to the guidelines to maintain a safe community.</p><ul class="list-disc list-inside space-y-2"><li>Respect others' opinions and avoid harassment.</li><li>Multiple voting and data manipulation are prohibited.</li><li>Google Sign-in is required to create polls or post comments.</li><li><strong>Anyone can participate in voting freely.</strong></li></ul>`,
-                agree_btn: "Agree & Enter", login: "Sign In", logout: "Log Out", welcome_user: "Welcome", home: "Home", created_polls: "Created Polls", voted_polls: "Voted Polls", new_poll: "New Poll", language: "Language", categories: "Categories", theme_custom: "Theme Custom", accent: "Accent", background: "Background", text_color: "Text Color", default: "Default", polls: "Polls", recent_activity: "Recent Activity", back: "Back", discussion: "Discussion", post: "Post", create_poll: "Create Poll", label_title: "Title", label_desc: "Description", label_category: "Category", label_deadline: "Deadline", label_hashtags: "Hashtags", label_multi: "Allow Multiple Choice", label_options: "Options (Max 50)", options_hint: "Option count cannot be changed after creation.", save_poll: "Save Poll", cancel: "Cancel", save: "Save", confirm: "Confirm", close: "Close", delete_poll: "Delete Poll", delete_confirm_text: "How would you like to process this poll?", archive_btn: "Archive (Hide)", permanent_delete_btn: "Delete Permanently (Admin)", edit_comment: "Edit Comment", votes: "Votes", popular_polls: "Popular Polls", latest_polls: "Latest Polls", no_polls: "No polls found", all: "All", notice: "Notice", edition_tag: "Global Edition", select: "Select", translate_help: "Translation Guide", browser_translate_hint: "To translate the content, please use your browser's translate feature. (View Help)", home_translate_title: "How to Translate Content", home_translate_desc: "Use browser (Chrome, Safari, etc.) full-page translation to read polls in your language. Click for step-by-step instructions.", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed"><span class="text-accent font-bold">Right-click</span> anywhere on the page and select "Translate to English".</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">Tap the "<span class="text-accent font-bold">AA</span>" or translation icon at the left of the address bar and select "Translate".</p></div></div>`,
+                agree_btn: "Agree & Enter", login: "Sign In", logout: "Log Out", welcome_user: "Welcome", home: "Home", created_polls: "Created Polls", voted_polls: "Voted Polls", new_poll: "New Poll", language: "Language", categories: "Categories", theme_custom: "Theme Custom", accent: "Accent", background: "Background", text_color: "Text Color", default: "Default", polls: "Polls", recent_activity: "Recent Activity", back: "Back", discussion: "Discussion", post: "Post", create_poll: "Create Poll", edit_poll: "Edit Poll", label_title: "Title", label_desc: "Description", label_category: "Category", label_deadline: "Deadline", label_hashtags: "Hashtags", label_multi: "Allow Multiple Choice", label_options: "Options (Max 50)", options_hint: "Option count cannot be changed after creation.", save_poll: "Save Poll", cancel: "Cancel", save: "Save", confirm: "Confirm", close: "Close", delete_poll: "Delete Poll", delete_confirm_text: "How would you like to process this poll?", archive_btn: "Archive (Hide)", permanent_delete_btn: "Delete Permanently (Admin)", edit_comment: "Edit Comment", votes: "Votes", popular_polls: "Popular Polls", latest_polls: "Latest Polls", no_polls: "No polls found", all: "All", notice: "Notice", edition_tag: "Global Edition", select: "Select", translate_help: "Translation Guide", browser_translate_hint: "To translate the content, please use your browser's translate feature. (View Help)", home_translate_title: "How to Translate Content", home_translate_desc: "Use browser (Chrome, Safari, etc.) full-page translation to read polls in your language. Click for step-by-step instructions.", translate_guide_content: `<div class="space-y-6 text-xs"><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">PC Chrome / Edge / Brave:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed"><span class="text-accent font-bold">Right-click</span> anywhere on the page and select "Translate to English".</p></div><div><strong class="text-white bg-accent/20 px-2 py-0.5 rounded mr-2 block mb-2">iPhone / Mac Safari:</strong><p class="pl-2 border-l-2 border-accent/30 leading-relaxed">Tap the "<span class="text-accent font-bold">AA</span>" or translation icon at the left of the address bar and select "Translate".</p></div></div>`,
                 share: "Share", download_results: "Download Results", share_ready: "Link copied to clipboard.", download_ready: "Downloading started.",
-                home_login_notice_title: "Login Required", home_login_notice_desc: "Login is required for poll creation and discussion.", voting: "Voting is open", creation: "Login to Create"
+                home_login_notice_title: "Login Required for Creation & Discussion", home_login_notice_desc: "You must sign in with Google to create your own polls or participate in Discussions.", voting: "Anyone can vote", creation: "Login to Create"
             }
         };
 
@@ -496,7 +505,7 @@
             return label; 
         };
 
-        // --- 4. グローバル関数 (window登録) ---
+        // --- 4. グローバル関数 ---
         window.showMessage = (title, body, onConfirm = null) => {
             const modal = document.getElementById('msgModal');
             if (!modal) return;
@@ -549,7 +558,7 @@
             const cats = currentLang === 'ja' ? CATEGORIES_JA : CATEGORIES_EN;
             [i18n('all'), i18n('popular_polls'), ...cats].forEach((cat, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `nav-link px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left ${selectedCategory === cat ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'}`;
+                btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left ${selectedCategory === cat ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'}`;
                 btn.textContent = cat; btn.onclick = () => { selectedCategory = cat; window.setupCategoryMenu(); window.goHome(); };
                 nav.appendChild(btn);
                 if (idx >= 2) { const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt); }
@@ -583,9 +592,6 @@
                 const idx = lang === 'en' ? catsJa.indexOf(selectedCategory) : catsEn.indexOf(selectedCategory);
                 if (idx > -1) selectedCategory = lang === 'en' ? catsEn[idx] : catsJa[idx];
             }
-            const jB = document.getElementById('langJaBtn'), eB = document.getElementById('langEnBtn');
-            if (jB) jB.className = `flex-1 py-2.5 text-xs font-black rounded-lg transition-all ${lang === 'ja' ? 'bg-accent text-slate-950 shadow-lg' : 'text-slate-500 hover:text-white'}`;
-            if (eB) eB.className = `flex-1 py-2.5 text-xs font-black rounded-lg transition-all ${lang === 'en' ? 'bg-accent text-slate-950 shadow-lg' : 'text-slate-500 hover:text-white'}`;
             window.updateUIStrings();
             if (currentPollId) window.loadPollDetail(currentPollId);
             window.loadPolls(); 
@@ -630,7 +636,9 @@
                 if (selectedCategory === pL) polls.sort((a, b) => (b.votes?.reduce((s, v) => s + v, 0) || 0) - (a.votes?.reduce((s, v) => s + v, 0) || 0));
                 else polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
                 window.renderHomePolls(polls);
-            }, (err) => console.error("Polls listener error:", err));
+            }, (err) => {
+                if (err.code === 'permission-denied') console.warn("Firestore access denied. Waiting for auth...");
+            });
         };
 
         window.renderHomePolls = (polls) => {
@@ -687,10 +695,10 @@
         window.goDetail = (id) => { window.location.hash = `poll/${id}`; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-detail').classList.remove('hidden'); window.loadPollDetail(id); };
 
         window.loadFilteredPolls = (type) => {
+            if (!currentUser) return;
             const listId = type === 'created' ? 'createdPollsList' : 'votedPollsList';
             if (type === 'created' && unsubscribeCreated) unsubscribeCreated();
             if (type === 'voted' && unsubscribeVoted) unsubscribeVoted();
-            if (!currentUser) return;
             const q = collection(db, ...POLLS_PATH);
             const unsubscribe = onSnapshot(q, (snapshot) => {
                 let polls = snapshot.docs.map(d => ({id: d.id, ...d.data()})).filter(p => !p.deleted);
@@ -725,17 +733,35 @@
 
         window.loadPollDetail = async (id) => {
             if (!currentUser) return;
+            let localVoted = false;
+            try { const history = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); localVoted = history.includes(id); } catch(e) {}
             const d = await getDoc(doc(db, ...POLLS_PATH, id)); if (!d.exists()) return window.goHome();
             const p = d.data(); currentPollId = id; currentPollData = p;
-            const total = p.votes?.reduce((s,v)=>s+v,0)||0, hasV = p.votedUsers?.includes(currentUser.uid), isExp = p.deadline && p.deadline.toDate() < new Date();
+            const total = p.votes?.reduce((s,v)=>s+v,0)||0;
+            const hasV = (currentUser && p.votedUsers?.includes(currentUser.uid)) || localVoted;
+            const isExp = p.deadline && p.deadline.toDate() < new Date();
             const canV = !hasV && !isExp, isM = p.isMultipleChoice === true;
+            const isReg = currentUser && !currentUser.isAnonymous;
+
             document.getElementById('adminControls').innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="window.openEditPoll()" class="p-2 rounded-lg glass text-accent border border-accent/20"><i class="fas fa-edit"></i></button><button onclick="window.openDeleteModal()" class="p-2 rounded-lg glass text-red-400 border border-red-500/20"><i class="fas fa-trash"></i></button>` : '';
+            document.getElementById('commentInputArea').classList.toggle('hidden', !isReg);
+
             const content = document.getElementById('pollDetailContent');
             content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-accent/10 text-accent font-black text-[9px] px-3 py-1 rounded-md uppercase border border-accent/20">${escapeHTML(p.category)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><h2 class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><div class="flex flex-wrap">${(p.hashtags || []).map(t => `<span class="bg-accent/10 text-accent text-[10px] px-2 py-0.5 rounded-full mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative leading-relaxed"><p>${escapeHTML(p.question)}</p></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => {
                 const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0;
                 return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-accent/50' : ''}"><div class="absolute inset-y-0 left-0 bg-accent/5 transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div></div></div>`;
             }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-accent text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex flex-col items-center justify-center min-h-[300px] gap-6"><div class="w-full h-[250px] flex items-center justify-center"><canvas id="pollChart"></canvas></div><div class="flex flex-wrap items-center justify-center gap-2 mt-4"><button onclick="window.sharePoll('x')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all"><i class="fab fa-x-twitter"></i></button><button onclick="window.sharePoll('fb')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-blue-400 hover:text-blue-300 transition-all"><i class="fab fa-facebook-f"></i></button><button onclick="window.sharePoll('ig')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-pink-400 hover:text-pink-300 transition-all"><i class="fab fa-instagram"></i></button><button onclick="window.downloadPoll()" class="px-4 py-2 rounded-xl glass hover:bg-accent/10 border border-white/5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent transition-all"><i class="fas fa-download"></i> ${i18n('download_results')}</button></div></div></div></div>`;
             window.renderChart(p, 'doughnut'); window.loadComments(id);
+        };
+
+        window.renderChart = (p, type) => {
+            const ctx = document.getElementById('pollChart')?.getContext('2d'); if (!ctx) return;
+            if (chartInstance) chartInstance.destroy();
+            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+            chartInstance = new Chart(ctx, {
+                type: type, data: { labels: p.options, datasets: [{ data: p.votes, backgroundColor: [accentColor, '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: true, position: 'bottom', labels: { color: '#94a3b8', font: { size: 10, weight: 'bold' } } } } }
+            });
         };
 
         window.loadComments = (pid) => {
@@ -754,12 +780,22 @@
             }, (err) => console.error("Comments listener error:", err));
         };
 
+        window.postComment = async () => {
+            const input = document.getElementById('commentText');
+            const text = input.value.trim();
+            if (!text || !currentUser || currentUser.isAnonymous) return;
+            try {
+                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { userId: currentUser.uid, author: currentUser.displayName || 'User', text: text, createdAt: serverTimestamp() });
+                input.value = '';
+            } catch (e) { console.error("Comment post error:", e); }
+        };
+
         window.confirmDeleteComment = (cid) => { window.showMessage(i18n('delete_poll'), "Are you sure?", async () => { try { await deleteDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', cid)); } catch (e) {} }); };
-        window.castVote = async (idx) => { if (!currentUser) return; const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; newVotes[idx] = (newVotes[idx] || 0) + 1; tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), "Already voted."); } };
+        window.castVote = async (idx) => { if (!currentUser) return; try { const history = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); if (history.includes(currentPollId)) { window.showMessage(i18n('notice'), "Already voted."); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; newVotes[idx] = (newVotes[idx] || 0) + 1; tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const history = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); history.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(history)); } catch(e) {} window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), "Already voted."); } };
         window.toggleLocalSelect = (idx) => { const el = document.getElementById(`opt-container-${idx}`); if (localSelectedIndices.includes(idx)) { localSelectedIndices = localSelectedIndices.filter(i => i !== idx); el?.classList.remove('poll-option-selected'); } else { localSelectedIndices.push(idx); el?.classList.add('poll-option-selected'); } const btn = document.getElementById('submitMultiVoteBtn'); if (btn) btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none'; };
-        window.submitMultipleVotes = async () => { if (!currentUser) return; const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; localSelectedIndices.forEach(i => { newVotes[i] = (newVotes[i] || 0) + 1; }); tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); localSelectedIndices = []; window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), "Already voted."); } };
+        window.submitMultipleVotes = async () => { if (!currentUser) return; try { const history = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); if (history.includes(currentPollId)) { window.showMessage(i18n('notice'), "Already voted."); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; localSelectedIndices.forEach(i => { newVotes[i] = (newVotes[i] || 0) + 1; }); tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const history = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); history.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(history)); } catch(e) {} localSelectedIndices = []; window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), "Already voted."); } };
         window.savePoll = async () => { const saveBtn = document.getElementById('savePollBtn'); try { if (!currentUser || currentUser.isAnonymous) throw new Error("Google login required."); const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean); if (!t || o.length < 2) throw new Error("Title and 2+ options required."); saveBtn.disabled = true; const cat = document.getElementById('pollCategoryInput').value; const d = { title: t, question: document.getElementById('pollDescInput').value, category: getInternalCategoryName(cat), options: o, updatedAt: serverTimestamp(), deleted: false }; if (editMode) await updateDoc(doc(db, ...POLLS_PATH, editPollId), d); else { Object.assign(d, { author: currentUser.displayName || 'User', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), votedUsers: [] }); await addDoc(collection(db, ...POLLS_PATH), d); } document.getElementById('createModal').classList.add('hidden'); window.goHome(); } catch (e) { window.showMessage(i18n('notice'), e.message); } finally { saveBtn.disabled = false; } };
-        window.openEditPoll = () => { editMode = true; editPollId = currentPollId; document.getElementById('modalTitle').textContent = i18n('create_poll'); document.getElementById('pollTitleInput').value = currentPollData.title; document.getElementById('pollDescInput').value = currentPollData.question || ""; document.getElementById('pollCategoryInput').value = currentPollData.category; document.getElementById('pollOptionsInput').value = currentPollData.options.join('\n'); document.getElementById('createModal').classList.remove('hidden'); };
+        window.openEditPoll = () => { editMode = true; editPollId = currentPollId; document.getElementById('modalTitle').textContent = i18n('edit_poll'); document.getElementById('pollTitleInput').value = currentPollData.title; document.getElementById('pollDescInput').value = currentPollData.question || ""; document.getElementById('pollCategoryInput').value = currentPollData.category; document.getElementById('pollOptionsInput').value = currentPollData.options.join('\n'); document.getElementById('createModal').classList.remove('hidden'); };
         window.openEditCommentModal = (cid) => { commentToEditId = cid; document.getElementById('editCommentInput').value = currentCommentsData[cid] || ""; document.getElementById('editCommentModal').classList.remove('hidden'); };
         window.closeEditCommentModal = () => { document.getElementById('editCommentModal').classList.add('hidden'); commentToEditId = null; };
         window.openDeleteModal = () => { document.getElementById('permanentDeleteBtn').classList.toggle('hidden', !isAdmin); document.getElementById('deleteOptionsModal').classList.remove('hidden'); };
@@ -784,7 +820,7 @@
             } catch (err) { await signInAnonymously(auth).catch(()=>{}); }
         };
 
-        // --- 6. 実行開始 ---
+        // --- 8. 初期化 & Auth リスナー ---
         window.loadTheme();
         initAuth();
 
@@ -802,6 +838,8 @@
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
             document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
             document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
+            document.getElementById('loginNoticeBanner').classList.toggle('hidden', isReg);
+
             if (isReg) document.getElementById('userName').textContent = user.displayName;
             
             let isAgreed = false; try { isAgreed = localStorage.getItem('mixvote_agreed') === 'true'; } catch(e){}
@@ -831,6 +869,7 @@
         document.getElementById('textPicker').oninput = (e) => window.applyTheme(document.getElementById('accentPicker').value, document.getElementById('bgPicker').value, e.target.value);
 
         window.addEventListener('hashchange', window.handleNavigation);
+
     </script>
 </body>
 </html>
