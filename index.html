@@ -255,7 +255,7 @@
                             <p id="userName" class="text-xs font-black"></p>
                         </div>
                         <div class="w-8 h-8 rounded-full bg-[color:var(--accent)] flex items-center justify-center text-slate-900 font-bold text-xs shadow-lg cursor-pointer hover:scale-105 transition-transform" onclick="window.goCreatedPolls()"><i class="fas fa-user"></i></div>
-                        <button id="logoutBtn" class="opacity-50 hover:opacity-100 transition-colors" onclick="auth.signOut()"><i class="fas fa-sign-out-alt"></i></button>
+                        <button id="logoutBtn" class="opacity-50 hover:opacity-100 transition-colors"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
                 </div>
             </div>
@@ -429,21 +429,26 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
-        import { getAuth, signInWithRedirect, getRedirectResult, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, getIdTokenResult } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+        import { 
+            getAuth, 
+            signInWithRedirect, 
+            getRedirectResult, 
+            signInAnonymously, 
+            onAuthStateChanged, 
+            GoogleAuthProvider, 
+            getIdTokenResult,
+            setPersistence,
+            browserLocalPersistence,
+            signOut
+        } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
         import { initializeFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, serverTimestamp, arrayUnion, runTransaction, Timestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE",
-            authDomain: "mixvotesurvey.firebaseapp.com",
-            projectId: "mixvotesurvey",
-            storageBucket: "mixvotesurvey.firebasestorage.app",
-            messagingSenderId: "352307389497",
-            appId: "1:352307389497:web:0939fd29452d6c6afc59e8",
-            measurementId: "G-ZWR5GHHL54"
-        };
-
-        const FILTER_ALL = "__ALL__", FILTER_POPULAR = "__POPULAR__", DEFAULT_THEME = { accent: '#06b6d4', bg: '#020617', text: '#f1f5f9' };
-        const CATEGORIES_JA = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"], CATEGORIES_EN = ["News", "Entertainment", "Tech", "Lifestyle", "Sports", "Travel", "Gourmet", "Education", "Politics", "Hobbies", "Quiz", "Relatable"];
+        // --- 1. 定数と多言語辞書 (スクリプト最上部に配置) ---
+        const FILTER_ALL = "__ALL__";
+        const FILTER_POPULAR = "__POPULAR__";
+        const DEFAULT_THEME = { accent: '#06b6d4', bg: '#020617', text: '#f1f5f9' };
+        const CATEGORIES_JA = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"];
+        const CATEGORIES_EN = ["News", "Entertainment", "Tech", "Lifestyle", "Sports", "Travel", "Gourmet", "Education", "Politics", "Hobbies", "Quiz", "Relatable"];
 
         const translations = {
             ja: {
@@ -454,9 +459,26 @@
             }
         };
 
-        const app = initializeApp(firebaseConfig), auth = getAuth(app);
+        // --- 2. Firebase 初期化 ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE",
+            authDomain: "mixvotesurvey.firebaseapp.com",
+            projectId: "mixvotesurvey",
+            storageBucket: "mixvotesurvey.firebasestorage.app",
+            messagingSenderId: "352307389497",
+            appId: "1:352307389497:web:0939fd29452d6c6afc59e8",
+            measurementId: "G-ZWR5GHHL54"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         
-        // --- 修正：Firestoreの初期化 (ロングポーリング強制) ---
+        try {
+            await setPersistence(auth, browserLocalPersistence);
+        } catch (e) {
+            console.warn('setPersistence failed:', e);
+        }
+
         const db = initializeFirestore(app, {
             experimentalAutoDetectLongPolling: true,
             useFetchStreams: false,
@@ -464,8 +486,10 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mixvote-web', POLLS_PATH = ['artifacts', appId, 'public', 'data', 'polls'];
 
+        // --- 3. 状態管理変数 (selectedCategory の初期値を文字列に変更) ---
         let currentLang = 'ja', currentUser = null, isAdmin = false, searchTerm = "", chartInstance = null, currentPollId = null, currentPollData = null, currentChartType = 'doughnut', editMode = false, editPollId = null;
-        let selectedCategory = FILTER_ALL, unsubscribePollsRealtime = null, unsubscribeCreated = null, unsubscribeVoted = null, unsubscribeComments = null, localSelectedIndices = [], allPollsCache = [], currentCommentsData = {}, commentToEditId = null;
+        let selectedCategory = "__ALL__"; 
+        let unsubscribePollsRealtime = null, unsubscribeCreated = null, unsubscribeVoted = null, unsubscribeComments = null, localSelectedIndices = [], allPollsCache = [], currentCommentsData = {}, commentToEditId = null;
         window.sessionAgreed = false;
 
         function i18n(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
@@ -595,11 +619,23 @@
         }
 
         async function initAuth() {
-            getRedirectResult(auth).catch(()=>{});
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token).catch(() => signInAnonymously(auth));
-                else await signInAnonymously(auth).catch(() => {});
-            } catch (err) { await signInAnonymously(auth).catch(()=>{}); }
+                const r = await getRedirectResult(auth);
+                if (r?.user) console.log('Redirect user restored:', r.user.uid, r.user.isAnonymous);
+            } catch (e) {
+                console.error("Redirect recovery error:", e);
+                showMessage(i18n('notice'), `${e.code || 'redirect-error'}: ${e.message || e}`);
+            }
+
+            if (auth.currentUser && !auth.currentUser.isAnonymous) return;
+
+            if (!auth.currentUser) {
+                try {
+                    await signInAnonymously(auth);
+                } catch (err) {
+                    console.error("Auth init error:", err);
+                }
+            }
         }
 
         function showMessage(title, body, onConfirm = null) {
@@ -877,6 +913,7 @@
         window.openDeleteModal = () => { document.getElementById('permanentDeleteBtn').classList.toggle('hidden', !isAdmin); document.getElementById('deleteOptionsModal').classList.remove('hidden'); };
 
         onAuthStateChanged(auth, async (user) => {
+            console.log('AUTH:', user?.uid, user?.isAnonymous, user?.providerData);
             currentUser = user;
             const initialLang = localStorage.getItem('mixvote_lang') || (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Tokyo' ? 'ja' : 'en');
             changeLang(initialLang);
@@ -893,7 +930,6 @@
             window.initRealtimePolls();
         });
 
-        // --- 保険：モーダル外クリック & Escapeキー ---
         (() => {
             const modals = ['msgModal', 'translateModal', 'createModal', 'deleteOptionsModal', 'editCommentModal'];
             modals.forEach(id => {
@@ -928,7 +964,16 @@
 
         document.getElementById('agreeTosBtn').onclick = () => { try { localStorage.setItem('mixvote_agreed', 'true'); } catch(e){} window.sessionAgreed = true; document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); goHome(); };
         
-        document.getElementById('loginBtn').onclick = () => signInWithRedirect(auth, new GoogleAuthProvider());
+        document.getElementById('loginBtn').onclick = async () => {
+            try {
+                await signInWithRedirect(auth, new GoogleAuthProvider());
+            } catch (e) {
+                console.error(e);
+                showMessage(i18n('notice'), `${e.code || 'auth-error'}: ${e.message || e}`);
+            }
+        };
+
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
         
         document.getElementById('openCreateBtn').onclick = () => { editMode = false; document.getElementById('modalTitle').textContent = i18n('create_poll'); document.getElementById('pollTitleInput').value = ""; document.getElementById('pollDescInput').value = ""; document.getElementById('pollCategoryInput').selectedIndex = 0; document.getElementById('pollHashtagsInput').value = ""; document.getElementById('pollDeadlineInput').value = ""; document.getElementById('pollMultiChoiceInput').checked = false; document.getElementById('pollOptionsInput').value = ""; const dl = document.getElementById('pollDeadlineInput'); if(dl) dl.dispatchEvent(new Event('change')); document.getElementById('createModal').classList.remove('hidden'); };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
