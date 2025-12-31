@@ -87,23 +87,24 @@
             border: none;
         }
 
-        /* スマートフォンでの日本語表示対応（カテゴリーとタイトルの縦書き回転） */
+        /* 修正：スマートフォンのカテゴリーブロックのみ縦書きにする。長音符「ー」も縦に回転します。 */
         @media (max-width: 1023px) {
-            .jp-category-btn, .jp-poll-title {
+            .jp-category-btn {
                 writing-mode: vertical-rl;
                 text-orientation: mixed;
+                min-height: 120px;
+                padding-top: 1.5rem !important;
+                padding-bottom: 1.5rem !important;
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
-            .jp-category-btn {
-                min-height: 120px;
-                padding-top: 1.5rem !important;
-                padding-bottom: 1.5rem !important;
-            }
-            .jp-poll-title {
-                min-height: 80px;
-                text-align: center;
+            /* アンケートタイトル等は強制的に横書き（水平）を維持 */
+            .jp-poll-title, .poll-card, h1, h2, h3, p {
+                writing-mode: horizontal-tb !important;
+                display: block !important;
+                min-height: auto !important;
+                text-align: left !important;
             }
         }
 
@@ -166,7 +167,6 @@
             <h3 id="msgTitle" class="text-lg font-black mb-3 uppercase italic text-[color:var(--accent)] i18n" data-key="notice">Notice</h3>
             <p id="msgBody" class="opacity-70 text-xs mb-6 leading-relaxed whitespace-pre-wrap"></p>
             <div id="msgActions" class="flex gap-3 mt-4">
-                <!-- 修正：モーダルを閉じる関数を直接呼び出す -->
                 <button id="msgCloseBtn" onclick="window.closeMsgModal()" class="flex-1 bg-white/5 text-white font-bold py-3 rounded-xl uppercase text-[10px] tracking-widest hover:bg-white/10 transition-colors i18n" data-key="close">Close</button>
                 <button id="msgConfirmBtn" onclick="window.closeMsgModal()" class="flex-1 bg-[color:var(--accent)] text-slate-950 font-black py-3 rounded-xl uppercase text-[10px] tracking-widest hidden hover:brightness-110 transition-colors i18n" data-key="confirm">Confirm</button>
             </div>
@@ -174,7 +174,7 @@
     </div>
 
     <!-- 削除モーダル -->
-    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-red-500/20 shadow-2xl">
             <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
@@ -402,7 +402,7 @@
                     <span class="text-xs font-bold i18n" data-key="label_multi">Allow Multiple Choice</span>
                     <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="pollMultiChoiceInput" class="sr-only peer"><div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[color:var(--accent)]"></div></label>
                 </div>
-                <div><label class="text-[9px] font-black opacity-50 uppercase tracking-widest block mb-2 i18n" data-key="label_options">Options (Max 50)</label><textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm font-mono outline-none focus:border-[color:var(--accent)] transition-colors" rows="4" placeholder="あるある！&#10;いいね、&#10;笑&#10;涙"></textarea><p id="createOptionsHint" class="hidden text-[8px] text-[color:var(--accent)] mt-2 font-bold uppercase tracking-wider i18n" data-key="options_hint">Option count cannot be changed once created.</p></div>
+                <div><label class="text-[9px] font-black opacity-50 uppercase tracking-widest block mb-2 i18n" data-key="label_options">Options (Max 50)</label><textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm font-mono outline-none focus:border-[color:var(--accent)] transition-colors" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3&#10;Option 4"></textarea><p id="createOptionsHint" class="hidden text-[8px] text-[color:var(--accent)] mt-2 font-bold uppercase tracking-wider i18n" data-key="options_hint">Option count cannot be changed once created.</p></div>
             </div>
             <div class="flex gap-3 mt-8"><button id="cancelCreateBtn" class="flex-1 i18n bg-white/5 text-white font-bold py-4 rounded-xl text-xs hover:bg-white/10 transition-colors" data-key="cancel">Cancel</button><button id="savePollBtn" class="flex-1 bg-[color:var(--accent)] text-slate-950 font-black py-4 rounded-xl text-xs shadow-lg transition-transform flex items-center justify-center gap-2" onclick="window.savePoll()"><i id="saveBtnSpinner" class="fas fa-circle-notch spinner hidden"></i><span id="saveBtnText" class="i18n" data-key="save_poll">Save Poll</span></button></div>
         </div>
@@ -530,6 +530,7 @@
             catsDisplay.forEach((catLabel, idx) => {
                 const internalName = CATEGORIES_JA[idx];
                 const btn = document.createElement('button');
+                // 修正：日本語設定かつモバイル時に縦書きクラスを適用
                 btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left ${selectedCategory === internalName ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'} ${currentLang === 'ja' ? 'jp-category-btn' : ''}`;
                 btn.textContent = catLabel;
                 btn.onclick = () => { selectedCategory = internalName; setupCategoryMenu(); window.goHome(); };
@@ -550,7 +551,7 @@
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category);
                 div.className = "poll-card glass-panel rounded-[24px] p-6 md:p-8 cursor-pointer flex flex-col justify-between group";
                 div.onclick = () => window.goDetail(p.id);
-                // 修正：タイトルに縦書き回転クラスを再適用
+                // 修正：アンケートタイトルは常に横書き（jp-poll-title クラスを適用するがCSSで横書きに固定）
                 div.innerHTML = `<div class="space-y-4"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-lg md:text-xl font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors ${currentLang === 'ja' ? 'jp-poll-title' : ''}">${escapeHTML(p.title)}</h3><div class="flex flex-wrap mt-1">${(p.hashtags || []).map(t => `<span class="text-[10px] text-[color:var(--accent)] opacity-80 mr-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span></div>`;
                 fC.appendChild(div);
             });
@@ -628,7 +629,7 @@
             document.getElementById('msgBody').textContent = body;
             const confirmBtn = document.getElementById('msgConfirmBtn'), closeBtn = document.getElementById('msgCloseBtn');
 
-            // 修正：モーダルを閉じる関数を登録
+            // 修正：モーダルを閉じる関数を登録。常に動作するように定義
             window.closeMsgModal = () => modal.classList.add('hidden');
             
             if (onConfirm) {
@@ -643,7 +644,8 @@
         }
 
         // --- 4. Window オブジェクトへの割り当て (即時に登録) ---
-        window.i18n = i18n; window.setActiveNav = setActiveNav; window.getDisplayCat = getDisplayCat; window.getInternalCategoryName = getInternalCategoryName; window.updateUIStrings = updateUIStrings; window.applyFilters = applyFilters; window.renderHomePolls = renderHomePolls; window.showMessage = showMessage; window.goHome = goHome; window.goDetail = goDetail; window.loadTheme = loadTheme; window.applyTheme = applyTheme; window.resetTheme = resetTheme; window.changeLang = changeLang; window.initAuth = initAuth; window.handleNavigation = handleNavigation; window.escapeHTML = escapeHTML; window.maskString = maskString; window.closeMsgModal = () => document.getElementById('msgModal').classList.add('hidden');
+        window.i18n = i18n; window.setActiveNav = setActiveNav; window.getDisplayCat = getDisplayCat; window.getInternalCategoryName = getInternalCategoryName; window.updateUIStrings = updateUIStrings; window.applyFilters = applyFilters; window.renderHomePolls = renderHomePolls; window.showMessage = showMessage; window.goHome = goHome; window.goDetail = goDetail; window.loadTheme = loadTheme; window.applyTheme = applyTheme; window.resetTheme = resetTheme; window.changeLang = changeLang; window.initAuth = initAuth; window.handleNavigation = handleNavigation; window.escapeHTML = escapeHTML; window.maskString = maskString; window.setupCategoryMenu = setupCategoryMenu;
+        window.closeMsgModal = () => { const m = document.getElementById('msgModal'); if(m) m.classList.add('hidden'); };
 
         window.closeTranslateModal = () => document.getElementById('translateModal').classList.add('hidden');
         window.openTranslateModal = () => document.getElementById('translateModal').classList.remove('hidden');
@@ -696,7 +698,7 @@
             p.options.forEach((opt, i) => { const v = p.votes[i] || 0; const per = total > 0 ? Math.round(v / total * 100) : 0; text += `- ${opt}: ${v} votes (${per}%)\n`; });
             const blob = new Blob([text], { type: 'text/plain' }); const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `poll_results_${currentPollId}.txt`; a.click();
-            URL.revokeObjectURL(url); showMessage(i18n('download_results'), i18n('download_results'));
+            URL.revokeObjectURL(url); showMessage(translations[currentLang].download_results, translations[currentLang].download_results);
         };
 
         window.loadPollDetail = async function(id) {
@@ -798,9 +800,9 @@
             const isReg = user && !user.isAnonymous;
             document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
-            // 修正：ログイン済みの場合に「新規作成」ボタンを表示
+            
             const createBtn = document.getElementById('openCreateBtn');
-            if (createBtn) createBtn.classList.toggle('hidden', !isReg); createBtn.style.display = isReg ? 'flex' : 'none';
+            if (createBtn) { createBtn.classList.toggle('hidden', !isReg); createBtn.style.display = isReg ? 'flex' : 'none'; }
             
             document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
             const noticeBanner = document.getElementById('loginNoticeBanner'); if (noticeBanner) noticeBanner.classList.toggle('hidden', isReg);
@@ -822,7 +824,7 @@
             try { await updateDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', commentToEditId), { text, updatedAt: serverTimestamp() }); window.closeEditCommentModal(); showMessage(i18n('notice'), i18n('comment_updated')); } catch (e) { showMessage(i18n('notice'), "Failed to update comment."); }
         };
 
-        // 修正：「あるある」選択時の自動4択入力をご指定の内容に更新
+        // 「あるある」選択時の自動4択入力をご指定の内容に更新
         document.getElementById('pollCategoryInput').addEventListener('change', (e) => {
             if (e.target.value === 'あるある') {
                 const optInput = document.getElementById('pollOptionsInput');
