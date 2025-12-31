@@ -259,6 +259,7 @@
                     <i class="fas fa-plus group-hover:rotate-90 transition-transform"></i> <span class="i18n" data-key="new_poll">New Poll</span>
                 </button>
 
+                <!-- 言語切り替え -->
                 <div class="glass rounded-3xl p-5 border border-white/5">
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] opacity-50 mb-4 pl-2 i18n" data-key="language">Language</h3>
                     <div class="flex gap-2 p-1 bg-black/20 rounded-xl">
@@ -272,6 +273,7 @@
                     <nav id="categoryNav" class="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-y-auto pb-2 lg:pb-0 custom-scrollbar max-h-[40vh] lg:max-h-none pr-1"></nav>
                 </div>
 
+                <!-- テーマ設定 -->
                 <div class="glass rounded-3xl p-5 border border-white/5">
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] opacity-50 mb-4 pl-2 i18n" data-key="theme_custom">Theme Custom</h3>
                     <div class="space-y-4 px-2">
@@ -287,7 +289,9 @@
                             <span class="text-xs font-bold opacity-60 uppercase i18n" data-key="text_color">Text Color</span>
                             <input type="color" id="textPicker" value="#f1f5f9">
                         </div>
-                        <button onclick="window.resetTheme()" class="w-full mt-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-widest opacity-50 hover:opacity-100 transition-all i18n" data-key="default">Default</button>
+                        <button onclick="window.resetTheme()" class="w-full mt-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-widest opacity-50 hover:opacity-100 transition-all i18n" data-key="default">
+                            Default
+                        </button>
                     </div>
                 </div>
 
@@ -395,7 +399,7 @@
                     <span class="text-xs font-bold i18n" data-key="label_multi">Allow Multiple Choice</span>
                     <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="pollMultiChoiceInput" class="sr-only peer"><div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[color:var(--accent)]"></div></label>
                 </div>
-                <div><label class="text-[9px] font-black opacity-50 uppercase tracking-widest block mb-2 i18n" data-key="label_options">Options (Max 50)</label><textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm font-mono outline-none focus:border-[color:var(--accent)] transition-colors" rows="4" placeholder="あるある！&#10;いいね&#10;笑&#10;涙"></textarea><p id="createOptionsHint" class="hidden text-[8px] text-[color:var(--accent)] mt-2 font-bold uppercase tracking-wider i18n" data-key="options_hint">Option count cannot be changed once created.</p></div>
+                <div><label class="text-[9px] font-black opacity-50 uppercase tracking-widest block mb-2 i18n" data-key="label_options">Options (Max 50)</label><textarea id="pollOptionsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm font-mono outline-none focus:border-[color:var(--accent)] transition-colors" rows="4" placeholder="あるある！&#10;いいね、&#10;笑&#10;涙"></textarea><p id="createOptionsHint" class="hidden text-[8px] text-[color:var(--accent)] mt-2 font-bold uppercase tracking-wider i18n" data-key="options_hint">Option count cannot be changed once created.</p></div>
             </div>
             <div class="flex gap-3 mt-8"><button id="cancelCreateBtn" class="flex-1 i18n bg-white/5 text-white font-bold py-4 rounded-xl text-xs hover:bg-white/10 transition-colors" data-key="cancel">Cancel</button><button id="savePollBtn" class="flex-1 bg-[color:var(--accent)] text-slate-950 font-black py-4 rounded-xl text-xs shadow-lg transition-transform flex items-center justify-center gap-2" onclick="window.savePoll()"><i id="saveBtnSpinner" class="fas fa-circle-notch spinner hidden"></i><span id="saveBtnText" class="i18n" data-key="save_poll">Save Poll</span></button></div>
         </div>
@@ -407,7 +411,7 @@
         import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, serverTimestamp, arrayUnion, runTransaction, Timestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
 
-        // --- 1. 定数と多言語辞書 ---
+        // --- 1. 定数・辞書定義 ---
         const firebaseConfig = { apiKey: "AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE", authDomain: "mixvotesurvey.firebaseapp.com", projectId: "mixvotesurvey", storageBucket: "mixvotesurvey.firebasestorage.app", messagingSenderId: "352307389497", appId: "1:352307389497:web:0939fd29452d6c6afc59e8", measurementId: "G-ZWR5GHHL54" };
         const FILTER_ALL = "__ALL__", FILTER_POPULAR = "__POPULAR__", DEFAULT_THEME = { accent: '#06b6d4', bg: '#020617', text: '#f1f5f9' };
         const CATEGORIES_JA = ["ニュース", "エンタメ", "テクノロジー", "生活", "スポーツ", "旅行", "グルメ", "教育", "政治", "趣味", "クイズ", "あるある"], CATEGORIES_EN = ["News", "Entertainment", "Tech", "Lifestyle", "Sports", "Travel", "Gourmet", "Education", "Politics", "Hobbies", "Quiz", "Relatable"];
@@ -421,7 +425,7 @@
             }
         };
 
-        // --- 2. 状態管理 ---
+        // --- 2. 状態管理 & Firebase 初期化 ---
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app), analytics = getAnalytics(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mixvote-web', POLLS_PATH = ['artifacts', appId, 'public', 'data', 'polls'];
 
@@ -606,20 +610,24 @@
             } catch (err) { await signInAnonymously(auth).catch(()=>{}); }
         }
 
+        function showMessage(title, body, onConfirm = null) {
+            const modal = document.getElementById('msgModal'); if (!modal) return;
+            document.getElementById('msgTitle').textContent = title; document.getElementById('msgBody').textContent = body;
+            const confirmBtn = document.getElementById('msgConfirmBtn'), closeBtn = document.getElementById('msgCloseBtn');
+            
+            // 修正：モーダルを閉じるためのクリックイベントを確実に設定
+            closeBtn.onclick = () => modal.classList.add('hidden');
+            
+            if (onConfirm) { confirmBtn.classList.remove('hidden'); confirmBtn.onclick = () => { onConfirm(); modal.classList.add('hidden'); }; closeBtn.textContent = i18n('cancel'); } else { confirmBtn.classList.add('hidden'); closeBtn.textContent = i18n('close'); }
+            modal.classList.remove('hidden');
+        }
+
         function changeLang(lang) {
             currentLang = lang;
             try { localStorage.setItem('mixvote_lang', lang); } catch(e){}
             updateUIStrings();
             if (currentPollId) window.loadPollDetail(currentPollId);
             window.loadPolls(); 
-        }
-
-        function showMessage(title, body, onConfirm = null) {
-            const modal = document.getElementById('msgModal'); if (!modal) return;
-            document.getElementById('msgTitle').textContent = title; document.getElementById('msgBody').textContent = body;
-            const confirmBtn = document.getElementById('msgConfirmBtn'), closeBtn = document.getElementById('msgCloseBtn');
-            if (onConfirm) { confirmBtn.classList.remove('hidden'); confirmBtn.onclick = () => { onConfirm(); modal.classList.add('hidden'); }; closeBtn.textContent = i18n('cancel'); } else { confirmBtn.classList.add('hidden'); closeBtn.textContent = i18n('close'); }
-            modal.classList.remove('hidden');
         }
 
         // --- 4. Window オブジェクトへの割り当て ---
