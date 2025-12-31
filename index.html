@@ -264,6 +264,11 @@
                         <i class="fab fa-google text-[color:var(--accent)]"></i> <span class="hidden sm:inline i18n" data-key="login">Sign In</span>
                     </button>
                     <div id="userInfo" class="hidden flex items-center gap-4">
+                        <!-- モバイル用：ログイン時に表示されるクイックナビゲーション -->
+                        <div class="flex md:hidden items-center gap-4 mr-2 border-r border-white/10 pr-4">
+                            <button onclick="window.goHome()" class="text-white/40 hover:text-white transition-colors"><i class="fas fa-home"></i></button>
+                            <button id="openCreateBtnHeader" class="w-8 h-8 rounded-lg bg-[color:var(--accent)] flex items-center justify-center text-slate-900 shadow-lg"><i class="fas fa-plus"></i></button>
+                        </div>
                         <div class="text-right hidden sm:block">
                             <p class="text-[9px] opacity-50 font-bold uppercase tracking-wider i18n" data-key="welcome_user">Welcome</p>
                             <p id="userName" class="text-xs font-black"></p>
@@ -741,9 +746,7 @@
             const right = document.getElementById('catRightArrow');
             if (!nav || !left || !right) return;
 
-            // 左にスクロール可能か
             left.style.opacity = nav.scrollLeft > 10 ? '1' : '0';
-            // 右にスクロール可能か
             const canScrollRight = nav.scrollWidth > (nav.scrollLeft + nav.clientWidth + 10);
             right.style.opacity = canScrollRight ? '1' : '0';
         }
@@ -771,7 +774,6 @@
                 opt.value = internalName; opt.textContent = catLabel; select.appendChild(opt);
             });
 
-            // 矢印の状態を更新
             setTimeout(updateCategoryArrows, 100);
         }
 
@@ -980,13 +982,26 @@
             const initialLang = localStorage.getItem('mixvote_lang') || (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Tokyo' ? 'ja' : 'en');
             changeLang(initialLang);
             if (user && !user.isAnonymous) { const res = await getIdTokenResult(user).catch(() => ({claims:{}})); isAdmin = !!res.claims.admin; } else { isAdmin = false; }
+            
             const isReg = user && !user.isAnonymous;
+            
+            // ログインボタンとユーザー情報の切り替え
             document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
+            
+            // サイドバー要素の切り替え
             document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
             document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
-            const noticeBanner = document.getElementById('loginNoticeBanner'); if (noticeBanner) noticeBanner.classList.toggle('hidden', isReg);
+            
+            // モバイル用ヘッダー追加ボタンの切り替え（追加分）
+            const createBtnMob = document.getElementById('openCreateBtnHeader');
+            if (createBtnMob) createBtnMob.style.display = isReg ? 'flex' : 'none';
+
+            const noticeBanner = document.getElementById('loginNoticeBanner'); 
+            if (noticeBanner) noticeBanner.classList.toggle('hidden', isReg);
+            
             if (isReg) document.getElementById('userName').textContent = user.displayName;
+            
             let isAgreed = false; try { isAgreed = localStorage.getItem('mixvote_agreed') === 'true'; } catch(e){}
             if (user && (isAgreed || window.sessionAgreed)) { document.getElementById('appUI').classList.remove('hidden'); document.getElementById('tosModal').classList.add('hidden'); handleNavigation(); } else if (user) { document.getElementById('tosModal').classList.remove('hidden'); document.getElementById('appUI').classList.add('hidden'); }
             window.initRealtimePolls();
@@ -1017,14 +1032,12 @@
         const dlInput = document.getElementById('pollDeadlineInput'), dlDisp = document.getElementById('deadlineDisplay');
         if (dlInput && dlDisp) { dlInput.addEventListener('change', () => { if (!dlInput.value) { dlDisp.textContent = i18n('select'); return; } const d = new Date(dlInput.value), loc = currentLang === 'ja' ? 'ja-JP' : 'en-US'; dlDisp.textContent = isNaN(d.getTime()) ? i18n('select') : d.toLocaleString(loc, { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }); }); }
 
-        // カテゴリーナビのスクロールイベント登録
         const catNav = document.getElementById('categoryNav');
         if (catNav) {
             catNav.addEventListener('scroll', updateCategoryArrows);
             window.addEventListener('resize', updateCategoryArrows);
         }
 
-        // 「あるある」カテゴリー選択時に4択を自動入力するリスナー
         document.getElementById('pollCategoryInput').addEventListener('change', (e) => {
             const cat = e.target.value;
             const optionsArea = document.getElementById('pollOptionsInput');
@@ -1058,7 +1071,27 @@
 
         document.getElementById('logoutBtn').onclick = () => signOut(auth);
         
-        document.getElementById('openCreateBtn').onclick = () => { editMode = false; document.getElementById('modalTitle').textContent = i18n('create_poll'); document.getElementById('pollTitleInput').value = ""; document.getElementById('pollDescInput').value = ""; document.getElementById('pollCategoryInput').selectedIndex = 0; document.getElementById('pollHashtagsInput').value = ""; document.getElementById('pollDeadlineInput').value = ""; document.getElementById('pollMultiChoiceInput').checked = false; document.getElementById('pollOptionsInput').value = ""; const dl = document.getElementById('pollDeadlineInput'); if(dl) dl.dispatchEvent(new Event('change')); document.getElementById('createModal').classList.remove('hidden'); };
+        // アンケート作成用関数
+        const triggerCreatePoll = () => { 
+            editMode = false; 
+            document.getElementById('modalTitle').textContent = i18n('create_poll'); 
+            document.getElementById('pollTitleInput').value = ""; 
+            document.getElementById('pollDescInput').value = ""; 
+            document.getElementById('pollCategoryInput').selectedIndex = 0; 
+            document.getElementById('pollHashtagsInput').value = ""; 
+            document.getElementById('pollDeadlineInput').value = ""; 
+            document.getElementById('pollMultiChoiceInput').checked = false; 
+            document.getElementById('pollOptionsInput').value = ""; 
+            const dl = document.getElementById('pollDeadlineInput'); 
+            if(dl) dl.dispatchEvent(new Event('change')); 
+            document.getElementById('createModal').classList.remove('hidden'); 
+        };
+
+        // サイドバーとヘッダーの両方のボタンにイベントを適用
+        document.getElementById('openCreateBtn').onclick = triggerCreatePoll;
+        const btnHeader = document.getElementById('openCreateBtnHeader');
+        if (btnHeader) btnHeader.onclick = triggerCreatePoll;
+
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
         document.getElementById('accentPicker').oninput = (e) => applyTheme(e.target.value, document.getElementById('bgPicker').value, document.getElementById('textPicker').value);
         document.getElementById('bgPicker').oninput = (e) => applyTheme(document.getElementById('accentPicker').value, e.target.value, document.getElementById('textPicker').value);
