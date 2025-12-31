@@ -208,7 +208,7 @@
     </div>
 
     <!-- 削除モーダル -->
-    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4 pointer-events-auto">
+    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4 pointer-events-auto">
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-red-500/20 shadow-2xl pointer-events-auto relative z-10">
             <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
@@ -513,24 +513,20 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        
-        try {
-            await setPersistence(auth, browserLocalPersistence);
-        } catch (e) {
-            console.warn('setPersistence failed:', e);
-        }
 
         const db = initializeFirestore(app, {
             experimentalAutoDetectLongPolling: true,
             useFetchStreams: false,
         });
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mixvote-web', POLLS_PATH = ['artifacts', appId, 'public', 'data', 'polls'];
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mixvote-web';
+        const POLLS_PATH = ['artifacts', appId, 'public', 'data', 'polls'];
 
         // --- 3. 状態管理変数 ---
         let currentLang = 'ja', currentUser = null, isAdmin = false, searchTerm = "", chartInstance = null, currentPollId = null, currentPollData = null, currentChartType = 'doughnut', editMode = false, editPollId = null;
         let selectedCategory = "__ALL__"; 
-        let unsubscribePollsRealtime = null, unsubscribeCreated = null, unsubscribeVoted = null, unsubscribeComments = null, localSelectedIndices = [], allPollsCache = [], currentCommentsData = {}, commentToEditId = null;
+        let unsubscribePollsRealtime = null, unsubscribeComments = null, localSelectedIndices = [], allPollsCache = [], currentCommentsData = {}, commentToEditId = null;
+        let langInitialized = false;
         window.sessionAgreed = false;
 
         function i18n(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
@@ -644,7 +640,7 @@
         function goHome() { 
             window.location.hash = ''; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); 
             document.getElementById('view-home').classList.remove('hidden'); 
-            setActiveNav('navHomeBtn'); window.loadPolls(); 
+            setActiveNav('navHomeBtn'); applyFilters(); 
         }
 
         function goDetail(id) {
@@ -660,12 +656,12 @@
         }
 
         async function initAuth() {
-            // リダイレクト結果を回収（起動時のここ一箇所に集約）
+            // リダイレクト結果を一箇所に集約
             try {
                 const r = await getRedirectResult(auth);
                 if (r?.user) {
                     console.log('Redirect result successful:', r.user.uid, r.user.isAnonymous);
-                    return;
+                    return; // ログイン成功時はここで終了
                 }
             } catch (e) {
                 console.error("Redirect recovery error:", e);
@@ -674,14 +670,10 @@
                 }
             }
 
-            // すでにGoogle等でログイン済みの場合は、匿名ログインで上書きしない
-            if (auth.currentUser && !auth.currentUser.isAnonymous) return;
-
-            // 完全に未ログインの場合のみ、匿名ログインを試行
+            // 既存ユーザーがいなければ匿名ログイン
             if (!auth.currentUser) {
                 try {
                     await signInAnonymously(auth);
-                    console.log('Anonymous sign-in complete');
                 } catch (err) {
                     console.error("Auth init error:", err);
                 }
@@ -707,8 +699,6 @@
 
             const closeModal = () => {
                 modal.classList.add('hidden');
-                confirmBtn.onclick = null;
-                confirmBtn.classList.add('hidden');
             };
 
             closeBtn.onclick = closeModal;
@@ -722,7 +712,6 @@
             }
 
             if (actions) actions.style.display = 'flex';
-
             modal.classList.remove('hidden');
         }
         window.showMessage = showMessage;
@@ -734,8 +723,6 @@
             document.documentElement.style.setProperty('--accent-glow', hexToRgba(accent, 0.4));
             document.documentElement.style.setProperty('--bg-dark', bg);
             document.documentElement.style.setProperty('--text-main', text);
-            const aP = document.getElementById('accentPicker'), bP = document.getElementById('bgPicker'), tP = document.getElementById('textPicker');
-            if (aP) aP.value = accent; if (bP) bP.value = bg; if (tP) tP.value = text;
             if (save) { try { localStorage.setItem('mixvote_theme', JSON.stringify({ accent, bg, text })); } catch(e){} }
             if (currentPollData) window.renderChart(currentPollData, currentChartType);
         }
@@ -750,13 +737,11 @@
             applyTheme(DEFAULT_THEME.accent, DEFAULT_THEME.bg, DEFAULT_THEME.text);
         }
 
-        // カテゴリーナビの矢印表示制御
         function updateCategoryArrows() {
             const nav = document.getElementById('categoryNav');
             const left = document.getElementById('catLeftArrow');
             const right = document.getElementById('catRightArrow');
             if (!nav || !left || !right) return;
-
             left.style.opacity = nav.scrollLeft > 10 ? '1' : '0';
             const canScrollRight = nav.scrollWidth > (nav.scrollLeft + nav.clientWidth + 10);
             right.style.opacity = canScrollRight ? '1' : '0';
@@ -770,7 +755,7 @@
                 const btn = document.createElement('button');
                 btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left ${selectedCategory === item.id ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'}`;
                 btn.textContent = item.label; 
-                btn.onclick = () => { selectedCategory = item.id; setupCategoryMenu(); window.goHome(); };
+                btn.onclick = () => { selectedCategory = item.id; setupCategoryMenu(); goHome(); };
                 nav.appendChild(btn);
             });
             const catsDisplay = currentLang === 'ja' ? CATEGORIES_JA : CATEGORIES_EN;
@@ -779,12 +764,11 @@
                 const btn = document.createElement('button');
                 btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left ${selectedCategory === internalName ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'}`;
                 btn.textContent = catLabel;
-                btn.onclick = () => { selectedCategory = internalName; setupCategoryMenu(); window.goHome(); };
+                btn.onclick = () => { selectedCategory = internalName; setupCategoryMenu(); goHome(); };
                 nav.appendChild(btn);
                 const opt = document.createElement('option');
                 opt.value = internalName; opt.textContent = catLabel; select.appendChild(opt);
             });
-
             setTimeout(updateCategoryArrows, 100);
         }
 
@@ -793,7 +777,7 @@
             try { localStorage.setItem('mixvote_lang', lang); } catch(e){}
             updateUIStrings();
             if (currentPollId) window.loadPollDetail(currentPollId);
-            window.loadPolls(); 
+            applyFilters();
         }
 
         window.setActiveNav = setActiveNav; window.changeLang = changeLang; window.applyTheme = applyTheme; window.loadTheme = loadTheme; window.resetTheme = resetTheme; window.goHome = goHome; window.goDetail = goDetail; window.updateUIStrings = updateUIStrings; window.setupCategoryMenu = setupCategoryMenu; window.applyFilters = applyFilters; window.initAuth = initAuth; window.handleNavigation = handleNavigation; window.renderHomePolls = renderHomePolls; window.escapeHTML = escapeHTML; window.maskString = maskString;
@@ -801,14 +785,18 @@
         window.openTranslateModal = () => document.getElementById('translateModal').classList.remove('hidden');
 
         window.initRealtimePolls = function() {
-            if (unsubscribePollsRealtime) unsubscribePollsRealtime();
+            if (unsubscribePollsRealtime) return; // すでに購読済みなら何もしない
             unsubscribePollsRealtime = onSnapshot(collection(db, ...POLLS_PATH), (snapshot) => {
                 allPollsCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 applyFilters();
+                // フィルタ表示中にデータが変わったら再描画
+                const h = window.location.hash;
+                if (h === '#created') renderPollList('createdPollsList', 'created');
+                else if (h === '#voted') renderPollList('votedPollsList', 'voted');
             }, (err) => { if (err.code === 'permission-denied') console.warn("Firestore access denied."); });
         };
 
-        window.loadPolls = function() { if (allPollsCache.length > 0) applyFilters(); else window.initRealtimePolls(); };
+        window.loadPolls = function() { applyFilters(); };
 
         window.setChartType = function(type) { currentChartType = type; if (currentPollData) window.renderChart(currentPollData, type); };
 
@@ -820,10 +808,6 @@
             const barOpts = { ...commonOpts, indexAxis: 'y', scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }, y: { grid: { display: false }, ticks: { color: '#f1f5f9', font: { size: 11, weight: 'bold' } } } } };
             const doughnutOpts = { ...commonOpts, cutout: '70%' };
             chartInstance = new Chart(ctx, { type: type, data: { labels: p.options, datasets: [{ data: p.votes, backgroundColor: colors, borderWidth: 0, borderRadius: type === 'bar' ? 6 : 0 }] }, options: type === 'bar' ? barOpts : doughnutOpts });
-            document.querySelectorAll('.chart-toggle').forEach(btn => {
-                const isActive = btn.getAttribute('data-type') === type;
-                btn.className = `chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-[color:var(--accent)] text-slate-950 shadow-lg' : 'bg-white/5 text-white/40 hover:bg-white/10'}`;
-            });
         };
 
         window.sharePoll = function(platform) {
@@ -847,7 +831,7 @@
             p.options.forEach((opt, i) => { const v = p.votes[i] || 0; const per = total > 0 ? Math.round(v / total * 100) : 0; text += `- ${opt}: ${v} votes (${per}%)\n`; });
             const blob = new Blob([text], { type: 'text/plain' }); const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `poll_results_${currentPollId}.txt`; a.click();
-            URL.revokeObjectURL(url); showMessage(i18n('download_results'), i18n('download_results'));
+            URL.revokeObjectURL(url);
         };
 
         window.loadPollDetail = async function(id) {
@@ -894,10 +878,7 @@
         };
 
         window.castVote = async function(idx) { 
-            if (!currentUser) {
-                showMessage(i18n('notice'), "準備中です。数秒後にもう一度押してみてください。");
-                return;
-            }
+            if (!currentUser) { showMessage(i18n('notice'), "準備中です。"); return; }
             const ref = doc(db, ...POLLS_PATH, currentPollId); 
             try { 
                 await runTransaction(db, async (tx) => { 
@@ -915,10 +896,7 @@
         window.toggleLocalSelect = function(idx) { const el = document.getElementById(`opt-container-${idx}`); if (localSelectedIndices.includes(idx)) { localSelectedIndices = localSelectedIndices.filter(i => i !== idx); el?.classList.remove('poll-option-selected'); } else { localSelectedIndices.push(idx); el?.classList.add('poll-option-selected'); } const btn = document.getElementById('submitMultiVoteBtn'); if (btn) btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none'; };
         
         window.submitMultipleVotes = async function() { 
-            if (!currentUser) {
-                showMessage(i18n('notice'), "準備中です。数秒後にもう一度押してみてください。");
-                return;
-            }
+            if (!currentUser) { showMessage(i18n('notice'), "準備中です。"); return; }
             const ref = doc(db, ...POLLS_PATH, currentPollId); 
             try { 
                 await runTransaction(db, async (tx) => { 
@@ -941,34 +919,21 @@
 
         window.openEditPoll = function() { 
             editMode = true; editPollId = currentPollId; document.getElementById('modalTitle').textContent = i18n('edit_poll'); document.getElementById('pollTitleInput').value = currentPollData.title; document.getElementById('pollDescInput').value = currentPollData.question || ""; document.getElementById('pollCategoryInput').value = currentPollData.category; document.getElementById('pollHashtagsInput').value = (currentPollData.hashtags || []).map(h => `#${h}`).join(' '); document.getElementById('pollOptionsInput').value = currentPollData.options.join('\n'); document.getElementById('pollMultiChoiceInput').checked = !!currentPollData.isMultipleChoice;
-            
             const ansInput = document.getElementById('pollAnswerInput');
             if (ansInput) ansInput.value = currentPollData.correctAnswer || "";
-
             if (currentPollData.deadline) { const date = currentPollData.deadline.toDate(); const localISO = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16); document.getElementById('pollDeadlineInput').value = localISO; } else { document.getElementById('pollDeadlineInput').value = ""; }
             const dl = document.getElementById('pollDeadlineInput'); if(dl) dl.dispatchEvent(new Event('change')); 
-            
             document.getElementById('pollCategoryInput').dispatchEvent(new Event('change'));
             document.getElementById('createModal').classList.remove('hidden'); 
         };
 
-        window.goCreatedPolls = function() { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'created'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-created').classList.remove('hidden'); setActiveNav('navCreatedBtn'); window.loadFilteredPolls('created'); };
-        window.goVotedPolls = function() { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'voted'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-voted').classList.remove('hidden'); setActiveNav('navVotedBtn'); window.loadFilteredPolls('voted'); };
-
-        window.loadFilteredPolls = function(type) {
-            const listId = type === 'created' ? 'createdPollsList' : 'votedPollsList';
-            if (type === 'created' && unsubscribeCreated) unsubscribeCreated(); if (type === 'voted' && unsubscribeVoted) unsubscribeVoted();
-            const dateLoc = currentLang === 'ja' ? 'ja-JP' : 'en-US';
-            const unsubscribe = onSnapshot(collection(db, ...POLLS_PATH), (snapshot) => {
-                let polls = snapshot.docs.map(d => ({id: d.id, ...d.data()})).filter(p => !p.deleted);
-                if (type === 'created' && currentUser) polls = polls.filter(p => p.authorID === currentUser.uid); else if (currentUser) polls = polls.filter(p => p.votedUsers?.includes(currentUser.uid));
-                polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)); window.renderPollList(listId, polls, dateLoc);
-            }, (err) => console.error(err));
-            if (type === 'created') unsubscribeCreated = unsubscribe; else unsubscribeVoted = unsubscribe;
-        };
-
-        window.renderPollList = function(eid, polls, dateLoc) {
+        function renderPollList(eid, type) {
             const c = document.getElementById(eid); if (!c) return;
+            let polls = allPollsCache.filter(p => !p.deleted);
+            if (type === 'created') polls = polls.filter(p => p.authorID === currentUser?.uid);
+            else if (type === 'voted') polls = polls.filter(p => p.votedUsers?.includes(currentUser?.uid));
+            polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+            const dateLoc = currentLang === 'ja' ? 'ja-JP' : 'en-US';
             c.innerHTML = polls.length ? '' : `<div class="col-span-full py-20 text-center opacity-30 font-bold uppercase tracking-widest text-xs">${i18n('no_polls')}</div>`;
             polls.forEach(p => {
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category), dStr = p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString(dateLoc) : '';
@@ -977,7 +942,10 @@
                 div.innerHTML = `<div class="space-y-4"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-sm md:text-base font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>${total} ${i18n('votes')}</span><span>${dStr}</span></div>`;
                 c.appendChild(div);
             });
-        };
+        }
+
+        window.goCreatedPolls = function() { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'created'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-created').classList.remove('hidden'); setActiveNav('navCreatedBtn'); renderPollList('createdPollsList', 'created'); };
+        window.goVotedPolls = function() { if (!currentUser || currentUser.isAnonymous) return; window.location.hash = 'voted'; document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById('view-voted').classList.remove('hidden'); setActiveNav('navVotedBtn'); renderPollList('votedPollsList', 'voted'); };
 
         window.closeEditCommentModal = () => { document.getElementById('editCommentModal').classList.add('hidden'); commentToEditId = null; };
         window.openEditCommentModal = (cid) => { commentToEditId = cid; document.getElementById('editCommentInput').value = currentCommentsData[cid] || ""; document.getElementById('editCommentModal').classList.remove('hidden'); };
@@ -986,31 +954,43 @@
 
         onAuthStateChanged(auth, async (user) => {
             console.log('AUTH:', user?.uid, user?.isAnonymous, user?.providerData);
-            
             currentUser = user;
-            const initialLang = localStorage.getItem('mixvote_lang') || (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Tokyo' ? 'ja' : 'en');
-            changeLang(initialLang);
-            if (user && !user.isAnonymous) { const res = await getIdTokenResult(user).catch(() => ({claims:{}})); isAdmin = !!res.claims.admin; } else { isAdmin = false; }
+            
+            // 初回起動時のみ言語と購読をセット
+            if (!langInitialized) {
+                const initialLang = localStorage.getItem('mixvote_lang') || (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Tokyo' ? 'ja' : 'en');
+                changeLang(initialLang);
+                window.initRealtimePolls();
+                langInitialized = true;
+            }
+
+            if (user && !user.isAnonymous) { 
+                const res = await getIdTokenResult(user).catch(() => ({claims:{}})); 
+                isAdmin = !!res.claims.admin; 
+            } else { 
+                isAdmin = false; 
+            }
             
             const isReg = user && !user.isAnonymous;
-            
             document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
-            
             document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
             document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
-            
             const createBtnMob = document.getElementById('openCreateBtnHeader');
             if (createBtnMob) createBtnMob.style.display = isReg ? 'flex' : 'none';
-
             const noticeBanner = document.getElementById('loginNoticeBanner'); 
             if (noticeBanner) noticeBanner.classList.toggle('hidden', isReg);
-            
             if (isReg) document.getElementById('userName').textContent = user.displayName;
             
             let isAgreed = false; try { isAgreed = localStorage.getItem('mixvote_agreed') === 'true'; } catch(e){}
-            if (user && (isAgreed || window.sessionAgreed)) { document.getElementById('appUI').classList.remove('hidden'); document.getElementById('tosModal').classList.add('hidden'); handleNavigation(); } else if (user) { document.getElementById('tosModal').classList.remove('hidden'); document.getElementById('appUI').classList.add('hidden'); }
-            window.initRealtimePolls();
+            if (user && (isAgreed || window.sessionAgreed)) { 
+                document.getElementById('appUI').classList.remove('hidden'); 
+                document.getElementById('tosModal').classList.add('hidden'); 
+                handleNavigation(); 
+            } else if (user) { 
+                document.getElementById('tosModal').classList.remove('hidden'); 
+                document.getElementById('appUI').classList.add('hidden'); 
+            }
         });
 
         (() => {
@@ -1018,25 +998,30 @@
             modals.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                el.addEventListener('click', (e) => { 
-                    if (e.target === el) el.classList.add('hidden'); 
-                });
+                el.addEventListener('click', (e) => { if (e.target === el) el.classList.add('hidden'); });
             });
-
             window.addEventListener('keydown', (e) => { 
-                if (e.key === 'Escape') {
-                    modals.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.classList.add('hidden');
-                    });
-                }
+                if (e.key === 'Escape') modals.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
             });
         })();
 
         const searchInput = document.getElementById('globalSearch');
-        if (searchInput) { let t = null; searchInput.addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => { searchTerm = (e.target.value || "").trim(); applyFilters(); }, 150); }); }
+        if (searchInput) { 
+            let t = null; 
+            searchInput.addEventListener('input', (e) => { 
+                clearTimeout(t); 
+                t = setTimeout(() => { searchTerm = (e.target.value || "").trim(); applyFilters(); }, 150); 
+            }); 
+        }
+
         const dlInput = document.getElementById('pollDeadlineInput'), dlDisp = document.getElementById('deadlineDisplay');
-        if (dlInput && dlDisp) { dlInput.addEventListener('change', () => { if (!dlInput.value) { dlDisp.textContent = i18n('select'); return; } const d = new Date(dlInput.value), loc = currentLang === 'ja' ? 'ja-JP' : 'en-US'; dlDisp.textContent = isNaN(d.getTime()) ? i18n('select') : d.toLocaleString(loc, { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }); }); }
+        if (dlInput && dlDisp) { 
+            dlInput.addEventListener('change', () => { 
+                if (!dlInput.value) { dlDisp.textContent = i18n('select'); return; } 
+                const d = new Date(dlInput.value), loc = currentLang === 'ja' ? 'ja-JP' : 'en-US'; 
+                dlDisp.textContent = isNaN(d.getTime()) ? i18n('select') : d.toLocaleString(loc, { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }); 
+            }); 
+        }
 
         const catNav = document.getElementById('categoryNav');
         if (catNav) {
@@ -1044,12 +1029,12 @@
             window.addEventListener('resize', updateCategoryArrows);
         }
 
-        // カテゴリー選択時の連動処理
-        document.getElementById('pollCategoryInput').addEventListener('change', (e) => {
+        document.getElementById('pollCategoryInput')?.addEventListener('change', (e) => {
             const cat = e.target.value;
             const optionsArea = document.getElementById('pollOptionsInput');
             const quizArea = document.getElementById('quizAnswerArea');
             const labelDesc = document.getElementById('labelPollDesc');
+            if (!quizArea || !labelDesc || !optionsArea) return;
 
             quizArea.classList.add('hidden');
             labelDesc.textContent = i18n('label_desc');
@@ -1062,11 +1047,9 @@
                     quizArea.classList.remove('hidden');
                     labelDesc.textContent = i18n('label_problem');
                 }
-            } else {
-                if (cat === 'クイズ') {
-                    quizArea.classList.remove('hidden');
-                    labelDesc.textContent = i18n('label_problem');
-                }
+            } else if (cat === 'クイズ') {
+                quizArea.classList.remove('hidden');
+                labelDesc.textContent = i18n('label_problem');
             }
         });
 
@@ -1074,22 +1057,13 @@
             if (!commentToEditId || !currentUser || currentUser.isAnonymous) return;
             const text = document.getElementById('editCommentInput').value.trim();
             if (!text) return;
-            try { await updateDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', commentToEditId), { text, updatedAt: serverTimestamp() }); window.closeEditCommentModal(); showMessage(i18n('notice'), i18n('comment_updated')); } catch (e) { showMessage(i18n('notice'), "Failed to update comment."); }
+            try { await updateDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', commentToEditId), { text, updatedAt: serverTimestamp() }); window.closeEditCommentModal(); showMessage(i18n('notice'), i18n('comment_updated')); } catch (e) { showMessage(i18n('notice'), "Error."); }
         };
 
         document.getElementById('agreeTosBtn').onclick = () => { try { localStorage.setItem('mixvote_agreed', 'true'); } catch(e){} window.sessionAgreed = true; document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); goHome(); };
         
         document.getElementById('loginBtn').onclick = async () => {
-            try {
-                await signInWithRedirect(auth, new GoogleAuthProvider());
-            } catch (e) {
-                console.error(e);
-                if (e.code === 'auth/unauthorized-domain') {
-                    showMessage(i18n('notice'), i18n('auth_unauthorized_domain'));
-                } else {
-                    showMessage(i18n('notice'), `${e.code || 'auth-error'}: ${e.message || e}`);
-                }
-            }
+            try { await signInWithRedirect(auth, new GoogleAuthProvider()); } catch (e) { showMessage(i18n('notice'), `${e.code}`); }
         };
 
         document.getElementById('logoutBtn').onclick = () => signOut(auth);
@@ -1107,10 +1081,8 @@
             document.getElementById('pollOptionsInput').value = ""; 
             const dl = document.getElementById('pollDeadlineInput'); 
             if(dl) dl.dispatchEvent(new Event('change')); 
-            
             document.getElementById('quizAnswerArea').classList.add('hidden');
             document.getElementById('labelPollDesc').textContent = i18n('label_desc');
-
             document.getElementById('createModal').classList.remove('hidden'); 
         };
 
