@@ -208,7 +208,7 @@
     </div>
 
     <!-- 削除モーダル -->
-    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4 pointer-events-auto">
+    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4 pointer-events-auto">
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-red-500/20 shadow-2xl pointer-events-auto relative z-10">
             <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
@@ -654,12 +654,11 @@
         }
 
         async function initAuth() {
-            // リダイレクト結果を回収（ここ一箇所に集約）
+            // リダイレクト結果を回収（起動時のここ一箇所に集約）
             try {
                 const r = await getRedirectResult(auth);
                 if (r?.user) {
                     console.log('Redirect result successful:', r.user.uid, r.user.isAnonymous);
-                    // 結果が回収できたら、その後の匿名ログイン等は不要なので終了
                     return;
                 }
             } catch (e) {
@@ -974,6 +973,8 @@
         onAuthStateChanged(auth, async (user) => {
             console.log('AUTH:', user?.uid, user?.isAnonymous, user?.providerData);
             
+            // 重要：ここで getRedirectResult を呼ぶのをやめ、initAuth 側に一任する
+            
             currentUser = user;
             const initialLang = localStorage.getItem('mixvote_lang') || (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Tokyo' ? 'ja' : 'en');
             changeLang(initialLang);
@@ -981,15 +982,12 @@
             
             const isReg = user && !user.isAnonymous;
             
-            // ログインボタンとユーザー情報の切り替え
             document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
             
-            // サイドバー要素の切り替え
             document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
             document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
             
-            // モバイル用ヘッダー追加ボタンの切り替え
             const createBtnMob = document.getElementById('openCreateBtnHeader');
             if (createBtnMob) createBtnMob.style.display = isReg ? 'flex' : 'none';
 
