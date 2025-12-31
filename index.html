@@ -305,9 +305,20 @@
                     </div>
                 </div>
 
-                <div class="glass rounded-3xl p-5 border border-white/5">
+                <div class="glass rounded-3xl p-5 border border-white/5 overflow-hidden">
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] opacity-50 mb-4 pl-2 i18n" data-key="categories">Categories</h3>
-                    <nav id="categoryNav" class="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-y-auto pb-2 lg:pb-0 custom-scrollbar lg:max-h-[50vh] pr-1"></nav>
+                    <!-- モバイル用スワイプ誘導矢印を追加 -->
+                    <div class="relative group/cat-nav">
+                        <!-- 左向き矢印 -->
+                        <div id="catLeftArrow" class="lg:hidden absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-900/80 to-transparent flex items-center justify-start z-10 pointer-events-none opacity-0 transition-opacity">
+                            <i class="fas fa-chevron-left text-[10px] text-[color:var(--accent)] ml-1"></i>
+                        </div>
+                        <nav id="categoryNav" class="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-y-auto pb-2 lg:pb-0 custom-scrollbar lg:max-h-[50vh] pr-1"></nav>
+                        <!-- 右向き矢印 -->
+                        <div id="catRightArrow" class="lg:hidden absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-900/80 to-transparent flex items-center justify-end z-10 pointer-events-none opacity-0 transition-opacity">
+                            <i class="fas fa-chevron-right text-[10px] text-[color:var(--accent)] mr-1"></i>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- テーマ設定 -->
@@ -723,6 +734,20 @@
             applyTheme(DEFAULT_THEME.accent, DEFAULT_THEME.bg, DEFAULT_THEME.text);
         }
 
+        // カテゴリーナビの矢印表示制御
+        function updateCategoryArrows() {
+            const nav = document.getElementById('categoryNav');
+            const left = document.getElementById('catLeftArrow');
+            const right = document.getElementById('catRightArrow');
+            if (!nav || !left || !right) return;
+
+            // 左にスクロール可能か
+            left.style.opacity = nav.scrollLeft > 10 ? '1' : '0';
+            // 右にスクロール可能か
+            const canScrollRight = nav.scrollWidth > (nav.scrollLeft + nav.clientWidth + 10);
+            right.style.opacity = canScrollRight ? '1' : '0';
+        }
+
         function setupCategoryMenu() {
             const nav = document.getElementById('categoryNav'), select = document.getElementById('pollCategoryInput');
             if (!nav || !select) return; nav.innerHTML = ''; select.innerHTML = '';
@@ -745,6 +770,9 @@
                 const opt = document.createElement('option');
                 opt.value = internalName; opt.textContent = catLabel; select.appendChild(opt);
             });
+
+            // 矢印の状態を更新
+            setTimeout(updateCategoryArrows, 100);
         }
 
         function changeLang(lang) {
@@ -989,11 +1017,17 @@
         const dlInput = document.getElementById('pollDeadlineInput'), dlDisp = document.getElementById('deadlineDisplay');
         if (dlInput && dlDisp) { dlInput.addEventListener('change', () => { if (!dlInput.value) { dlDisp.textContent = i18n('select'); return; } const d = new Date(dlInput.value), loc = currentLang === 'ja' ? 'ja-JP' : 'en-US'; dlDisp.textContent = isNaN(d.getTime()) ? i18n('select') : d.toLocaleString(loc, { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }); }); }
 
-        // 「あるある」カテゴリー選択時に4択を自動入力するリスナーを追加
+        // カテゴリーナビのスクロールイベント登録
+        const catNav = document.getElementById('categoryNav');
+        if (catNav) {
+            catNav.addEventListener('scroll', updateCategoryArrows);
+            window.addEventListener('resize', updateCategoryArrows);
+        }
+
+        // 「あるある」カテゴリー選択時に4択を自動入力するリスナー
         document.getElementById('pollCategoryInput').addEventListener('change', (e) => {
             const cat = e.target.value;
             const optionsArea = document.getElementById('pollOptionsInput');
-            // 編集モードでない、かつ「あるある」が選ばれた場合のみ自動入力
             if (!editMode && cat === 'あるある') {
                 const opts = currentLang === 'ja' ? RELATABLE_OPTIONS_JA : RELATABLE_OPTIONS_EN;
                 optionsArea.value = opts.join('\n');
