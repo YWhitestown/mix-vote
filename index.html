@@ -208,7 +208,7 @@
     </div>
 
     <!-- 削除モーダル -->
-    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4 pointer-events-auto">
+    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4 pointer-events-auto">
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-red-500/20 shadow-2xl pointer-events-auto relative z-10">
             <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
@@ -660,6 +660,7 @@
         }
 
         async function initAuth() {
+            // リダイレクト結果を回収（起動時のここ一箇所に集約）
             try {
                 const r = await getRedirectResult(auth);
                 if (r?.user) {
@@ -673,8 +674,10 @@
                 }
             }
 
+            // すでにGoogle等でログイン済みの場合は、匿名ログインで上書きしない
             if (auth.currentUser && !auth.currentUser.isAnonymous) return;
 
+            // 完全に未ログインの場合のみ、匿名ログインを試行
             if (!auth.currentUser) {
                 try {
                     await signInAnonymously(auth);
@@ -939,14 +942,12 @@
         window.openEditPoll = function() { 
             editMode = true; editPollId = currentPollId; document.getElementById('modalTitle').textContent = i18n('edit_poll'); document.getElementById('pollTitleInput').value = currentPollData.title; document.getElementById('pollDescInput').value = currentPollData.question || ""; document.getElementById('pollCategoryInput').value = currentPollData.category; document.getElementById('pollHashtagsInput').value = (currentPollData.hashtags || []).map(h => `#${h}`).join(' '); document.getElementById('pollOptionsInput').value = currentPollData.options.join('\n'); document.getElementById('pollMultiChoiceInput').checked = !!currentPollData.isMultipleChoice;
             
-            // クイズ用正解フィールドの復元
             const ansInput = document.getElementById('pollAnswerInput');
             if (ansInput) ansInput.value = currentPollData.correctAnswer || "";
 
             if (currentPollData.deadline) { const date = currentPollData.deadline.toDate(); const localISO = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16); document.getElementById('pollDeadlineInput').value = localISO; } else { document.getElementById('pollDeadlineInput').value = ""; }
             const dl = document.getElementById('pollDeadlineInput'); if(dl) dl.dispatchEvent(new Event('change')); 
             
-            // カテゴリー変更イベントを発火させてUIを更新
             document.getElementById('pollCategoryInput').dispatchEvent(new Event('change'));
             document.getElementById('createModal').classList.remove('hidden'); 
         };
@@ -1049,9 +1050,7 @@
             const optionsArea = document.getElementById('pollOptionsInput');
             const quizArea = document.getElementById('quizAnswerArea');
             const labelDesc = document.getElementById('labelPollDesc');
-            const answerInput = document.getElementById('pollAnswerInput');
 
-            // UIリセット
             quizArea.classList.add('hidden');
             labelDesc.textContent = i18n('label_desc');
 
@@ -1060,12 +1059,10 @@
                     const opts = currentLang === 'ja' ? RELATABLE_OPTIONS_JA : RELATABLE_OPTIONS_EN;
                     optionsArea.value = opts.join('\n');
                 } else if (cat === 'クイズ') {
-                    // クイズ固有のUI
                     quizArea.classList.remove('hidden');
                     labelDesc.textContent = i18n('label_problem');
                 }
             } else {
-                // 編集モードでもクイズなら正解欄を表示
                 if (cat === 'クイズ') {
                     quizArea.classList.remove('hidden');
                     labelDesc.textContent = i18n('label_problem');
@@ -1102,7 +1099,7 @@
             document.getElementById('modalTitle').textContent = i18n('create_poll'); 
             document.getElementById('pollTitleInput').value = ""; 
             document.getElementById('pollDescInput').value = ""; 
-            document.getElementById('pollAnswerInput').value = ""; // 正解欄リセット
+            document.getElementById('pollAnswerInput').value = ""; 
             document.getElementById('pollCategoryInput').selectedIndex = 0; 
             document.getElementById('pollHashtagsInput').value = ""; 
             document.getElementById('pollDeadlineInput').value = ""; 
@@ -1111,7 +1108,6 @@
             const dl = document.getElementById('pollDeadlineInput'); 
             if(dl) dl.dispatchEvent(new Event('change')); 
             
-            // クイズエリアを非表示にする初期状態へ
             document.getElementById('quizAnswerArea').classList.add('hidden');
             document.getElementById('labelPollDesc').textContent = i18n('label_desc');
 
