@@ -208,7 +208,7 @@
     </div>
 
     <!-- 削除モーダル -->
-    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4 pointer-events-auto">
+    <div id="deleteOptionsModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 pointer-events-auto">
         <div class="glass max-w-sm w-full rounded-[32px] p-8 text-center border border-red-500/20 shadow-2xl pointer-events-auto relative z-10">
             <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
@@ -264,6 +264,7 @@
                         <i class="fab fa-google text-[color:var(--accent)]"></i> <span class="hidden sm:inline i18n" data-key="login">Sign In</span>
                     </button>
                     <div id="userInfo" class="hidden flex items-center gap-4">
+                        <!-- モバイル用：ログイン時に表示されるクイックナビゲーション -->
                         <div class="flex md:hidden items-center gap-4 mr-2 border-r border-white/10 pr-4">
                             <button onclick="window.goHome()" class="text-white/40 hover:text-white transition-colors"><i class="fas fa-home"></i></button>
                             <button id="openCreateBtnHeader" class="w-8 h-8 rounded-lg bg-[color:var(--accent)] flex items-center justify-center text-slate-900 shadow-lg"><i class="fas fa-plus"></i></button>
@@ -656,19 +657,19 @@
         }
 
         async function initAuth() {
+            // 1) 永続化をセット
             try {
-                // 1) 永続化設定
                 await setPersistence(auth, browserLocalPersistence);
             } catch (e) {
-                console.warn("Persistence failed:", e);
+                console.warn("Persistence failed:", e.code || e.message);
             }
 
+            // 2) リダイレクト結果を回収
             try {
-                // 2) リダイレクト結果の回収を試行
                 const r = await getRedirectResult(auth);
                 if (r?.user) {
-                    console.log('Redirect user restored:', r.user.uid, r.user.isAnonymous);
-                    return; // 正常に回収できたら終了
+                    console.log("Redirect result successful:", r.user.uid, r.user.isAnonymous);
+                    return;
                 }
             } catch (e) {
                 console.error("Redirect recovery error:", e);
@@ -677,9 +678,8 @@
                     return;
                 }
             }
-
-            // 3) 匿名ログインの自動実行を削除（上書き事故防止）
-            // 閲覧はFirestoreルールが read: true なのでログインなしで動作可能
+            
+            // 3) 匿名ログインの自動実行を廃止（上書き事故防止）
         }
 
         function showMessage(title, body, onConfirm = null) {
@@ -984,7 +984,6 @@
             
             let isAgreed = false; try { isAgreed = localStorage.getItem('mixvote_agreed') === 'true'; } catch(e){}
             
-            // 同意に関わらず UI は表示し、モーダルでブロックする（ストレージ制限対策）
             document.getElementById('appUI').classList.remove('hidden');
             if (user && (isAgreed || window.sessionAgreed)) { 
                 document.getElementById('tosModal').classList.add('hidden'); 
@@ -1063,20 +1062,21 @@
 
         document.getElementById('agreeTosBtn').onclick = () => { try { localStorage.setItem('mixvote_agreed', 'true'); } catch(e){} window.sessionAgreed = true; document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); goHome(); };
         
-        // signInWithPopup を使用するように変更（リダイレクトが不安定な場合の安定化策）
+        // 修正：Redirect ではなく安定した Popup を優先使用
         document.getElementById('loginBtn').onclick = async () => {
             try { 
                 await signInWithPopup(auth, new GoogleAuthProvider()); 
             } catch (e) { 
-                if (e.code === 'auth/popup-blocked') {
-                    // ポップアップがブロックされた場合はリダイレクトを試行
+                console.error("Login failed:", e);
+                // ポップアップが完全に拒否される環境向けにリダイレクトをフォールバックとして保持
+                if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request') {
                     try {
                         await signInWithRedirect(auth, new GoogleAuthProvider());
                     } catch (e2) {
                         showMessage(i18n('notice'), `${e2.code}`);
                     }
                 } else {
-                    showMessage(i18n('notice'), `${e.code}`);
+                    showMessage(i18n('notice'), `${e.code || e.message}`);
                 }
             }
         };
