@@ -87,16 +87,23 @@
             border: none;
         }
 
+        /* 日本語表示かつモバイル時の縦書き・長音符回転対応 */
         @media (max-width: 1023px) {
-            .jp-category-btn {
+            .jp-category-btn, .jp-poll-title {
                 writing-mode: vertical-rl;
                 text-orientation: mixed;
-                min-height: 100px;
-                padding-top: 1.5rem !important;
-                padding-bottom: 1.5rem !important;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+            }
+            .jp-category-btn {
+                min-height: 100px;
+                padding-top: 1.5rem !important;
+                padding-bottom: 1.5rem !important;
+            }
+            .jp-poll-title {
+                min-height: 80px;
+                text-align: center;
             }
         }
 
@@ -153,7 +160,7 @@
         </div>
     </div>
 
-    <!-- 通知モーダル -->
+    <!-- メッセージモーダル -->
     <div id="msgModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="glass max-w-xs w-full rounded-[24px] p-6 text-center border border-white/10 shadow-2xl">
             <h3 id="msgTitle" class="text-lg font-black mb-3 uppercase italic text-[color:var(--accent)] i18n" data-key="notice">Notice</h3>
@@ -234,6 +241,7 @@
         </header>
 
         <div class="max-w-7xl mx-auto w-full px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 flex-grow">
+            <!-- サイドバー -->
             <aside class="lg:col-span-3 space-y-6">
                 <div class="space-y-2">
                     <button onclick="window.goHome()" id="navHomeBtn" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition-all flex items-center gap-3 text-sm font-bold group">
@@ -249,10 +257,11 @@
                     </div>
                 </div>
 
-                <button id="openCreateBtn" class="btn-glow w-full text-slate-950 font-black py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl active:scale-95 uppercase tracking-widest text-xs group">
+                <button id="openCreateBtn" class="btn-glow w-full text-slate-950 font-black py-4 rounded-2xl hidden items-center justify-center gap-3 shadow-xl active:scale-95 uppercase tracking-widest text-xs group">
                     <i class="fas fa-plus group-hover:rotate-90 transition-transform"></i> <span class="i18n" data-key="new_poll">New Poll</span>
                 </button>
 
+                <!-- 言語切り替え -->
                 <div class="glass rounded-3xl p-5 border border-white/5">
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] opacity-50 mb-4 pl-2 i18n" data-key="language">Language</h3>
                     <div class="flex gap-2 p-1 bg-black/20 rounded-xl">
@@ -293,6 +302,7 @@
             <!-- メイン -->
             <main class="lg:col-span-9 pb-20">
                 <div id="view-home" class="view-content space-y-8 animate-in fade-in duration-500">
+                    <!-- ホーム画面用 翻訳ガイドバナー -->
                     <div id="homeTranslateGuide" class="browser-tip" onclick="window.openTranslateModal()">
                         <div class="w-14 h-14 bg-[rgba(var(--accent-rgb),0.2)] rounded-2xl flex items-center justify-center text-[color:var(--accent)] shrink-0 shadow-lg">
                             <i class="fas fa-language text-3xl"></i>
@@ -517,6 +527,7 @@
             catsDisplay.forEach((catLabel, idx) => {
                 const internalName = CATEGORIES_JA[idx];
                 const btn = document.createElement('button');
+                // 日本語時は縦書き回転クラス jp-category-btn を適用
                 btn.className = `nav-link px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-left ${selectedCategory === internalName ? 'active opacity-100' : 'opacity-40 hover:opacity-100 hover:text-white'} ${currentLang === 'ja' ? 'jp-category-btn' : ''}`;
                 btn.textContent = catLabel;
                 btn.onclick = () => { selectedCategory = internalName; setupCategoryMenu(); window.goHome(); };
@@ -537,14 +548,15 @@
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category);
                 div.className = "poll-card glass-panel rounded-[24px] p-6 md:p-8 cursor-pointer flex flex-col justify-between group";
                 div.onclick = () => window.goDetail(p.id);
-                div.innerHTML = `<div class="space-y-4"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-lg md:text-xl font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3><div class="flex flex-wrap mt-1">${(p.hashtags || []).map(t => `<span class="text-[10px] text-[color:var(--accent)] opacity-80 mr-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span></div>`;
+                // タイトルに縦書き回転クラス jp-poll-title を適用
+                div.innerHTML = `<div class="space-y-4"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-lg md:text-xl font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors ${currentLang === 'ja' ? 'jp-poll-title' : ''}">${escapeHTML(p.title)}</h3><div class="flex flex-wrap mt-1">${(p.hashtags || []).map(t => `<span class="text-[10px] text-[color:var(--accent)] opacity-80 mr-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>by ${escapeHTML(maskString(p.author))}</span><span>${total} ${i18n('votes')}</span></div>`;
                 fC.appendChild(div);
             });
             mP.forEach(p => {
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category), dStr = p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString(dateLoc) : '';
                 div.className = "poll-card glass rounded-[16px] p-4 cursor-pointer flex flex-col justify-between";
                 div.onclick = () => window.goDetail(p.id);
-                div.innerHTML = `<div class="space-y-2"><span class="text-[8px] font-bold opacity-40 uppercase">${escapeHTML(dC)}</span><h3 class="text-xs font-bold leading-snug line-clamp-2">${escapeHTML(p.title)}</h3></div><div class="mt-3 text-[8px] opacity-30 font-bold border-t border-white/5 pt-2 flex justify-between uppercase"><span>${total} ${i18n('votes_abbr')}</span><span>${dStr}</span></div>`;
+                div.innerHTML = `<div class="space-y-2"><span class="text-[8px] font-bold opacity-40 uppercase">${escapeHTML(dC)}</span><h3 class="text-xs font-bold leading-snug line-clamp-2 ${currentLang === 'ja' ? 'jp-poll-title' : ''}">${escapeHTML(p.title)}</h3></div><div class="mt-3 text-[8px] opacity-30 font-bold border-t border-white/5 pt-2 flex justify-between uppercase"><span>${total} ${i18n('votes_abbr')}</span><span>${dStr}</span></div>`;
                 mC.appendChild(div);
             });
         }
@@ -616,8 +628,9 @@
             window.loadPolls(); 
         }
 
-        // --- 4. Window オブジェクトへの割り当て ---
-        window.i18n = i18n; window.setActiveNav = setActiveNav; window.getDisplayCat = getDisplayCat; window.getInternalCategoryName = getInternalCategoryName; window.updateUIStrings = updateUIStrings; window.applyFilters = applyFilters; window.renderHomePolls = renderHomePolls; window.showMessage = showMessage; window.goHome = goHome; window.goDetail = goDetail; window.loadTheme = loadTheme; window.applyTheme = applyTheme; window.resetTheme = resetTheme; window.changeLang = changeLang; window.initAuth = initAuth; window.handleNavigation = handleNavigation; window.escapeHTML = escapeHTML; window.maskString = maskString; window.setupCategoryMenu = setupCategoryMenu;
+        // --- 4. Window オブジェクトへの割り当て (即時に登録) ---
+        window.i18n = i18n; window.setActiveNav = setActiveNav; window.getDisplayCat = getDisplayCat; window.getInternalCategoryName = getInternalCategoryName; window.updateUIStrings = updateUIStrings; window.applyFilters = applyFilters; window.renderHomePolls = renderHomePolls; window.showMessage = showMessage; window.goHome = goHome; window.goDetail = goDetail; window.loadTheme = loadTheme; window.applyTheme = applyTheme; window.resetTheme = resetTheme; window.changeLang = changeLang; window.initAuth = initAuth; window.handleNavigation = handleNavigation; window.escapeHTML = escapeHTML; window.maskString = maskString;
+
         window.closeTranslateModal = () => document.getElementById('translateModal').classList.add('hidden');
         window.openTranslateModal = () => document.getElementById('translateModal').classList.remove('hidden');
 
@@ -669,24 +682,30 @@
             p.options.forEach((opt, i) => { const v = p.votes[i] || 0; const per = total > 0 ? Math.round(v / total * 100) : 0; text += `- ${opt}: ${v} votes (${per}%)\n`; });
             const blob = new Blob([text], { type: 'text/plain' }); const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `poll_results_${currentPollId}.txt`; a.click();
-            URL.revokeObjectURL(url); showMessage(i18n('download_results'), i18n('download_results'));
+            URL.revokeObjectURL(url); showMessage(translations[currentLang].download_results, translations[currentLang].download_results);
         };
 
         window.loadPollDetail = async function(id) {
-            localSelectedIndices = []; let localVoted = false; try { localVoted = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(id); } catch(e) {}
             const d = await getDoc(doc(db, ...POLLS_PATH, id)); if (!d.exists()) return goHome();
             const p = d.data(); currentPollId = id; currentPollData = p;
+            let localVoted = false; try { localVoted = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(id); } catch(e) {}
             const total = p.votes?.reduce((s,v)=>s+v,0)||0, hasV = (currentUser && p.votedUsers?.includes(currentUser.uid)) || localVoted;
             const isExp = p.deadline && p.deadline.toDate() < new Date(), canV = !hasV && !isExp, isM = p.isMultipleChoice === true, isReg = currentUser && !currentUser.isAnonymous;
             document.getElementById('adminControls').innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="window.openEditPoll()" class="p-2 rounded-lg glass text-[color:var(--accent)] border border-[rgba(var(--accent-rgb),0.2)]"><i class="fas fa-edit"></i></button><button onclick="window.openDeleteModal()" class="p-2 rounded-lg glass text-red-400 border border-red-500/20"><i class="fas fa-trash"></i></button>` : '';
             document.getElementById('commentInputArea').classList.toggle('hidden', !isReg);
             const content = document.getElementById('pollDetailContent'), dC = getDisplayCat(p.category);
-            content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] font-black text-[9px] px-3 py-1 rounded-md uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><h2 class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><div class="flex flex-wrap">${(p.hashtags || []).map(t => `<span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] text-[10px] px-2 py-0.5 rounded-full mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative leading-relaxed"><p>${escapeHTML(p.question)}</p></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => { const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0; return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-[rgba(var(--accent-rgb),0.5)]' : ''}"><div class="absolute inset-y-0 left-0 bg-[rgba(var(--accent-rgb),0.05)] transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div></div></div>`; }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-[color:var(--accent)] text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex flex-col items-center justify-center min-h-[300px] gap-6"><div class="flex gap-2 p-1 bg-black/20 rounded-xl mb-2"><button onclick="window.setChartType('doughnut')" data-type="doughnut" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-pie mr-1"></i> Doughnut</button><button onclick="window.setChartType('bar')" data-type="bar" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-bar mr-1"></i> Bar</button></div><div class="w-full h-[250px] flex items-center justify-center"><canvas id="pollChart"></canvas></div><div class="flex flex-wrap items-center justify-center gap-2 mt-4"><button onclick="window.sharePoll('x')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all"><i class="fab fa-x-twitter"></i></button><button onclick="window.sharePoll('fb')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-blue-400 hover:text-blue-300 transition-all"><i class="fab fa-facebook-f"></i></button><button onclick="window.sharePoll('ig')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-pink-400 hover:text-pink-300 transition-all"><i class="fab fa-instagram"></i></button><button onclick="window.downloadPoll()" class="px-4 py-2 rounded-xl glass hover:bg-[rgba(var(--accent-rgb),0.1)] border border-white/5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[color:var(--accent)] transition-all"><i class="fas fa-download"></i> ${i18n('download_results')}</button></div></div></div></div>`;
+            content.innerHTML = `<div class="space-y-8"><div class="space-y-4"><div class="flex items-center gap-3"><span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] font-black text-[9px] px-3 py-1 rounded-md uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span>${isM ? `<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase border border-purple-500/20">${i18n('label_multi')}</span>`:''}</div><h2 class="text-xl md:text-2xl font-black leading-tight">${escapeHTML(p.title)}</h2><div class="flex flex-wrap">${(p.hashtags || []).map(t => `<span class="bg-[rgba(var(--accent-rgb),0.1)] text-[color:var(--accent)] text-[10px] px-2 py-0.5 rounded-full mr-2 mb-2 font-bold">#${escapeHTML(t)}</span>`).join('')}</div>${p.question ? `<div class="bg-white/5 p-6 rounded-2xl opacity-80 text-sm border border-white/5 relative leading-relaxed"><p>${escapeHTML(p.question)}</p></div>` : ''}</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="space-y-3">${p.options.map((opt, i) => { const v = p.votes[i]||0, per = total>0?Math.round(v/total*100):0; return `<div ${canV ? (isM ? `onclick="window.toggleLocalSelect(${i})"` : `onclick="window.castVote(${i})"`) : ''} id="opt-container-${i}" class="relative overflow-hidden bg-slate-900/50 border border-white/5 rounded-xl p-4 flex justify-between items-center group ${canV ? 'cursor-pointer hover:border-[rgba(var(--accent-rgb),0.5)]' : ''}"><div class="absolute inset-y-0 left-0 bg-[rgba(var(--accent-rgb),0.05)] transition-all duration-1000" style="width:${per}%"></div><div class="relative z-10 flex items-center gap-3">${canV && isM ? '<div class="custom-checkbox"><i class="fas fa-check text-[10px] text-slate-900"></i></div>':''}<span class="font-bold text-sm">${escapeHTML(opt)}</span></div><div class="relative z-10 text-right shrink-0"><div class="font-black text-base">${per}%</div><div class="text-[8px] opacity-40 uppercase font-bold">${v} ${i18n('votes')}</div></div></div>`; }).join('')}${canV && isM ? `<button onclick="window.submitMultipleVotes()" id="submitMultiVoteBtn" style="display:none;" class="w-full bg-[color:var(--accent)] text-slate-950 font-black py-3 rounded-xl text-xs uppercase mt-4 hover:brightness-110 transition-all">${i18n('confirm')}</button>`:''}</div><div class="flex flex-col items-center justify-center min-h-[300px] gap-6">
+                <div class="flex gap-2 p-1 bg-black/20 rounded-xl mb-2">
+                    <button onclick="window.setChartType('doughnut')" data-type="doughnut" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-pie mr-1"></i> Doughnut</button>
+                    <button onclick="window.setChartType('bar')" data-type="bar" class="chart-toggle px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"><i class="fas fa-chart-bar mr-1"></i> Bar</button>
+                </div>
+                <div class="w-full h-[250px] flex items-center justify-center"><canvas id="pollChart"></canvas></div><div class="flex flex-wrap items-center justify-center gap-2 mt-4"><button onclick="window.sharePoll('x')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all"><i class="fab fa-x-twitter"></i></button><button onclick="window.sharePoll('fb')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-blue-400 hover:text-blue-300 transition-all"><i class="fab fa-facebook-f"></i></button><button onclick="window.sharePoll('ig')" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center text-pink-400 hover:text-pink-300 transition-all"><i class="fab fa-instagram"></i></button><button onclick="window.downloadPoll()" class="px-4 py-2 rounded-xl glass hover:bg-[rgba(var(--accent-rgb),0.1)] border border-white/5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[color:var(--accent)] transition-all"><i class="fas fa-download"></i> ${i18n('download_results')}</button></div></div></div></div>`;
             window.renderChart(p, currentChartType); window.loadComments(id);
         };
 
         window.loadComments = (pid) => {
             if (unsubscribeComments) unsubscribeComments();
+            const dateLoc = currentLang === 'ja' ? 'ja-JP' : 'en-US';
             unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
                 const list = document.getElementById('commentsList'); if (!list) return;
                 list.innerHTML = s.empty ? `<p class="text-center text-[10px] opacity-30 py-6 uppercase font-bold tracking-widest">${i18n('no_comments')}</p>` : '';
@@ -694,7 +713,7 @@
                 s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).forEach(c => {
                     currentCommentsData[c.id] = c.text;
                     const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 space-y-1 relative group";
-                    const dStr = c.createdAt?.seconds ? new Date(c.createdAt.seconds*1000).toLocaleDateString() : '';
+                    const dStr = c.createdAt?.seconds ? new Date(c.createdAt.seconds*1000).toLocaleDateString(dateLoc) : '';
                     div.innerHTML = `<div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest"><span class="text-[color:var(--accent)]">${escapeHTML(maskString(c.author))}</span><div class="flex items-center gap-3"><span class="opacity-30">${dStr}</span><div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">${(isAdmin || (currentUser && c.userId === currentUser.uid)) ? `<button onclick="window.openEditCommentModal('${c.id}')" class="opacity-50 hover:text-[color:var(--accent)] hover:opacity-100 transition-all"><i class="fas fa-edit"></i></button><button onclick="window.confirmDeleteComment('${c.id}')" class="opacity-50 hover:text-red-400 hover:opacity-100 transition-all"><i class="fas fa-trash"></i></button>` : ''}</div></div></div><p class="text-xs opacity-70 leading-relaxed pr-8">${escapeHTML(c.text)}</p>`;
                     list.appendChild(div);
                 });
@@ -704,18 +723,18 @@
         window.postComment = async () => {
             const input = document.getElementById('commentText'), text = input.value.trim();
             if (!text || !currentUser || currentUser.isAnonymous) return;
-            try { await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { userId: currentUser.uid, author: currentUser.displayName || 'User', text: text, createdAt: serverTimestamp() }); input.value = ''; showMessage(i18n('notice'), i18n('comment_posted')); } catch (e) { console.error(e); }
+            try { await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { userId: currentUser.uid, author: currentUser.displayName || 'User', text: text, createdAt: serverTimestamp() }); input.value = ''; showMessage(translations[currentLang].notice, translations[currentLang].comment_posted); } catch (e) { console.error(e); }
         };
 
         window.confirmDeleteComment = (cid) => { showMessage(i18n('notice'), i18n('delete_comment_confirm'), async () => { try { await deleteDoc(doc(db, ...POLLS_PATH, currentPollId, 'comments', cid)); } catch (e) {} }); };
         window.confirmDeletePoll = async function(type) { window.closeDeleteModal(); try { const ref = doc(db, ...POLLS_PATH, currentPollId); if (type === 'archive') await updateDoc(ref, { deleted: true, deletedAt: serverTimestamp(), deletedBy: currentUser.uid }); else if (type === 'permanent') await deleteDoc(ref); goHome(); } catch (e) { showMessage(i18n('notice'), i18n('permission_denied')); } };
-        window.castVote = async function(idx) { if (!currentUser) return; try { if (JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(currentPollId)) { showMessage(i18n('notice'), i18n('already_voted')); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; newVotes[idx] = (newVotes[idx] || 0) + 1; tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const h = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); h.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(h)); } catch(e) {} window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") showMessage(i18n('notice'), i18n('already_voted')); } };
+        window.castVote = async function(idx) { if (!currentUser) return; try { if (JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(currentPollId)) { showMessage(i18n('notice'), i18n('already_voted')); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; newVotes[idx] = (newVotes[idx] || 0) + 1; tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const h = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); h.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(h)); } catch(e) {} window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), i18n('already_voted')); } };
         window.toggleLocalSelect = function(idx) { const el = document.getElementById(`opt-container-${idx}`); if (localSelectedIndices.includes(idx)) { localSelectedIndices = localSelectedIndices.filter(i => i !== idx); el?.classList.remove('poll-option-selected'); } else { localSelectedIndices.push(idx); el?.classList.add('poll-option-selected'); } const btn = document.getElementById('submitMultiVoteBtn'); if (btn) btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none'; };
-        window.submitMultipleVotes = async function() { if (!currentUser) return; try { if (JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(currentPollId)) { showMessage(i18n('notice'), i18n('already_voted')); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; localSelectedIndices.forEach(i => { newVotes[i] = (newVotes[i] || 0) + 1; }); tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const h = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); h.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(h)); } catch(e) {} localSelectedIndices = []; window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") showMessage(i18n('notice'), i18n('already_voted')); } };
-        
+        window.submitMultipleVotes = async function() { if (!currentUser) return; try { if (JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]').includes(currentPollId)) { window.showMessage(i18n('notice'), i18n('already_voted')); return; } } catch(e) {} const ref = doc(db, ...POLLS_PATH, currentPollId); try { await runTransaction(db, async (tx) => { const snap = await tx.get(ref); const data = snap.data(); if (data.votedUsers?.includes(currentUser.uid)) throw "Already Voted"; const newVotes = [...data.votes]; localSelectedIndices.forEach(i => { newVotes[i] = (newVotes[i] || 0) + 1; }); tx.update(ref, { votes: newVotes, votedUsers: arrayUnion(currentUser.uid), updatedAt: serverTimestamp() }); }); try { const h = JSON.parse(localStorage.getItem('mixvote_voted_history') || '[]'); h.push(currentPollId); localStorage.setItem('mixvote_voted_history', JSON.stringify(h)); } catch(e) {} localSelectedIndices = []; window.loadPollDetail(currentPollId); } catch (e) { if (e === "Already Voted") window.showMessage(i18n('notice'), i18n('already_voted')); } };
+
         window.savePoll = async function() { 
             const saveBtn = document.getElementById('savePollBtn'); try { if (!currentUser || currentUser.isAnonymous) throw new Error("Google login required."); const t = document.getElementById('pollTitleInput').value.trim(), o = document.getElementById('pollOptionsInput').value.split('\n').map(s=>s.trim()).filter(Boolean); if (!t || o.length < 2) throw new Error("Title and 2+ options required."); const deadlineVal = document.getElementById('pollDeadlineInput').value, deadlineTs = deadlineVal ? Timestamp.fromDate(new Date(deadlineVal)) : null, isM = !!document.getElementById('pollMultiChoiceInput').checked, cat = document.getElementById('pollCategoryInput').value, hashtags = document.getElementById('pollHashtagsInput').value.split(/[,\s]+/).map(s => s.trim().replace(/^#/, '')).filter(Boolean).slice(0, 10);
-            saveBtn.disabled = true; const d = { title: t, question: document.getElementById('pollDescInput').value.trim(), category: getInternalCategoryName(cat), options: o, hashtags: hashtags, isMultipleChoice: isM, deadline: deadlineTs, updatedAt: serverTimestamp(), deleted: false }; if (editMode) await updateDoc(doc(db, ...POLLS_PATH, editPollId), d); else { Object.assign(d, { author: currentUser.displayName || 'User', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), votedUsers: [] }); await addDoc(collection(db, ...POLLS_PATH), d); } document.getElementById('createModal').classList.add('hidden'); showMessage(i18n('notice'), i18n('save_success')); goHome(); } catch (e) { showMessage(i18n('notice'), e.message); } finally { saveBtn.disabled = false; } 
+            saveBtn.disabled = true; const d = { title: t, question: document.getElementById('pollDescInput').value.trim(), category: getInternalCategoryName(cat), options: o, hashtags: hashtags, isMultipleChoice: isM, deadline: deadlineTs, updatedAt: serverTimestamp(), deleted: false }; if (editMode) await updateDoc(doc(db, ...POLLS_PATH, editPollId), d); else { Object.assign(d, { author: currentUser.displayName || 'User', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), votedUsers: [] }); await addDoc(collection(db, ...POLLS_PATH), d); } document.getElementById('createModal').classList.add('hidden'); showMessage(translations[currentLang].notice, translations[currentLang].save_success); goHome(); } catch (e) { showMessage(i18n('notice'), e.message); } finally { saveBtn.disabled = false; } 
         };
         window.openEditPoll = function() { 
             editMode = true; editPollId = currentPollId; document.getElementById('modalTitle').textContent = i18n('edit_poll'); document.getElementById('pollTitleInput').value = currentPollData.title; document.getElementById('pollDescInput').value = currentPollData.question || ""; document.getElementById('pollCategoryInput').value = currentPollData.category; document.getElementById('pollHashtagsInput').value = (currentPollData.hashtags || []).map(h => `#${h}`).join(' '); document.getElementById('pollOptionsInput').value = currentPollData.options.join('\n'); document.getElementById('pollMultiChoiceInput').checked = !!currentPollData.isMultipleChoice;
@@ -742,7 +761,7 @@
                 const total = p.votes?.reduce((s,v)=>s+v,0)||0, div = document.createElement('div'), dC = getDisplayCat(p.category), dStr = p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString(dateLoc) : '';
                 div.className = "poll-card glass rounded-[24px] p-6 cursor-pointer flex flex-col justify-between group";
                 div.onclick = () => window.goDetail(p.id);
-                div.innerHTML = `<div class="space-y-4"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-sm md:text-base font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors">${escapeHTML(p.title)}</h3></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>${total} ${i18n('votes')}</span><span>${dStr}</span></div>`;
+                div.innerHTML = `<div class="space-y-4"><span class="text-[9px] font-black px-3 py-1 rounded-full bg-[rgba(var(--accent-rgb),0.2)] text-[color:var(--accent)] uppercase border border-[rgba(var(--accent-rgb),0.2)]">${escapeHTML(dC)}</span><h3 class="text-sm md:text-base font-black leading-tight group-hover:text-[color:var(--accent)] transition-colors ${currentLang === 'ja' ? 'jp-poll-title' : ''}">${escapeHTML(p.title)}</h3></div><div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] opacity-40 font-bold uppercase"><span>${total} ${i18n('votes')}</span><span>${dStr}</span></div>`;
                 c.appendChild(div);
             });
         };
@@ -760,7 +779,7 @@
             const isReg = user && !user.isAnonymous;
             document.getElementById('loginBtn').style.display = isReg ? 'none' : 'flex';
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
-            document.getElementById('openCreateBtn').style.display = isReg ? 'none' : 'flex';
+            document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
             document.getElementById('userNavGroup').classList.toggle('hidden', !isReg);
             if (isReg) document.getElementById('userName').textContent = user.displayName;
             let isAgreed = false; try { isAgreed = localStorage.getItem('mixvote_agreed') === 'true'; } catch(e){}
