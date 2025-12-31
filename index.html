@@ -264,7 +264,6 @@
                         <i class="fab fa-google text-[color:var(--accent)]"></i> <span class="hidden sm:inline i18n" data-key="login">Sign In</span>
                     </button>
                     <div id="userInfo" class="hidden flex items-center gap-4">
-                        <!-- モバイル用：ログイン時に表示されるクイックナビゲーション -->
                         <div class="flex md:hidden items-center gap-4 mr-2 border-r border-white/10 pr-4">
                             <button onclick="window.goHome()" class="text-white/40 hover:text-white transition-colors"><i class="fas fa-home"></i></button>
                             <button id="openCreateBtnHeader" class="w-8 h-8 rounded-lg bg-[color:var(--accent)] flex items-center justify-center text-slate-900 shadow-lg"><i class="fas fa-plus"></i></button>
@@ -468,6 +467,7 @@
         import { 
             getAuth, 
             signInWithRedirect, 
+            signInWithPopup,
             getRedirectResult, 
             signInAnonymously, 
             onAuthStateChanged, 
@@ -656,28 +656,30 @@
         }
 
         async function initAuth() {
-            // リダイレクト結果を一箇所に集約
             try {
+                // 1) 永続化設定
+                await setPersistence(auth, browserLocalPersistence);
+            } catch (e) {
+                console.warn("Persistence failed:", e);
+            }
+
+            try {
+                // 2) リダイレクト結果の回収を試行
                 const r = await getRedirectResult(auth);
                 if (r?.user) {
-                    console.log('Redirect result successful:', r.user.uid, r.user.isAnonymous);
-                    return; // ログイン成功時はここで終了
+                    console.log('Redirect user restored:', r.user.uid, r.user.isAnonymous);
+                    return; // 正常に回収できたら終了
                 }
             } catch (e) {
                 console.error("Redirect recovery error:", e);
                 if (e.code === 'auth/unauthorized-domain') {
                     showMessage(i18n('notice'), i18n('auth_unauthorized_domain'));
+                    return;
                 }
             }
 
-            // 既存ユーザーがいなければ匿名ログイン
-            if (!auth.currentUser) {
-                try {
-                    await signInAnonymously(auth);
-                } catch (err) {
-                    console.error("Auth init error:", err);
-                }
-            }
+            // 3) 匿名ログインの自動実行を削除（上書き事故防止）
+            // 閲覧はFirestoreルールが read: true なのでログインなしで動作可能
         }
 
         function showMessage(title, body, onConfirm = null) {
@@ -785,11 +787,10 @@
         window.openTranslateModal = () => document.getElementById('translateModal').classList.remove('hidden');
 
         window.initRealtimePolls = function() {
-            if (unsubscribePollsRealtime) return; // すでに購読済みなら何もしない
+            if (unsubscribePollsRealtime) return;
             unsubscribePollsRealtime = onSnapshot(collection(db, ...POLLS_PATH), (snapshot) => {
                 allPollsCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 applyFilters();
-                // フィルタ表示中にデータが変わったら再描画
                 const h = window.location.hash;
                 if (h === '#created') renderPollList('createdPollsList', 'created');
                 else if (h === '#voted') renderPollList('votedPollsList', 'voted');
@@ -956,7 +957,6 @@
             console.log('AUTH:', user?.uid, user?.isAnonymous, user?.providerData);
             currentUser = user;
             
-            // 初回起動時のみ言語と購読をセット
             if (!langInitialized) {
                 const initialLang = localStorage.getItem('mixvote_lang') || (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Tokyo' ? 'ja' : 'en');
                 changeLang(initialLang);
@@ -983,13 +983,14 @@
             if (isReg) document.getElementById('userName').textContent = user.displayName;
             
             let isAgreed = false; try { isAgreed = localStorage.getItem('mixvote_agreed') === 'true'; } catch(e){}
+            
+            // 同意に関わらず UI は表示し、モーダルでブロックする（ストレージ制限対策）
+            document.getElementById('appUI').classList.remove('hidden');
             if (user && (isAgreed || window.sessionAgreed)) { 
-                document.getElementById('appUI').classList.remove('hidden'); 
                 document.getElementById('tosModal').classList.add('hidden'); 
                 handleNavigation(); 
             } else if (user) { 
                 document.getElementById('tosModal').classList.remove('hidden'); 
-                document.getElementById('appUI').classList.add('hidden'); 
             }
         });
 
@@ -1062,8 +1063,22 @@
 
         document.getElementById('agreeTosBtn').onclick = () => { try { localStorage.setItem('mixvote_agreed', 'true'); } catch(e){} window.sessionAgreed = true; document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); goHome(); };
         
+        // signInWithPopup を使用するように変更（リダイレクトが不安定な場合の安定化策）
         document.getElementById('loginBtn').onclick = async () => {
-            try { await signInWithRedirect(auth, new GoogleAuthProvider()); } catch (e) { showMessage(i18n('notice'), `${e.code}`); }
+            try { 
+                await signInWithPopup(auth, new GoogleAuthProvider()); 
+            } catch (e) { 
+                if (e.code === 'auth/popup-blocked') {
+                    // ポップアップがブロックされた場合はリダイレクトを試行
+                    try {
+                        await signInWithRedirect(auth, new GoogleAuthProvider());
+                    } catch (e2) {
+                        showMessage(i18n('notice'), `${e2.code}`);
+                    }
+                } else {
+                    showMessage(i18n('notice'), `${e.code}`);
+                }
+            }
         };
 
         document.getElementById('logoutBtn').onclick = () => signOut(auth);
