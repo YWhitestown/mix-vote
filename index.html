@@ -284,7 +284,7 @@
                     </div>
                     <div class="hidden md:block">
                         <h1 class="text-xl font-black tracking-tighter text-white uppercase italic">Mix <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">Vote</span></h1>
-                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] leading-none">Growth Edition</p>
+                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] Bird Edition">Growth Edition</p>
                     </div>
                 </div>
 
@@ -527,6 +527,7 @@
         let localSelectedIndices = []; 
         let popularCategories = []; 
         let featuredPolls = []; 
+        let cachedAllPolls = []; // パフォーマンス改善用のState保持
 
         // --- Theme Logic ---
         const DEFAULT_THEME = {
@@ -650,7 +651,9 @@
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
             document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
             document.getElementById('navMyPageBtn').classList.toggle('hidden', !isReg);
-            if (isReg) document.getElementById('userName').textContent = escapeHTML(user.displayName);
+            
+            // 修正：textContent は HTML を解釈しないため、エスケープを削除して自然な表示に
+            if (isReg) document.getElementById('userName').textContent = user.displayName || '';
             
             document.getElementById('commentInputArea').classList.toggle('hidden', !isReg);
 
@@ -673,7 +676,7 @@
             document.getElementById('view-detail').classList.add('hidden');
             document.getElementById('view-mypage').classList.add('hidden');
             if (unsubscribeMyPolls) { unsubscribeMyPolls(); unsubscribeMyPolls = null; }
-            if (currentUser) loadPolls();
+            if (currentUser) applyFiltersAndRender(); // 購読は維持して再描画
         };
 
         const goDetail = (id) => {
@@ -763,7 +766,7 @@
             featuredBtn.onclick = () => { 
                 selectedCategory = "注目トピック"; 
                 setupCategoryMenu(); 
-                if (!window.location.hash) loadPolls(); 
+                if (!window.location.hash) applyFiltersAndRender(); 
             };
             nav.appendChild(featuredBtn);
 
@@ -784,7 +787,7 @@
                     btn.onclick = () => { 
                         selectedCategory = cat; 
                         setupCategoryMenu(); 
-                        if (!window.location.hash) loadPolls(); 
+                        if (!window.location.hash) applyFiltersAndRender(); 
                     };
                     nav.appendChild(btn);
                 });
@@ -807,7 +810,7 @@
                 btn.onclick = () => { 
                     selectedCategory = cat; 
                     setupCategoryMenu(); 
-                    if (!window.location.hash) loadPolls(); 
+                    if (!window.location.hash) applyFiltersAndRender(); 
                 };
                 nav.appendChild(btn);
             });
@@ -865,10 +868,11 @@
         document.getElementById('pollOptionsInput')?.addEventListener('input', syncCorrectAnswerOptions);
         document.getElementById('pollCategoryInput')?.addEventListener('change', syncCorrectAnswerOptions);
 
+        // 修正：検索入力時は onSnapshot を張り直さず、キャッシュデータに対してフィルタリングと描画のみを行う
         document.getElementById('globalSearch').oninput = (e) => {
             searchTerm = e.target.value.toLowerCase();
             if (currentUser && !window.location.hash) {
-                loadPolls();
+                applyFiltersAndRender();
             }
         };
 
@@ -879,7 +883,7 @@
             searchInput.value = term;
             searchTerm = term.toLowerCase();
             goHome(); 
-            loadPolls();
+            applyFiltersAndRender();
         };
 
         // --- Data Loading & Performance Optimization ---
@@ -887,9 +891,10 @@
             if (unsubscribePolls) unsubscribePolls();
             unsubscribePolls = onSnapshot(collection(db, ...POLLS_PATH), (snapshot) => {
                 const now = new Date();
-                const archiveThreshold = 30 * 24 * 60 * 60 * 1000; // 30日をミリ秒で
+                const archiveThreshold = 30 * 24 * 60 * 60 * 1000; // 30日
 
-                const allPolls = snapshot.docs.map(d => {
+                // パフォーマンス改善：キャッシュ変数に保存し、以後のフィルタリングはこれを利用
+                cachedAllPolls = snapshot.docs.map(d => {
                     const data = d.data();
                     return { 
                         id: d.id, 
@@ -897,10 +902,7 @@
                         totalVotes: (data.votes || []).reduce((sum, v) => sum + v, 0)
                     };
                 }).filter(p => {
-                    // 基本フィルター：削除されていないこと
                     if (p.deleted) return false;
-                    
-                    // 自動アーカイブ機能：期限切れから30日経過しているものは表示しない
                     if (p.deadline) {
                         const deadlineDate = p.deadline.toDate();
                         if (now - deadlineDate > archiveThreshold) return false;
@@ -908,8 +910,9 @@
                     return true;
                 });
                 
+                // カテゴリーごとの人気計算
                 const catVotes = {};
-                allPolls.forEach(p => {
+                cachedAllPolls.forEach(p => {
                     if (!catVotes[p.category]) catVotes[p.category] = 0;
                     catVotes[p.category] += p.totalVotes;
                 });
@@ -918,45 +921,48 @@
                     .filter(c => catVotes[c] > 0)
                     .slice(0, 3);
                 
-                featuredPolls = [...allPolls]
+                // アンケート全体の人気順（注目トピック）
+                featuredPolls = [...cachedAllPolls]
                     .sort((a, b) => b.totalVotes - a.totalVotes)
                     .slice(0, 6); 
 
                 setupCategoryMenu();
-
-                let polls = [];
-                const titleEl = document.getElementById('pollListTitle');
-                
-                if (selectedCategory === "注目トピック") {
-                    polls = featuredPolls;
-                    if (titleEl) titleEl.innerHTML = `Featured <span class="text-slate-600 font-normal not-italic opacity-50">Topics</span>`;
-                } else if (selectedCategory === "全て") {
-                    polls = [...allPolls];
-                    if (titleEl) titleEl.innerHTML = `Latest <span class="text-slate-600 font-normal not-italic opacity-50">Polls</span>`;
-                } else {
-                    polls = allPolls.filter(p => p.category === selectedCategory);
-                    if (titleEl) titleEl.innerHTML = `${escapeHTML(selectedCategory)} <span class="text-slate-600 font-normal not-italic opacity-50">Polls</span>`;
-                }
-
-                if (searchTerm) {
-                    if (searchTerm.startsWith('#')) {
-                        const tag = searchTerm.substring(1).toLowerCase();
-                        polls = polls.filter(p => (p.hashtags || []).some(t => t.toLowerCase() === tag));
-                    } else {
-                        polls = polls.filter(p => p.title.toLowerCase().includes(searchTerm));
-                    }
-                }
-                
-                if (selectedCategory !== "注目トピック") {
-                    polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-                }
-                
-                // パフォーマンス修正：表示件数を50件に制限
-                const displayPolls = polls.slice(0, 50);
-                
-                renderPollList('latestPolls', displayPolls);
-                setTimeout(updateCategoryArrows, 100);
+                applyFiltersAndRender(); // 初期描画
             }, (err) => console.error("Poll List Snapshot error:", err));
+        };
+
+        // 検索やカテゴリー切り替え時に実行する描画ロジック
+        const applyFiltersAndRender = () => {
+            let polls = [];
+            const titleEl = document.getElementById('pollListTitle');
+            
+            if (selectedCategory === "注目トピック") {
+                polls = featuredPolls;
+                if (titleEl) titleEl.innerHTML = `Featured <span class="text-slate-600 font-normal not-italic opacity-50">Topics</span>`;
+            } else if (selectedCategory === "全て") {
+                polls = [...cachedAllPolls];
+                if (titleEl) titleEl.innerHTML = `Latest <span class="text-slate-600 font-normal not-italic opacity-50">Polls</span>`;
+            } else {
+                polls = cachedAllPolls.filter(p => p.category === selectedCategory);
+                if (titleEl) titleEl.innerHTML = `${escapeHTML(selectedCategory)} <span class="text-slate-600 font-normal not-italic opacity-50">Polls</span>`;
+            }
+
+            if (searchTerm) {
+                if (searchTerm.startsWith('#')) {
+                    const tag = searchTerm.substring(1).toLowerCase();
+                    polls = polls.filter(p => (p.hashtags || []).some(t => t.toLowerCase() === tag));
+                } else {
+                    polls = polls.filter(p => p.title.toLowerCase().includes(searchTerm));
+                }
+            }
+            
+            if (selectedCategory !== "注目トピック") {
+                polls.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+            }
+            
+            const displayPolls = polls.slice(0, 50);
+            renderPollList('latestPolls', displayPolls);
+            setTimeout(updateCategoryArrows, 100);
         };
 
         const loadMyPolls = () => {
@@ -1000,13 +1006,11 @@
             if (!c) return;
             c.innerHTML = polls.length ? '' : '<p class="text-slate-700 py-10 text-center col-span-2 font-bold text-xs uppercase tracking-widest">No polls found.</p>';
             
-            // レイアウト修正：最初の5件を大きく、残り45件を小さく
             polls.forEach((p, index) => {
                 const total = p.totalVotes || 0;
                 const div = document.createElement('div');
                 const isLarge = index < 5; // 最初の5件判定
 
-                // 大きな見出しと小さな見出しの条件付きクラス設定
                 if (isLarge) {
                     div.className = "poll-card glass rounded-[32px] p-8 cursor-pointer border border-white/10 hover:border-cyan-500/50 text-white relative flex flex-col justify-between col-span-1 md:col-span-2 shadow-xl overflow-hidden min-h-[220px]";
                 } else {
@@ -1016,8 +1020,8 @@
                 div.onclick = () => goDetail(p.id);
                 
                 const tagHtml = (p.hashtags || []).map(tag => {
-                    const safeTag = JSON.stringify(tag).replace(/"/g, '&quot;');
-                    return `<span onclick="event.stopPropagation(); searchByTag(${safeTag})" class="text-[8px] text-cyan-500/70 mr-1.5 font-bold italic hover:text-cyan-400">#${escapeHTML(tag)}</span>`;
+                    // 修正：未使用の safeTag 宣言を削除しシンプルに整理
+                    return `<button type="button" class="tag-chip text-[8px] text-cyan-500/70 mr-1.5 font-bold italic hover:text-cyan-400" data-tag="${escapeHTML(tag)}">#${escapeHTML(tag)}</button>`;
                 }).join('');
 
                 const titleSize = isLarge ? 'text-2xl md:text-3xl' : 'text-base';
@@ -1342,8 +1346,7 @@
             const contentArea = document.getElementById('pollDetailContent');
             if (contentArea) {
                 const tagHtml = (p.hashtags || []).map(tag => {
-                    const safeTag = JSON.stringify(tag).replace(/"/g, '&quot;');
-                    return `<span onclick="searchByTag(${safeTag})" class="text-xs text-cyan-400/80 mr-3 font-bold italic cursor-pointer hover:text-cyan-300">#${escapeHTML(tag)}</span>`;
+                    return `<button type="button" class="tag-chip text-xs text-cyan-400/80 mr-3 font-bold italic hover:text-cyan-300" data-tag="${escapeHTML(tag)}">#${escapeHTML(tag)}</button>`;
                 }).join('');
                 
                 contentArea.innerHTML = `
@@ -1538,6 +1541,15 @@
         const categoryNav = document.getElementById('categoryNav');
         if (categoryNav) categoryNav.addEventListener('scroll', updateCategoryArrows);
         window.addEventListener('resize', updateCategoryArrows);
+
+        // 修正：イベント委譲によるハッシュタグクリックの購読（XSS防止）
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tag-chip');
+            if (!btn) return;
+            e.stopPropagation();
+            const tag = btn.dataset.tag;
+            if (tag) window.searchByTag(tag);
+        });
     </script>
 </body>
 </html>
