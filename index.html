@@ -234,8 +234,8 @@
             <h3 class="text-xl font-black italic uppercase tracking-tighter mb-2 i18n" data-key="delete_poll">Delete Poll</h3>
             <p class="opacity-60 text-xs mb-8 leading-relaxed i18n" data-key="delete_confirm_text">How would you like to process this poll?</p>
             <div class="space-y-3">
-                <button id="archiveBtn" class="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl text-xs transition-all border border-white/5 i18n pointer-events-auto" data-key="archive_btn">Archive (Hide)</button>
-                <button id="permanentDeleteBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-xl text-xs transition-all shadow-lg shadow-red-500/20 hidden i18n pointer-events-auto" data-key="permanent_delete_btn">Permanently Delete</button>
+                <button id="archiveBtn" onclick="window.confirmDeletePoll('archive')" class="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl text-xs transition-all border border-white/5 i18n pointer-events-auto" data-key="archive_btn">Archive (Hide)</button>
+                <button id="permanentDeleteBtn" onclick="window.confirmDeletePoll('permanent')" class="w-full bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-xl text-xs transition-all shadow-lg shadow-red-500/20 hidden i18n pointer-events-auto" data-key="permanent_delete_btn">Permanently Delete</button>
                 <button onclick="window.closeDeleteModal()" class="w-full bg-transparent opacity-50 hover:opacity-100 font-bold py-3 text-xs uppercase tracking-widest mt-2 i18n pointer-events-auto" data-key="cancel">Cancel</button>
             </div>
         </div>
@@ -573,6 +573,39 @@
                 display.textContent = i18n('select');
             }
         });
+
+        // 削除用グローバル関数
+        window.openDeleteModal = () => {
+            if (isAdmin) {
+                document.getElementById('permanentDeleteBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('permanentDeleteBtn').classList.add('hidden');
+            }
+            document.getElementById('deleteOptionsModal').classList.remove('hidden');
+        };
+
+        window.closeDeleteModal = () => {
+            document.getElementById('deleteOptionsModal').classList.add('hidden');
+        };
+
+        window.confirmDeletePoll = async (mode) => {
+            if (!currentPollId) return;
+            try {
+                if (mode === 'archive') {
+                    // セキュリティルール isOwnerEdit に基づき、投票数を変えずに deleted を true にする
+                    await updateDoc(doc(db, ...POLLS_PATH, currentPollId), { deleted: true });
+                } else if (mode === 'permanent') {
+                    if (!isAdmin) return showMsg('notice', i18n('permission_denied'));
+                    await deleteDoc(doc(db, ...POLLS_PATH, currentPollId));
+                }
+                window.closeDeleteModal();
+                goHome();
+                showMsg('notice', i18n('save_success'));
+            } catch (e) {
+                console.error(e);
+                showMsg('notice', i18n('permission_denied'));
+            }
+        };
 
         window.openCreateModal = () => {
             if (!currentUser || currentUser.isAnonymous) return showMsg('notice', 'ログインが必要です。');
