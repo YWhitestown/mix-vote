@@ -797,7 +797,9 @@
 
         const renderChart = (p, type) => {
             const ctx = document.getElementById('pollChart')?.getContext('2d');
-            if (!ctx) return;
+            // データ不足や無効なデータの場合にクラッシュしないようガード
+            if (!ctx || !p || !p.votes || p.votes.length === 0) return;
+            
             if (chartInstance) chartInstance.destroy();
             const colors = ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'];
             chartInstance = new Chart(ctx, {
@@ -805,6 +807,28 @@
                 data: { labels: p.options, datasets: [{ data: p.votes, backgroundColor: colors, borderWidth: 0, hoverOffset: 10, borderRadius: 6 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type === 'doughnut', position: 'bottom', labels: { color: '#94a3b8' } } } }
             });
+        };
+
+        // --- 複数回答用の選択制御 ---
+        window.toggleLocalSelect = (idx) => {
+            const i = localSelectedIndices.indexOf(idx);
+            if (i >= 0) {
+                localSelectedIndices.splice(i, 1);
+            } else {
+                localSelectedIndices.push(idx);
+            }
+
+            // 見た目のハイライト更新
+            const el = document.getElementById(`opt-container-${idx}`);
+            if (el) {
+                el.classList.toggle('poll-option-selected', i < 0);
+            }
+
+            // 投票ボタンの表示制御
+            const btn = document.getElementById('submitMultiVoteBtn');
+            if (btn) {
+                btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none';
+            }
         };
 
         window.castVote = async (idx) => {
@@ -875,6 +899,9 @@
 
             const isExp = p.deadline && p.deadline.toDate() < new Date();
             const canVote = !hasVoted && !isExp;
+            
+            // クイズ以外は常に結果表示を許可(showRes=true)
+            // クイズの場合は投票後または期限切れ後に許可
             const showRes = !p.is_quiz ? true : (hasVoted || isExp);
             const isMulti = p.isMultipleChoice === true;
 
@@ -925,7 +952,6 @@
             }, (err) => console.warn("Comments listener restricted:", err.code));
         };
 
-        // --- 管理機能の修復 ---
         window.openEditPoll = () => {
             if (!currentPollId || !currentPollData) return;
             editMode = true;
