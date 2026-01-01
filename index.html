@@ -624,7 +624,8 @@
             if (localStorage.getItem('mixvote_agreed')) {
                 document.getElementById('appUI').classList.remove('hidden');
                 document.getElementById('tosModal').classList.add('hidden');
-                if (user) { setupCategoryMenu(); loadPolls(); }
+                // 認証状態に関わらず、一度だけ実行（既にloadPollsは他で呼ばれている可能性あり）
+                setupCategoryMenu();
             } else {
                 document.getElementById('tosModal').classList.remove('hidden');
             }
@@ -636,7 +637,7 @@
             document.getElementById('view-detail').classList.add('hidden');
             document.getElementById('view-mypage').classList.add('hidden');
             if (unsubscribeMyPolls) { unsubscribeMyPolls(); unsubscribeMyPolls = null; }
-            if (currentUser) applyFiltersAndRender();
+            applyFiltersAndRender();
         };
 
         const goDetail = (id) => {
@@ -731,7 +732,7 @@
 
         document.getElementById('pollOptionsInput')?.addEventListener('input', syncCorrectAnswerOptions);
         document.getElementById('pollCategoryInput')?.addEventListener('change', syncCorrectAnswerOptions);
-        document.getElementById('globalSearch').oninput = (e) => { searchTerm = e.target.value.toLowerCase(); if (currentUser && !window.location.hash) applyFiltersAndRender(); };
+        document.getElementById('globalSearch').oninput = (e) => { searchTerm = e.target.value.toLowerCase(); applyFiltersAndRender(); };
 
         window.searchByTag = (tag) => {
             const term = '#' + tag; document.getElementById('globalSearch').value = term; searchTerm = term.toLowerCase();
@@ -748,7 +749,7 @@
                 
                 featuredPolls = [...cachedAllPolls].sort((a, b) => b.totalVotes - a.totalVotes).slice(0, 6); 
                 setupCategoryMenu(); applyFiltersAndRender();
-            });
+            }, (err) => console.warn("Polls restricted:", err.code));
         };
 
         const applyFiltersAndRender = () => {
@@ -797,7 +798,6 @@
 
         const renderChart = (p, type) => {
             const ctx = document.getElementById('pollChart')?.getContext('2d');
-            // データ不足や無効なデータの場合にクラッシュしないようガード
             if (!ctx || !p || !p.votes || p.votes.length === 0) return;
             
             if (chartInstance) chartInstance.destroy();
@@ -809,7 +809,6 @@
             });
         };
 
-        // --- 複数回答用の選択制御 ---
         window.toggleLocalSelect = (idx) => {
             const i = localSelectedIndices.indexOf(idx);
             if (i >= 0) {
@@ -817,18 +816,10 @@
             } else {
                 localSelectedIndices.push(idx);
             }
-
-            // 見た目のハイライト更新
             const el = document.getElementById(`opt-container-${idx}`);
-            if (el) {
-                el.classList.toggle('poll-option-selected', i < 0);
-            }
-
-            // 投票ボタンの表示制御
+            if (el) el.classList.toggle('poll-option-selected', i < 0);
             const btn = document.getElementById('submitMultiVoteBtn');
-            if (btn) {
-                btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none';
-            }
+            if (btn) btn.style.display = localSelectedIndices.length > 0 ? 'block' : 'none';
         };
 
         window.castVote = async (idx) => {
@@ -845,10 +836,8 @@
                     const data = pollDoc.data();
                     const voteDoc = await transaction.get(voteRef);
                     if (voteDoc.exists()) throw "Already Voted";
-
                     const newVotes = [...data.votes];
                     newVotes[idx] = (newVotes[idx] || 0) + 1;
-
                     transaction.set(voteRef, { votedAt: serverTimestamp() });
                     transaction.update(pollRef, { votes: newVotes, updatedAt: serverTimestamp() });
                 });
@@ -871,7 +860,6 @@
                     const data = pollDoc.data();
                     const newVotes = [...data.votes];
                     localSelectedIndices.forEach(idx => { newVotes[idx] = (newVotes[idx] || 0) + 1; });
-                    
                     transaction.set(voteRef, { votedAt: serverTimestamp() });
                     transaction.update(pollRef, { votes: newVotes, updatedAt: serverTimestamp() });
                 });
@@ -880,7 +868,6 @@
         };
 
         const loadPollDetail = async (id) => {
-            if (!currentUser) return;
             currentPollId = id;
             localSelectedIndices = [];
             const pollDoc = await getDoc(doc(db, ...POLLS_PATH, id));
@@ -889,19 +876,15 @@
             currentPollData = p;
 
             let hasVoted = false;
-            try {
-                const voteDoc = await getDoc(doc(db, ...POLLS_PATH, id, 'votes', currentUser.uid));
-                hasVoted = voteDoc.exists();
-            } catch (e) {
-                console.warn("Vote status check unavailable:", e.code);
-                hasVoted = false;
+            if (currentUser) {
+                try {
+                    const voteDoc = await getDoc(doc(db, ...POLLS_PATH, id, 'votes', currentUser.uid));
+                    hasVoted = voteDoc.exists();
+                } catch (e) { console.warn("Vote check restricted:", e.code); }
             }
 
             const isExp = p.deadline && p.deadline.toDate() < new Date();
-            const canVote = !hasVoted && !isExp;
-            
-            // クイズ以外は常に結果表示を許可(showRes=true)
-            // クイズの場合は投票後または期限切れ後に許可
+            const canVote = currentUser && !hasVoted && !isExp;
             const showRes = !p.is_quiz ? true : (hasVoted || isExp);
             const isMulti = p.isMultipleChoice === true;
 
@@ -949,7 +932,7 @@
                     div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`;
                     list.appendChild(div);
                 });
-            }, (err) => console.warn("Comments listener restricted:", err.code));
+            }, (err) => console.warn("Comments restricted:", err.code));
         };
 
         window.openEditPoll = () => {
@@ -957,7 +940,6 @@
             editMode = true;
             editPollId = currentPollId;
             const p = currentPollData;
-
             document.getElementById('modalTitle').textContent = "Edit Poll";
             document.getElementById('pollTitleInput').value = p.title;
             document.getElementById('pollDescInput').value = p.question || "";
@@ -965,19 +947,16 @@
             document.getElementById('pollCategoryInput').value = p.category;
             document.getElementById('pollMultiChoiceInput').checked = p.isMultipleChoice || false;
             document.getElementById('pollTagsInput').value = (p.hashtags || []).join(' ');
-
             if (p.deadline) {
                 const date = p.deadline.toDate();
                 document.getElementById('pollDeadlineInput').value = date.toISOString().slice(0, 16);
                 document.getElementById('deadlineDisplay').textContent = date.toLocaleString();
             }
-
             if (p.is_quiz) {
                 document.getElementById('pollExplanationInput').value = p.explanation || "";
                 syncCorrectAnswerOptions();
                 document.getElementById('pollCorrectIndexInput').value = String(p.correct_index);
             }
-
             document.getElementById('createModal').classList.remove('hidden');
             syncCorrectAnswerOptions();
         };
@@ -1002,10 +981,7 @@
                     showMessage("Deleted", "アンケートを完全に削除しました。");
                 }
                 goHome();
-            } catch (e) {
-                console.error("Delete error:", e);
-                showMessage("Error", "削除に失敗しました。");
-            }
+            } catch (e) { showMessage("Error", "削除に失敗しました。"); }
         };
 
         document.getElementById('savePollBtn').onclick = async () => {
@@ -1015,57 +991,34 @@
             const cat = document.getElementById('pollCategoryInput').value;
             const dl = document.getElementById('pollDeadlineInput').value;
             const isMulti = document.getElementById('pollMultiChoiceInput').checked;
-            
-            if (!t || o.length < 2) {
-                showMessage("Error", "タイトルと2つ以上の選択肢が必要です。");
-                return;
-            }
-
+            if (!t || o.length < 2) { showMessage("Error", "タイトルと2つ以上の選択肢が必要です。"); return; }
             const data = { 
-                title: t, 
-                question: document.getElementById('pollDescInput').value, 
-                category: cat, 
-                options: o, 
-                deadline: dl ? Timestamp.fromDate(new Date(dl)) : null,
-                is_quiz: cat === "クイズ",
-                isMultipleChoice: isMulti,
-                updatedAt: serverTimestamp()
+                title: t, question: document.getElementById('pollDescInput').value, category: cat, options: o, 
+                deadline: dl ? Timestamp.fromDate(new Date(dl)) : null, is_quiz: cat === "クイズ",
+                isMultipleChoice: isMulti, updatedAt: serverTimestamp()
             };
-
             try {
                 if (editMode && editPollId) {
                     await updateDoc(doc(db, ...POLLS_PATH, editPollId), data);
                     showMessage("Success", "アンケートを更新しました。");
                 } else {
-                    Object.assign(data, {
-                        author: currentUser.displayName || 'Guest',
-                        authorID: currentUser.uid,
-                        createdAt: serverTimestamp(),
-                        votes: new Array(o.length).fill(0),
-                        deleted: false
-                    });
+                    Object.assign(data, { author: currentUser.displayName || 'Guest', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), deleted: false });
                     await addDoc(collection(db, ...POLLS_PATH), data);
                     showMessage("Success", "新しいアンケートを作成しました。");
                 }
                 document.getElementById('createModal').classList.add('hidden');
                 goHome();
-            } catch (e) {
-                console.error("Save error:", e);
-                showMessage("Error", "保存に失敗しました。");
-            }
+            } catch (e) { showMessage("Error", "保存に失敗しました。"); }
         };
 
         document.getElementById('loginBtn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) {} };
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
-        
         document.getElementById('agreeTosBtn').onclick = () => { 
             localStorage.setItem('mixvote_agreed', 'true'); 
             document.getElementById('tosModal').classList.add('hidden'); 
             document.getElementById('appUI').classList.remove('hidden'); 
             setupCategoryMenu(); 
-            loadPolls(); 
         };
-
         document.getElementById('openCreateBtn').onclick = () => { 
             if (currentUser && !currentUser.isAnonymous) { 
                 editMode = false; 
@@ -1080,7 +1033,10 @@
         };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
 
-        loadSavedTheme(); setupCategoryMenu(); initAuth();
+        loadSavedTheme(); 
+        setupCategoryMenu(); 
+        loadPolls(); // 最初から読み込みを開始
+        initAuth();
     </script>
 </body>
 </html>
