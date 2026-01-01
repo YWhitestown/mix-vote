@@ -509,7 +509,7 @@
         let popularCategories = []; 
         let featuredPolls = []; 
         let cachedAllPolls = [];
-        let isVoting = false; // クールダウン用フラグ
+        let isVoting = false; 
 
         const DEFAULT_THEME = {
             bg: "#020617",
@@ -742,7 +742,6 @@
         const loadPolls = () => {
             if (unsubscribePolls) unsubscribePolls();
             unsubscribePolls = onSnapshot(collection(db, ...POLLS_PATH), (snapshot) => {
-                const now = new Date();
                 cachedAllPolls = snapshot.docs.map(d => {
                     const data = d.data();
                     return { id: d.id, ...data, totalVotes: (data.votes || []).reduce((sum, v) => sum + v, 0) };
@@ -812,7 +811,7 @@
         window.castVote = async (idx) => {
             if (!currentUser || isVoting) return;
             isVoting = true;
-            setTimeout(() => { isVoting = false; }, 2000); // 2秒のクールダウン
+            setTimeout(() => { isVoting = false; }, 2000);
 
             const pollRef = doc(db, ...POLLS_PATH, currentPollId);
             const voteRef = doc(db, ...POLLS_PATH, currentPollId, 'votes', currentUser.uid);
@@ -827,7 +826,6 @@
                     const newVotes = [...data.votes];
                     newVotes[idx] = (newVotes[idx] || 0) + 1;
 
-                    // セキュリティルールに合わせてフィールド名を統一
                     transaction.set(voteRef, { votedAt: serverTimestamp() });
                     transaction.update(pollRef, { votes: newVotes, updatedAt: serverTimestamp() });
                 });
@@ -851,7 +849,6 @@
                     const newVotes = [...data.votes];
                     localSelectedIndices.forEach(idx => { newVotes[idx] = (newVotes[idx] || 0) + 1; });
                     
-                    // セキュリティルールに合わせてフィールド名を統一
                     transaction.set(voteRef, { votedAt: serverTimestamp() });
                     transaction.update(pollRef, { votes: newVotes, updatedAt: serverTimestamp() });
                 });
@@ -868,8 +865,16 @@
             const p = pollDoc.data();
             currentPollData = p;
 
-            const voteDoc = await getDoc(doc(db, ...POLLS_PATH, id, 'votes', currentUser.uid));
-            const hasVoted = voteDoc.exists();
+            let hasVoted = false;
+            try {
+                // 権限エラーで詳細画面が止まらないようガード（ルール修正待ちの間も安全）
+                const voteDoc = await getDoc(doc(db, ...POLLS_PATH, id, 'votes', currentUser.uid));
+                hasVoted = voteDoc.exists();
+            } catch (e) {
+                console.warn("Vote status check unavailable:", e.code);
+                hasVoted = false;
+            }
+
             const isExp = p.deadline && p.deadline.toDate() < new Date();
             const canVote = !hasVoted && !isExp;
             const showRes = !p.is_quiz ? true : (hasVoted || isExp);
@@ -897,7 +902,7 @@
                                 if (showRes) return `<div class="relative overflow-hidden bg-slate-900/50 p-5 rounded-2xl flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-cyan-500/10" style="width:${per}%"></div><span class="z-10 font-bold">${escapeHTML(opt)}</span><span class="z-10 font-black">${per}%</span></div>`;
                                 return `<div class="bg-white/5 p-5 rounded-2xl opacity-50 flex justify-between"><span>${escapeHTML(opt)}</span><i class="fas fa-lock"></i></div>`;
                             }).join('')}
-                            ${canVote && isMulti ? `<button onclick="submitMultipleVotes()" class="w-full mt-4 bg-cyan-500 text-slate-900 font-black py-4 rounded-xl">投票する</button>` : ''}
+                            ${canVote && isMulti ? `<button id="submitMultiVoteBtn" onclick="submitMultipleVotes()" class="w-full mt-4 bg-cyan-500 text-slate-900 font-black py-4 rounded-xl" style="display:none">投票する</button>` : ''}
                         </div>
                         <div class="h-[300px]">${!canVote && showRes ? `<canvas id="pollChart"></canvas>` : `<div class="glass h-full flex items-center justify-center text-slate-600 uppercase text-[10px] font-bold">Vote to reveal results</div>`}</div>
                     </div>
@@ -919,7 +924,7 @@
                     div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`;
                     list.appendChild(div);
                 });
-            });
+            }, (err) => console.warn("Comments listener restricted:", err.code));
         };
 
         document.getElementById('savePollBtn').onclick = async () => {
@@ -943,7 +948,6 @@
         document.getElementById('loginBtn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) {} };
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
         
-        // TOSボタンのonclickを整理
         document.getElementById('agreeTosBtn').onclick = () => { 
             localStorage.setItem('mixvote_agreed', 'true'); 
             document.getElementById('tosModal').classList.add('hidden'); 
