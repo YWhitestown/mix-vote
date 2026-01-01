@@ -624,8 +624,14 @@
             if (localStorage.getItem('mixvote_agreed')) {
                 document.getElementById('appUI').classList.remove('hidden');
                 document.getElementById('tosModal').classList.add('hidden');
-                // 認証状態に関わらず、一度だけ実行（既にloadPollsは他で呼ばれている可能性あり）
                 setupCategoryMenu();
+                
+                // 詳細ページを開いているなら、認証完了後に投票権限を再判定して描画
+                const h = window.location.hash;
+                if (h.startsWith('#poll/')) loadPollDetail(h.replace('#poll/', ''));
+                
+                // リスナーがまだなら開始
+                if (!unsubscribePolls) loadPolls(); 
             } else {
                 document.getElementById('tosModal').classList.remove('hidden');
             }
@@ -823,7 +829,10 @@
         };
 
         window.castVote = async (idx) => {
-            if (!currentUser || isVoting) return;
+            if (!currentUser || !currentUser.uid || isVoting) {
+                if (!currentUser) showMessage("Login Required", "投票するにはゲスト参加（自動）またはログインが必要です。ページを更新してみてください。");
+                return;
+            }
             isVoting = true;
             setTimeout(() => { isVoting = false; }, 2000);
 
@@ -846,7 +855,10 @@
         };
 
         window.submitMultipleVotes = async () => {
-            if (!currentUser || localSelectedIndices.length === 0 || isVoting) return;
+            if (!currentUser || !currentUser.uid || localSelectedIndices.length === 0 || isVoting) {
+                if (!currentUser) showMessage("Login Required", "投票するにはゲスト参加（自動）またはログインが必要です。ページを更新してみてください。");
+                return;
+            }
             isVoting = true;
             setTimeout(() => { isVoting = false; }, 2000);
 
@@ -876,7 +888,7 @@
             currentPollData = p;
 
             let hasVoted = false;
-            if (currentUser) {
+            if (currentUser && currentUser.uid) {
                 try {
                     const voteDoc = await getDoc(doc(db, ...POLLS_PATH, id, 'votes', currentUser.uid));
                     hasVoted = voteDoc.exists();
@@ -884,7 +896,8 @@
             }
 
             const isExp = p.deadline && p.deadline.toDate() < new Date();
-            const canVote = currentUser && !hasVoted && !isExp;
+            // !!currentUser により、ゲスト(匿名)でもログイン済み(Google)でもUIを出す
+            const canVote = !!currentUser && !hasVoted && !isExp;
             const showRes = !p.is_quiz ? true : (hasVoted || isExp);
             const isMulti = p.isMultipleChoice === true;
 
@@ -899,7 +912,10 @@
                 const total = p.votes.reduce((s,v)=>s+v,0);
                 contentArea.innerHTML = `
                 <div class="space-y-6">
-                    <span class="text-[9px] font-bold px-3 py-1 rounded bg-cyan-500/10 text-cyan-400 uppercase">${p.category}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[9px] font-bold px-3 py-1 rounded bg-cyan-500/10 text-cyan-400 uppercase">${p.category}</span>
+                        ${isMulti ? '<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase">複数回答可</span>' : ''}
+                    </div>
                     <h2 class="text-3xl font-black">${escapeHTML(p.title)}</h2>
                     ${p.question ? `<div class="bg-white/5 p-5 rounded-2xl text-slate-300 text-sm">${escapeHTML(p.question)}</div>` : ''}
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -922,6 +938,7 @@
 
         const loadComments = (pid) => {
             if (unsubscribeComments) unsubscribeComments();
+            // orderByを使用するため、インデックスが有効であることを前提。エラー時はcreatedAt抜きを想定してフォールバック検討。
             unsubscribeComments = onSnapshot(query(collection(db, ...POLLS_PATH, pid, 'comments'), orderBy('createdAt', 'desc')), (s) => {
                 const list = document.getElementById('commentsList'); if (!list) return;
                 list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : '';
@@ -932,7 +949,42 @@
                     div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`;
                     list.appendChild(div);
                 });
-            }, (err) => console.warn("Comments restricted:", err.code));
+            }, (err) => {
+                console.warn("Comments restricted or Index missing:", err.code);
+                // インデックス未作成や過去データ不備の場合、orderByなしで再試行
+                if (err.code === 'failed-precondition') {
+                    unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
+                        const list = document.getElementById('commentsList'); if (!list) return;
+                        list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : '';
+                        s.docs.forEach(d => {
+                            const c = d.data();
+                            const div = document.createElement('div');
+                            div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3";
+                            div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`;
+                            list.appendChild(div);
+                        });
+                    });
+                }
+            });
+        };
+
+        document.getElementById('postCommentBtn').onclick = async () => {
+            const textarea = document.getElementById('commentText');
+            const t = textarea.value.trim();
+            if (!t || !currentUser || currentUser.isAnonymous) {
+                return showMessage("ログインが必要", "コメントの投稿にはGoogleログインが必要です。");
+            }
+            if (t.length > 100) return showMessage("エラー", "コメントは100文字以内で入力してください。");
+
+            try {
+                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { 
+                    author: currentUser.displayName || 'Anonymous', 
+                    userId: currentUser.uid, 
+                    text: t, 
+                    createdAt: serverTimestamp() 
+                });
+                textarea.value = '';
+            } catch (e) { console.error("Comment Error:", e); }
         };
 
         window.openEditPoll = () => {
@@ -1013,12 +1065,16 @@
 
         document.getElementById('loginBtn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) {} };
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
+        
         document.getElementById('agreeTosBtn').onclick = () => { 
             localStorage.setItem('mixvote_agreed', 'true'); 
             document.getElementById('tosModal').classList.add('hidden'); 
             document.getElementById('appUI').classList.remove('hidden'); 
             setupCategoryMenu(); 
+            // TOS同意後にデータを読み込む
+            loadPolls();
         };
+        
         document.getElementById('openCreateBtn').onclick = () => { 
             if (currentUser && !currentUser.isAnonymous) { 
                 editMode = false; 
@@ -1034,8 +1090,6 @@
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
 
         loadSavedTheme(); 
-        setupCategoryMenu(); 
-        loadPolls(); // 最初から読み込みを開始
         initAuth();
     </script>
 </body>
