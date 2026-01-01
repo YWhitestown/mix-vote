@@ -625,10 +625,8 @@
                 document.getElementById('appUI').classList.remove('hidden');
                 document.getElementById('tosModal').classList.add('hidden');
                 setupCategoryMenu();
-                
                 const h = window.location.hash;
                 if (h.startsWith('#poll/')) loadPollDetail(h.replace('#poll/', ''));
-                
                 if (!unsubscribePolls) loadPolls(); 
             } else {
                 document.getElementById('tosModal').classList.remove('hidden');
@@ -803,7 +801,6 @@
         const renderChart = (p, type) => {
             const ctx = document.getElementById('pollChart')?.getContext('2d');
             if (!ctx || !p || !p.votes || p.votes.length === 0) return;
-            
             if (chartInstance) chartInstance.destroy();
             const colors = ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'];
             chartInstance = new Chart(ctx, {
@@ -815,11 +812,7 @@
 
         window.toggleLocalSelect = (idx) => {
             const i = localSelectedIndices.indexOf(idx);
-            if (i >= 0) {
-                localSelectedIndices.splice(i, 1);
-            } else {
-                localSelectedIndices.push(idx);
-            }
+            if (i >= 0) localSelectedIndices.splice(i, 1); else localSelectedIndices.push(idx);
             const el = document.getElementById(`opt-container-${idx}`);
             if (el) el.classList.toggle('poll-option-selected', i < 0);
             const btn = document.getElementById('submitMultiVoteBtn');
@@ -833,7 +826,6 @@
             }
             isVoting = true;
             setTimeout(() => { isVoting = false; }, 2000);
-
             const pollRef = doc(db, ...POLLS_PATH, currentPollId);
             const voteRef = doc(db, ...POLLS_PATH, currentPollId, 'votes', currentUser.uid);
             try {
@@ -859,7 +851,6 @@
             }
             isVoting = true;
             setTimeout(() => { isVoting = false; }, 2000);
-
             const pollRef = doc(db, ...POLLS_PATH, currentPollId);
             const voteRef = doc(db, ...POLLS_PATH, currentPollId, 'votes', currentUser.uid);
             try {
@@ -883,8 +874,6 @@
             const pollDoc = await getDoc(doc(db, ...POLLS_PATH, id));
             if (!pollDoc.exists()) return goHome();
             const p = pollDoc.data();
-
-            // 互換・防御（古いデータ/欠損データ対策）
             p.options = Array.isArray(p.options) ? p.options : [];
             p.votes = Array.isArray(p.votes) ? p.votes : new Array(p.options.length).fill(0);
             if (p.votes.length !== p.options.length) {
@@ -892,9 +881,7 @@
                 p.votes.forEach((v, i) => { if (i < fixed.length) fixed[i] = Number(v) || 0; });
                 p.votes = fixed;
             }
-
             currentPollData = p;
-
             let hasVoted = false;
             if (currentUser && currentUser.uid) {
                 try {
@@ -902,42 +889,16 @@
                     hasVoted = voteDoc.exists();
                 } catch (e) { console.warn("Vote check restricted:", e.code); }
             }
-
             const isExp = p.deadline && p.deadline.toDate() < new Date();
             const canVote = !!currentUser && !hasVoted && !isExp;
             const showRes = !p.is_quiz ? true : (hasVoted || isExp);
             const isMulti = p.isMultipleChoice === true;
-
             const adminControls = document.getElementById('adminControls');
-            if (adminControls) {
-                adminControls.innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? 
-                `<button onclick="openEditPoll()" class="p-2 glass text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 transition-all border border-cyan-500/20" title="Edit Poll"><i class="fas fa-edit"></i></button><button onclick="openDeleteModal()" class="p-2 glass text-red-400 hover:bg-red-500 hover:text-white transition-all border border-red-500/20" title="Delete Poll"><i class="fas fa-trash"></i></button>` : '';
-            }
-
+            if (adminControls) adminControls.innerHTML = (isAdmin || (currentUser && p.authorID === currentUser.uid)) ? `<button onclick="openEditPoll()" class="p-2 glass text-cyan-400"><i class="fas fa-edit"></i></button><button onclick="openDeleteModal()" class="p-2 glass text-red-400"><i class="fas fa-trash"></i></button>` : '';
             const contentArea = document.getElementById('pollDetailContent');
             if (contentArea) {
                 const total = p.votes.reduce((s,v)=>s+v,0);
-                contentArea.innerHTML = `
-                <div class="space-y-6">
-                    <div class="flex items-center gap-3">
-                        <span class="text-[9px] font-bold px-3 py-1 rounded bg-cyan-500/10 text-cyan-400 uppercase">${p.category}</span>
-                        ${isMulti ? '<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase">複数回答可</span>' : ''}
-                    </div>
-                    <h2 class="text-3xl font-black">${escapeHTML(p.title)}</h2>
-                    ${p.question ? `<div class="bg-white/5 p-5 rounded-2xl text-slate-300 text-sm">${escapeHTML(p.question)}</div>` : ''}
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div class="space-y-3">
-                            ${p.options.map((opt, i) => {
-                                const v = p.votes[i]||0; const per = total>0?Math.round(v/total*100):0;
-                                if (canVote) return `<div id="opt-container-${i}" onclick="${isMulti ? `toggleLocalSelect(${i})` : `castVote(${i})`}" class="bg-white/5 border border-white/10 p-5 rounded-2xl cursor-pointer hover:border-cyan-500/50 flex justify-between items-center group"><span>${escapeHTML(opt)}</span><i class="fas fa-chevron-right text-slate-700"></i></div>`;
-                                if (showRes) return `<div class="relative overflow-hidden bg-slate-900/50 p-5 rounded-2xl flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-cyan-500/10" style="width:${per}%"></div><span class="z-10 font-bold">${escapeHTML(opt)}</span><span class="z-10 font-black">${per}%</span></div>`;
-                                return `<div class="bg-white/5 p-5 rounded-2xl opacity-50 flex justify-between"><span>${escapeHTML(opt)}</span><i class="fas fa-lock"></i></div>`;
-                            }).join('')}
-                            ${canVote && isMulti ? `<button id="submitMultiVoteBtn" onclick="submitMultipleVotes()" class="w-full mt-4 bg-cyan-500 text-slate-900 font-black py-4 rounded-xl" style="display:none">投票する</button>` : ''}
-                        </div>
-                        <div class="h-[300px]">${showRes ? `<canvas id="pollChart"></canvas>` : `<div class="glass h-full flex items-center justify-center text-slate-600 uppercase text-[10px] font-bold">Vote to reveal results</div>`}</div>
-                    </div>
-                </div>`;
+                contentArea.innerHTML = `<div class="space-y-6"><div class="flex items-center gap-3"><span class="text-[9px] font-bold px-3 py-1 rounded bg-cyan-500/10 text-cyan-400 uppercase">${p.category}</span>${isMulti ? '<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase">複数回答可</span>' : ''}</div><h2 class="text-3xl font-black">${escapeHTML(p.title)}</h2>${p.question ? `<div class="bg-white/5 p-5 rounded-2xl text-slate-300 text-sm">${escapeHTML(p.question)}</div>` : ''}<div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-3">${p.options.map((opt, i) => { const v = p.votes[i]||0; const per = total>0?Math.round(v/total*100):0; if (canVote) return `<div id="opt-container-${i}" onclick="${isMulti ? `toggleLocalSelect(${i})` : `castVote(${i})`}" class="bg-white/5 border border-white/10 p-5 rounded-2xl cursor-pointer hover:border-cyan-500/50 flex justify-between items-center group"><span>${escapeHTML(opt)}</span><i class="fas fa-chevron-right text-slate-700"></i></div>`; if (showRes) return `<div class="relative overflow-hidden bg-slate-900/50 p-5 rounded-2xl flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-cyan-500/10" style="width:${per}%"></div><span class="z-10 font-bold">${escapeHTML(opt)}</span><span class="z-10 font-black">${per}%</span></div>`; return `<div class="bg-white/5 p-5 rounded-2xl opacity-50 flex justify-between"><span>${escapeHTML(opt)}</span><i class="fas fa-lock"></i></div>`; }).join('')}${canVote && isMulti ? `<button id="submitMultiVoteBtn" onclick="submitMultipleVotes()" class="w-full mt-4 bg-cyan-500 text-slate-900 font-black py-4 rounded-xl" style="display:none">投票する</button>` : ''}</div><div class="h-[300px]">${showRes ? `<canvas id="pollChart"></canvas>` : `<div class="glass h-full flex items-center justify-center text-slate-600 uppercase text-[10px] font-bold">Vote to reveal results</div>`}</div></div></div>`;
                 if (showRes) renderChart(p, currentChartType);
             }
             loadComments(id);
@@ -948,55 +909,20 @@
             unsubscribeComments = onSnapshot(query(collection(db, ...POLLS_PATH, pid, 'comments'), orderBy('createdAt', 'desc')), (s) => {
                 const list = document.getElementById('commentsList'); if (!list) return;
                 list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : '';
-                s.docs.forEach(d => {
-                    const c = d.data();
-                    const div = document.createElement('div');
-                    div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3";
-                    div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`;
-                    list.appendChild(div);
-                });
-            }, (err) => {
-                console.warn("Comments restricted or Index missing:", err.code);
-                if (err.code === 'failed-precondition') {
-                    unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
-                        const list = document.getElementById('commentsList'); if (!list) return;
-                        list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : '';
-                        s.docs.forEach(d => {
-                            const c = d.data();
-                            const div = document.createElement('div');
-                            div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3";
-                            div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`;
-                            list.appendChild(div);
-                        });
-                    });
-                }
-            });
+                s.docs.forEach(d => { const c = d.data(); const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; list.appendChild(div); });
+            }, (err) => { if (err.code === 'failed-precondition') { unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => { const list = document.getElementById('commentsList'); if (!list) return; list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : ''; s.docs.forEach(d => { const c = d.data(); const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; list.appendChild(div); }); }); } });
         };
 
         document.getElementById('postCommentBtn').onclick = async () => {
-            const textarea = document.getElementById('commentText');
-            const t = textarea.value.trim();
-            if (!t || !currentUser || currentUser.isAnonymous) {
-                return showMessage("ログインが必要", "コメントの投稿にはGoogleログインが必要です。");
-            }
+            const textarea = document.getElementById('commentText'); const t = textarea.value.trim();
+            if (!t || !currentUser || currentUser.isAnonymous) return showMessage("ログインが必要", "コメントの投稿にはGoogleログインが必要です。");
             if (t.length > 100) return showMessage("エラー", "コメントは100文字以内で入力してください。");
-
-            try {
-                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { 
-                    author: currentUser.displayName || 'Anonymous', 
-                    userId: currentUser.uid, 
-                    text: t, 
-                    createdAt: serverTimestamp() 
-                });
-                textarea.value = '';
-            } catch (e) { console.error("Comment Error:", e); }
+            try { await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { author: currentUser.displayName || 'Anonymous', userId: currentUser.uid, text: t, createdAt: serverTimestamp() }); textarea.value = ''; } catch (e) { console.error("Comment Error:", e); }
         };
 
         window.openEditPoll = () => {
             if (!currentPollId || !currentPollData) return;
-            editMode = true;
-            editPollId = currentPollId;
-            const p = currentPollData;
+            editMode = true; editPollId = currentPollId; const p = currentPollData;
             document.getElementById('modalTitle').textContent = "Edit Poll";
             document.getElementById('pollTitleInput').value = p.title;
             document.getElementById('pollDescInput').value = p.question || "";
@@ -1004,42 +930,14 @@
             document.getElementById('pollCategoryInput').value = p.category;
             document.getElementById('pollMultiChoiceInput').checked = p.isMultipleChoice || false;
             document.getElementById('pollTagsInput').value = (p.hashtags || []).join(' ');
-            if (p.deadline) {
-                const date = p.deadline.toDate();
-                document.getElementById('pollDeadlineInput').value = date.toISOString().slice(0, 16);
-                document.getElementById('deadlineDisplay').textContent = date.toLocaleString();
-            }
-            if (p.is_quiz) {
-                document.getElementById('pollExplanationInput').value = p.explanation || "";
-                syncCorrectAnswerOptions();
-                document.getElementById('pollCorrectIndexInput').value = String(p.correct_index);
-            }
-            document.getElementById('createModal').classList.remove('hidden');
-            syncCorrectAnswerOptions();
+            if (p.deadline) { const date = p.deadline.toDate(); document.getElementById('pollDeadlineInput').value = date.toISOString().slice(0, 16); document.getElementById('deadlineDisplay').textContent = date.toLocaleString(); }
+            if (p.is_quiz) { document.getElementById('pollExplanationInput').value = p.explanation || ""; syncCorrectAnswerOptions(); document.getElementById('pollCorrectIndexInput').value = String(p.correct_index); }
+            document.getElementById('createModal').classList.remove('hidden'); syncCorrectAnswerOptions();
         };
 
-        window.openDeleteModal = () => {
-            document.getElementById('permanentDeleteBtn').classList.toggle('hidden', !isAdmin);
-            document.getElementById('deleteOptionsModal').classList.remove('hidden');
-        };
-
+        window.openDeleteModal = () => { document.getElementById('permanentDeleteBtn').classList.toggle('hidden', !isAdmin); document.getElementById('deleteOptionsModal').classList.remove('hidden'); };
         window.closeDeleteModal = () => document.getElementById('deleteOptionsModal').classList.add('hidden');
-
-        window.confirmDeletePoll = async (type) => {
-            if (!currentPollId) return;
-            closeDeleteModal();
-            try {
-                const ref = doc(db, ...POLLS_PATH, currentPollId);
-                if (type === 'archive') {
-                    await updateDoc(ref, { deleted: true, updatedAt: serverTimestamp() });
-                    showMessage("Archived", "アンケートを非表示にしました。");
-                } else if (isAdmin) {
-                    await deleteDoc(ref);
-                    showMessage("Deleted", "アンケートを完全に削除しました。");
-                }
-                goHome();
-            } catch (e) { showMessage("Error", "削除に失敗しました。"); }
-        };
+        window.confirmDeletePoll = async (type) => { if (!currentPollId) return; closeDeleteModal(); try { const ref = doc(db, ...POLLS_PATH, currentPollId); if (type === 'archive') { await updateDoc(ref, { deleted: true, updatedAt: serverTimestamp() }); showMessage("Archived", "アンケートを非表示にしました。"); } else if (isAdmin) { await deleteDoc(ref); showMessage("Deleted", "アンケートを完全に削除しました。"); } goHome(); } catch (e) { showMessage("Error", "削除に失敗しました。"); } };
 
         document.getElementById('savePollBtn').onclick = async () => {
             if (!currentUser || currentUser.isAnonymous) return;
@@ -1049,52 +947,27 @@
             const dl = document.getElementById('pollDeadlineInput').value;
             const isMulti = document.getElementById('pollMultiChoiceInput').checked;
             if (!t || o.length < 2) { showMessage("Error", "タイトルと2つ以上の選択肢が必要です。"); return; }
-            const data = { 
-                title: t, question: document.getElementById('pollDescInput').value, category: cat, options: o, 
-                deadline: dl ? Timestamp.fromDate(new Date(dl)) : null, is_quiz: cat === "クイズ",
-                isMultipleChoice: isMulti, updatedAt: serverTimestamp()
-            };
-            try {
-                if (editMode && editPollId) {
-                    await updateDoc(doc(db, ...POLLS_PATH, editPollId), data);
-                    showMessage("Success", "アンケートを更新しました。");
-                } else {
-                    Object.assign(data, { author: currentUser.displayName || 'Guest', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), deleted: false });
-                    await addDoc(collection(db, ...POLLS_PATH), data);
-                    showMessage("Success", "新しいアンケートを作成しました。");
-                }
-                document.getElementById('createModal').classList.add('hidden');
-                goHome();
-            } catch (e) { showMessage("Error", "保存に失敗しました。"); }
+            const data = { title: t, question: document.getElementById('pollDescInput').value, category: cat, options: o, deadline: dl ? Timestamp.fromDate(new Date(dl)) : null, is_quiz: cat === "クイズ", isMultipleChoice: isMulti, updatedAt: serverTimestamp() };
+            try { if (editMode && editPollId) { await updateDoc(doc(db, ...POLLS_PATH, editPollId), data); showMessage("Success", "アンケートを更新しました。"); } else { Object.assign(data, { author: currentUser.displayName || 'Guest', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), deleted: false }); await addDoc(collection(db, ...POLLS_PATH), data); showMessage("Success", "新しいアンケートを作成しました。"); } document.getElementById('createModal').classList.add('hidden'); goHome(); } catch (e) { showMessage("Error", "保存に失敗しました。"); }
         };
 
         document.getElementById('loginBtn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) {} };
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
-        
-        document.getElementById('agreeTosBtn').onclick = () => { 
-            localStorage.setItem('mixvote_agreed', 'true'); 
-            document.getElementById('tosModal').classList.add('hidden'); 
-            document.getElementById('appUI').classList.remove('hidden'); 
-            setupCategoryMenu(); 
-            loadPolls();
-        };
-        
-        document.getElementById('openCreateBtn').onclick = () => { 
-            if (currentUser && !currentUser.isAnonymous) { 
-                editMode = false; 
-                document.getElementById('modalTitle').textContent = "Create Poll";
-                document.getElementById('pollTitleInput').value = "";
-                document.getElementById('pollDescInput').value = "";
-                document.getElementById('pollOptionsInput').value = "";
-                document.getElementById('pollDeadlineInput').value = "";
-                document.getElementById('createModal').classList.remove('hidden'); 
-                syncCorrectAnswerOptions(); 
-            } 
-        };
+        document.getElementById('agreeTosBtn').onclick = () => { localStorage.setItem('mixvote_agreed', 'true'); document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); setupCategoryMenu(); loadPolls(); };
+        document.getElementById('openCreateBtn').onclick = () => { if (currentUser && !currentUser.isAnonymous) { editMode = false; document.getElementById('modalTitle').textContent = "Create Poll"; document.getElementById('pollTitleInput').value = ""; document.getElementById('pollDescInput').value = ""; document.getElementById('pollOptionsInput').value = ""; document.getElementById('pollDeadlineInput').value = ""; document.getElementById('deadlineDisplay').textContent = "Select"; document.getElementById('createModal').classList.remove('hidden'); syncCorrectAnswerOptions(); } };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
 
-        loadSavedTheme(); 
-        initAuth();
+        // Deadline入力の変更をリアルタイムに検知するリスナー
+        document.getElementById('pollDeadlineInput').addEventListener('input', (e) => {
+            const val = e.target.value;
+            document.getElementById('deadlineDisplay').textContent = val ? new Date(val).toLocaleString() : "Select";
+        });
+
+        // コンテナクリックでカレンダーを表示
+        const dpc = document.getElementById('deadlinePickerContainer');
+        if (dpc) dpc.onclick = () => { try { document.getElementById('pollDeadlineInput').showPicker(); } catch (e) { document.getElementById('pollDeadlineInput').focus(); } };
+
+        loadSavedTheme(); initAuth();
     </script>
 </body>
 </html>
