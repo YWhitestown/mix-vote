@@ -445,6 +445,10 @@
                         </div>
                     </div>
                 </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2">Hashtags (Space separated)</label>
+                    <input type="text" id="pollTagsInput" class="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-cyan-500 outline-none transition-colors" placeholder="mixvote survey trending">
+                </div>
                 <div id="multiChoiceField" class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between">
                     <div>
                         <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Settings</span>
@@ -964,6 +968,9 @@
                 const div = document.createElement('div');
                 div.className = "poll-card glass rounded-[24px] p-6 cursor-pointer border border-white/5 hover:border-cyan-500/50 text-white relative flex flex-col justify-between";
                 div.onclick = () => goDetail(p.id);
+                
+                const tagHtml = (p.hashtags || []).map(tag => `<span class="text-[8px] text-cyan-500/70 mr-1.5 font-bold italic">#${escapeHTML(tag)}</span>`).join('');
+
                 div.innerHTML = `
                     <div class="space-y-3">
                         <div class="flex justify-between items-start">
@@ -971,6 +978,7 @@
                             ${total > 10 ? '<span class="text-[8px] font-black text-orange-500"><i class="fas fa-fire"></i> Hot</span>' : ''}
                         </div>
                         <h3 class="text-lg font-bold leading-tight">${escapeHTML(p.title)}</h3>
+                        <div class="flex flex-wrap">${tagHtml}</div>
                     </div>
                     <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-500 font-bold">
                         <span>by ${escapeHTML(p.author)}</span>
@@ -1076,6 +1084,7 @@
             document.getElementById('pollOptionsInput').value = p.options.join('\n');
             document.getElementById('pollCategoryInput').value = p.category;
             document.getElementById('pollMultiChoiceInput').checked = p.isMultipleChoice || false;
+            document.getElementById('pollTagsInput').value = (p.hashtags || []).join(' ');
             
             const deadlineInput = document.getElementById('pollDeadlineInput');
             const deadlineDisplay = document.getElementById('deadlineDisplay');
@@ -1268,6 +1277,8 @@
 
             const contentArea = document.getElementById('pollDetailContent');
             if (contentArea) {
+                const tagHtml = (p.hashtags || []).map(tag => `<span class="text-xs text-cyan-400/80 mr-3 font-bold italic">#${escapeHTML(tag)}</span>`).join('');
+                
                 contentArea.innerHTML = `
                     <div class="space-y-8">
                         <div class="space-y-4">
@@ -1276,6 +1287,7 @@
                                 ${isMulti ? '<span class="bg-purple-500/10 text-purple-400 font-black text-[9px] px-3 py-1 rounded-md uppercase">複数回答可</span>' : ''}
                             </div>
                             <h2 class="text-3xl md:text-4xl font-black text-white leading-tight">${escapeHTML(p.title)}</h2>
+                            <div class="flex flex-wrap">${tagHtml}</div>
                             ${p.question ? `<div class="bg-white/5 p-6 rounded-3xl text-slate-300 text-sm leading-relaxed whitespace-pre-wrap border border-white/5">${escapeHTML(p.question)}</div>` : ''}
                         </div>
 
@@ -1359,19 +1371,27 @@
 
         document.getElementById('openCreateBtn').onclick = () => {
             if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "アンケートの作成にはGoogleログインが必要です。");
+            
+            // 全フィールドを完全にリセット
             editMode = false;
             editPollId = null;
             document.getElementById('modalTitle').textContent = "Create Poll";
             document.getElementById('pollTitleInput').value = ""; 
-            document.getElementById('pollOptionsInput').value = "";
             document.getElementById('pollDescInput').value = ""; 
+            document.getElementById('pollOptionsInput').value = "";
+            document.getElementById('pollTagsInput').value = "";
             document.getElementById('pollExplanationInput').value = "";
             document.getElementById('pollMultiChoiceInput').checked = false;
             document.getElementById('pollDeadlineInput').value = "";
             document.getElementById('deadlineDisplay').textContent = "Select";
-            document.getElementById('createModal').classList.remove('hidden');
             
+            // カテゴリーをデフォルト（1番目）に戻す
+            const catSelect = document.getElementById('pollCategoryInput');
+            if (catSelect.options.length > 0) catSelect.selectedIndex = 0;
+
+            document.getElementById('createModal').classList.remove('hidden');
             document.getElementById('pollOptionsInput').disabled = false;
+            
             syncCorrectAnswerOptions();
         };
 
@@ -1385,11 +1405,16 @@
                 if (!currentUser || currentUser.isAnonymous) return showMessage("Auth Required", "サインインが必要です。");
                 
                 const t = document.getElementById('pollTitleInput').value.trim();
+                const q = document.getElementById('pollDescInput').value.trim();
                 const oi = document.getElementById('pollOptionsInput');
                 const o = oi.value.split('\n').map(s=>s.trim()).filter(Boolean);
                 const cat = document.getElementById('pollCategoryInput').value;
                 const dl = document.getElementById('pollDeadlineInput').value;
                 const isMulti = document.getElementById('pollMultiChoiceInput').checked;
+                const tagsRaw = document.getElementById('pollTagsInput').value.trim();
+                
+                // タグのパース（スペース区切り、#の除去と正規化）
+                const tags = tagsRaw ? tagsRaw.split(/\s+/).map(tag => tag.replace(/^#/, '').trim()).filter(Boolean) : [];
 
                 if (!t || o.length < 2) return showMessage("Error", "タイトルと2つ以上の選択肢が必要です。");
                 
@@ -1406,9 +1431,10 @@
 
                 const d = { 
                     title: t, 
-                    question: document.getElementById('pollDescInput').value, 
+                    question: q, 
                     category: cat, 
                     options: o, 
+                    hashtags: tags,
                     deadline: dl ? Timestamp.fromDate(new Date(dl)) : null, 
                     is_quiz: cat === "クイズ", 
                     isMultipleChoice: isMulti,
@@ -1443,6 +1469,7 @@
                 
                 document.getElementById('createModal').classList.add('hidden');
                 if (editMode) loadPollDetail(editPollId);
+                else goHome();
             } catch (e) {
                 console.error("Save error:", e);
                 showMessage("Operation Failed", `Reason: ${e.message || 'Permission Denied'}`);
