@@ -576,6 +576,14 @@
             return s.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
         };
 
+        // メールアドレス等の識別子をマスクするユーティリティ
+        const maskIdentifier = (s = '') => {
+            if (typeof s !== 'string' || !s.includes('@')) return s;
+            const [local, domain] = s.split('@');
+            if (!local) return s;
+            return local.charAt(0) + '***@' + domain;
+        };
+
         const showMessage = (title, body, onConfirm = null) => {
             const modal = document.getElementById('msgModal');
             document.getElementById('msgTitle').textContent = title;
@@ -618,7 +626,12 @@
             document.getElementById('userInfo').style.display = isReg ? 'flex' : 'none';
             document.getElementById('openCreateBtn').style.display = isReg ? 'flex' : 'none';
             document.getElementById('navMyPageBtn').classList.toggle('hidden', !isReg);
-            if (isReg) document.getElementById('userName').textContent = user.displayName || '';
+            
+            // ヘッダー表示名のマスク処理（メールアドレスの場合）
+            if (isReg) {
+                document.getElementById('userName').textContent = maskIdentifier(user.displayName || user.email || '');
+            }
+
             document.getElementById('commentInputArea').classList.toggle('hidden', !isReg);
 
             if (localStorage.getItem('mixvote_agreed')) {
@@ -793,7 +806,9 @@
                 const div = document.createElement('div');
                 div.className = `poll-card glass rounded-[32px] p-8 cursor-pointer border border-white/10 text-white flex flex-col justify-between ${isLarge ? 'md:col-span-2' : ''}`;
                 div.onclick = () => goDetail(p.id);
-                div.innerHTML = `<div><span class="text-[9px] font-bold px-3 py-1 rounded bg-white/10 text-cyan-400 uppercase">${escapeHTML(p.category)}</span><h3 class="${isLarge ? 'text-3xl' : 'text-lg'} font-black mt-4">${escapeHTML(p.title)}</h3></div><div class="mt-6 text-[10px] text-slate-500 font-bold">by ${escapeHTML(p.author)}</div>`;
+                // 表示名がメールアドレスならマスクして表示
+                const displayAuthor = maskIdentifier(p.author);
+                div.innerHTML = `<div><span class="text-[9px] font-bold px-3 py-1 rounded bg-white/10 text-cyan-400 uppercase">${escapeHTML(p.category)}</span><h3 class="${isLarge ? 'text-3xl' : 'text-lg'} font-black mt-4">${escapeHTML(p.title)}</h3></div><div class="mt-6 text-[10px] text-slate-500 font-bold">by ${escapeHTML(displayAuthor)}</div>`;
                 c.appendChild(div);
             });
         };
@@ -909,15 +924,33 @@
             unsubscribeComments = onSnapshot(query(collection(db, ...POLLS_PATH, pid, 'comments'), orderBy('createdAt', 'desc')), (s) => {
                 const list = document.getElementById('commentsList'); if (!list) return;
                 list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : '';
-                s.docs.forEach(d => { const c = d.data(); const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; list.appendChild(div); });
-            }, (err) => { if (err.code === 'failed-precondition') { unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => { const list = document.getElementById('commentsList'); if (!list) return; list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : ''; s.docs.forEach(d => { const c = d.data(); const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(c.author)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; list.appendChild(div); }); }); } });
+                s.docs.forEach(d => { 
+                    const c = d.data(); 
+                    const div = document.createElement('div'); 
+                    div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; 
+                    // 表示名がメールアドレスならマスク
+                    const displayAuthor = maskIdentifier(c.author);
+                    div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(displayAuthor)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; 
+                    list.appendChild(div); 
+                });
+            }, (err) => { if (err.code === 'failed-precondition') { unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => { const list = document.getElementById('commentsList'); if (!list) return; list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : ''; s.docs.forEach(d => { const c = d.data(); const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(maskIdentifier(c.author))}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; list.appendChild(div); }); }); } });
         };
 
         document.getElementById('postCommentBtn').onclick = async () => {
             const textarea = document.getElementById('commentText'); const t = textarea.value.trim();
             if (!t || !currentUser || currentUser.isAnonymous) return showMessage("ログインが必要", "コメントの投稿にはGoogleログインが必要です。");
             if (t.length > 100) return showMessage("エラー", "コメントは100文字以内で入力してください。");
-            try { await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { author: currentUser.displayName || 'Anonymous', userId: currentUser.uid, text: t, createdAt: serverTimestamp() }); textarea.value = ''; } catch (e) { console.error("Comment Error:", e); }
+            try { 
+                // 保存時にマスク処理を行う
+                const authorToSave = maskIdentifier(currentUser.displayName || currentUser.email || 'Anonymous');
+                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { 
+                    author: authorToSave, 
+                    userId: currentUser.uid, 
+                    text: t, 
+                    createdAt: serverTimestamp() 
+                }); 
+                textarea.value = ''; 
+            } catch (e) { console.error("Comment Error:", e); }
         };
 
         window.openEditPoll = () => {
@@ -947,8 +980,12 @@
             const dl = document.getElementById('pollDeadlineInput').value;
             const isMulti = document.getElementById('pollMultiChoiceInput').checked;
             if (!t || o.length < 2) { showMessage("Error", "タイトルと2つ以上の選択肢が必要です。"); return; }
+            
+            // 保存時に作成者の表示名（メールアドレスの場合）をマスクする
+            const authorToSave = maskIdentifier(currentUser.displayName || currentUser.email || 'Guest');
+            
             const data = { title: t, question: document.getElementById('pollDescInput').value, category: cat, options: o, deadline: dl ? Timestamp.fromDate(new Date(dl)) : null, is_quiz: cat === "クイズ", isMultipleChoice: isMulti, updatedAt: serverTimestamp() };
-            try { if (editMode && editPollId) { await updateDoc(doc(db, ...POLLS_PATH, editPollId), data); showMessage("Success", "アンケートを更新しました。"); } else { Object.assign(data, { author: currentUser.displayName || 'Guest', authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), deleted: false }); await addDoc(collection(db, ...POLLS_PATH), data); showMessage("Success", "新しいアンケートを作成しました。"); } document.getElementById('createModal').classList.add('hidden'); goHome(); } catch (e) { showMessage("Error", "保存に失敗しました。"); }
+            try { if (editMode && editPollId) { await updateDoc(doc(db, ...POLLS_PATH, editPollId), data); showMessage("Success", "アンケートを更新しました。"); } else { Object.assign(data, { author: authorToSave, authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), deleted: false }); await addDoc(collection(db, ...POLLS_PATH), data); showMessage("Success", "新しいアンケートを作成しました。"); } document.getElementById('createModal').classList.add('hidden'); goHome(); } catch (e) { showMessage("Error", "保存に失敗しました。"); }
         };
 
         document.getElementById('loginBtn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) {} };
@@ -957,13 +994,11 @@
         document.getElementById('openCreateBtn').onclick = () => { if (currentUser && !currentUser.isAnonymous) { editMode = false; document.getElementById('modalTitle').textContent = "Create Poll"; document.getElementById('pollTitleInput').value = ""; document.getElementById('pollDescInput').value = ""; document.getElementById('pollOptionsInput').value = ""; document.getElementById('pollDeadlineInput').value = ""; document.getElementById('deadlineDisplay').textContent = "Select"; document.getElementById('createModal').classList.remove('hidden'); syncCorrectAnswerOptions(); } };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
 
-        // Deadline入力の変更をリアルタイムに検知するリスナー
         document.getElementById('pollDeadlineInput').addEventListener('input', (e) => {
             const val = e.target.value;
             document.getElementById('deadlineDisplay').textContent = val ? new Date(val).toLocaleString() : "Select";
         });
 
-        // コンテナクリックでカレンダーを表示
         const dpc = document.getElementById('deadlinePickerContainer');
         if (dpc) dpc.onclick = () => { try { document.getElementById('pollDeadlineInput').showPicker(); } catch (e) { document.getElementById('pollDeadlineInput').focus(); } };
 
