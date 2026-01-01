@@ -349,7 +349,7 @@
                             <div>
                                 <h3 class="text-white font-bold text-sm mb-1">Welcome to the Community!</h3>
                                 <p class="text-slate-400 text-xs leading-relaxed">
-                                    Mix Voteへようこそ。誰でも投票・結果閲覧ができますが、<span class="text-cyan-400">作成やコメントにはGoogleログインが必要</span>です。
+                                    投票と閲覧は誰でもOK（自動でゲスト参加）ですが、<span class="text-cyan-400">作成やコメントにはGoogleログインが必要</span>です。
                                 </p>
                             </div>
                         </div>
@@ -475,10 +475,10 @@
             apiKey: "AIzaSyAwyi5j8EvqHL8wkyAJ48rwR8QCfS9voUE",
             authDomain: "mixvotesurvey.firebaseapp.com",
             projectId: "mixvotesurvey",
-            storageBucket: "mixvotesurvey.firebasestorage.app", // 更新済み
+            storageBucket: "mixvotesurvey.firebasestorage.app",
             messagingSenderId: "352307389497",
             appId: "1:352307389497:web:0939fd29452d6c6afc59e8",
-            measurementId: "G-ZWR5GHHL54" // 追加済み
+            measurementId: "G-ZWR5GHHL54"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -509,6 +509,7 @@
         let popularCategories = []; 
         let featuredPolls = []; 
         let cachedAllPolls = [];
+        let isVoting = false; // クールダウン用フラグ
 
         const DEFAULT_THEME = {
             bg: "#020617",
@@ -667,14 +668,6 @@
             else goHome();
         });
 
-        document.getElementById('agreeTosBtn').onclick = () => {
-            localStorage.setItem('mixvote_agreed', 'true');
-            document.getElementById('tosModal').classList.add('hidden');
-            document.getElementById('appUI').classList.remove('hidden');
-            setupCategoryMenu();
-            if (currentUser) loadPolls();
-        };
-
         const updateCategoryArrows = () => {
             const nav = document.getElementById('categoryNav');
             const leftArrow = document.getElementById('catScrollLeft');
@@ -817,7 +810,10 @@
         };
 
         window.castVote = async (idx) => {
-            if (!currentUser) return;
+            if (!currentUser || isVoting) return;
+            isVoting = true;
+            setTimeout(() => { isVoting = false; }, 2000); // 2秒のクールダウン
+
             const pollRef = doc(db, ...POLLS_PATH, currentPollId);
             const voteRef = doc(db, ...POLLS_PATH, currentPollId, 'votes', currentUser.uid);
             try {
@@ -831,9 +827,8 @@
                     const newVotes = [...data.votes];
                     newVotes[idx] = (newVotes[idx] || 0) + 1;
 
-                    // セキュリティルールの `isVoteUpdate` に合わせる
-                    // サブコレクションの作成と、メインドキュメントの votes/updatedAt のみを更新
-                    transaction.set(voteRef, { timestamp: serverTimestamp() });
+                    // セキュリティルールに合わせてフィールド名を統一
+                    transaction.set(voteRef, { votedAt: serverTimestamp() });
                     transaction.update(pollRef, { votes: newVotes, updatedAt: serverTimestamp() });
                 });
                 loadPollDetail(currentPollId);
@@ -841,7 +836,10 @@
         };
 
         window.submitMultipleVotes = async () => {
-            if (!currentUser || localSelectedIndices.length === 0) return;
+            if (!currentUser || localSelectedIndices.length === 0 || isVoting) return;
+            isVoting = true;
+            setTimeout(() => { isVoting = false; }, 2000);
+
             const pollRef = doc(db, ...POLLS_PATH, currentPollId);
             const voteRef = doc(db, ...POLLS_PATH, currentPollId, 'votes', currentUser.uid);
             try {
@@ -853,7 +851,8 @@
                     const newVotes = [...data.votes];
                     localSelectedIndices.forEach(idx => { newVotes[idx] = (newVotes[idx] || 0) + 1; });
                     
-                    transaction.set(voteRef, { timestamp: serverTimestamp() });
+                    // セキュリティルールに合わせてフィールド名を統一
+                    transaction.set(voteRef, { votedAt: serverTimestamp() });
                     transaction.update(pollRef, { votes: newVotes, updatedAt: serverTimestamp() });
                 });
                 localSelectedIndices = []; loadPollDetail(currentPollId);
@@ -869,7 +868,6 @@
             const p = pollDoc.data();
             currentPollData = p;
 
-            // 修正：投票済みチェックをサブコレクション経由に変更（ルールと整合）
             const voteDoc = await getDoc(doc(db, ...POLLS_PATH, id, 'votes', currentUser.uid));
             const hasVoted = voteDoc.exists();
             const isExp = p.deadline && p.deadline.toDate() < new Date();
@@ -944,7 +942,16 @@
 
         document.getElementById('loginBtn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) {} };
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
-        document.getElementById('agreeTosBtn').onclick = () => { localStorage.setItem('mixvote_agreed', 'true'); document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); setupCategoryMenu(); loadPolls(); };
+        
+        // TOSボタンのonclickを整理
+        document.getElementById('agreeTosBtn').onclick = () => { 
+            localStorage.setItem('mixvote_agreed', 'true'); 
+            document.getElementById('tosModal').classList.add('hidden'); 
+            document.getElementById('appUI').classList.remove('hidden'); 
+            setupCategoryMenu(); 
+            loadPolls(); 
+        };
+
         document.getElementById('openCreateBtn').onclick = () => { if (currentUser && !currentUser.isAnonymous) { editMode = false; document.getElementById('createModal').classList.remove('hidden'); syncCorrectAnswerOptions(); } };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
 
