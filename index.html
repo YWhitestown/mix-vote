@@ -626,11 +626,9 @@
                 document.getElementById('tosModal').classList.add('hidden');
                 setupCategoryMenu();
                 
-                // 詳細ページを開いているなら、認証完了後に投票権限を再判定して描画
                 const h = window.location.hash;
                 if (h.startsWith('#poll/')) loadPollDetail(h.replace('#poll/', ''));
                 
-                // リスナーがまだなら開始
                 if (!unsubscribePolls) loadPolls(); 
             } else {
                 document.getElementById('tosModal').classList.remove('hidden');
@@ -885,6 +883,16 @@
             const pollDoc = await getDoc(doc(db, ...POLLS_PATH, id));
             if (!pollDoc.exists()) return goHome();
             const p = pollDoc.data();
+
+            // 互換・防御（古いデータ/欠損データ対策）
+            p.options = Array.isArray(p.options) ? p.options : [];
+            p.votes = Array.isArray(p.votes) ? p.votes : new Array(p.options.length).fill(0);
+            if (p.votes.length !== p.options.length) {
+                const fixed = new Array(p.options.length).fill(0);
+                p.votes.forEach((v, i) => { if (i < fixed.length) fixed[i] = Number(v) || 0; });
+                p.votes = fixed;
+            }
+
             currentPollData = p;
 
             let hasVoted = false;
@@ -896,7 +904,6 @@
             }
 
             const isExp = p.deadline && p.deadline.toDate() < new Date();
-            // !!currentUser により、ゲスト(匿名)でもログイン済み(Google)でもUIを出す
             const canVote = !!currentUser && !hasVoted && !isExp;
             const showRes = !p.is_quiz ? true : (hasVoted || isExp);
             const isMulti = p.isMultipleChoice === true;
@@ -938,7 +945,6 @@
 
         const loadComments = (pid) => {
             if (unsubscribeComments) unsubscribeComments();
-            // orderByを使用するため、インデックスが有効であることを前提。エラー時はcreatedAt抜きを想定してフォールバック検討。
             unsubscribeComments = onSnapshot(query(collection(db, ...POLLS_PATH, pid, 'comments'), orderBy('createdAt', 'desc')), (s) => {
                 const list = document.getElementById('commentsList'); if (!list) return;
                 list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : '';
@@ -951,7 +957,6 @@
                 });
             }, (err) => {
                 console.warn("Comments restricted or Index missing:", err.code);
-                // インデックス未作成や過去データ不備の場合、orderByなしで再試行
                 if (err.code === 'failed-precondition') {
                     unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => {
                         const list = document.getElementById('commentsList'); if (!list) return;
@@ -1071,7 +1076,6 @@
             document.getElementById('tosModal').classList.add('hidden'); 
             document.getElementById('appUI').classList.remove('hidden'); 
             setupCategoryMenu(); 
-            // TOS同意後にデータを読み込む
             loadPolls();
         };
         
