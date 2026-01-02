@@ -832,6 +832,58 @@
             }
         };
 
+        // SNSシェア機能
+        window.shareOnX = () => {
+            if (!currentPollData) return;
+            const text = `🗳️ ${currentPollData.title}\nMix Voteで投票しよう！`;
+            const url = window.location.href;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        };
+
+        window.shareOnFacebook = () => {
+            const url = window.location.href;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        };
+
+        window.copyPollLink = async () => {
+            const url = window.location.href;
+            try {
+                const el = document.createElement('textarea');
+                el.value = url;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showMessage("Copied!", "アンケートのリンクをコピーしました。");
+            } catch (err) {
+                console.error("Copy error:", err);
+            }
+        };
+
+        // 結果ダウンロード機能
+        window.downloadResults = () => {
+            if (!currentPollData) return;
+            const p = currentPollData;
+            const total = p.votes?.reduce((s, v) => s + v, 0) || 0;
+            let content = `Mix Vote Report\n==============================\nTitle: ${p.title}\nCategory: ${p.category}\nTotal Votes: ${total}\n`;
+            if (p.question) content += `Description: ${p.question}\n`;
+            content += `==============================\n\nRESULTS:\n`;
+            p.options.forEach((opt, i) => {
+                const v = p.votes[i] || 0;
+                const per = total > 0 ? Math.round(v / total * 100) : 0;
+                content += `${i + 1}. ${opt}: ${v} votes (${per}%)\n`;
+            });
+            content += `\nGenerated on ${new Date().toLocaleString()}`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); 
+            a.href = url; 
+            const safeTitle = p.title.replace(/[<>:"/\\|?*\x00-\x1f]/g, '').replace(/\s+/g, '_');
+            a.download = `poll_result_${safeTitle}.txt`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        };
+
         window.toggleLocalSelect = (idx) => {
             const i = localSelectedIndices.indexOf(idx);
             if (i >= 0) localSelectedIndices.splice(i, 1); else localSelectedIndices.push(idx);
@@ -930,19 +982,21 @@
                     ${p.question ? `<div class="bg-white/5 p-5 rounded-2xl text-slate-300 text-sm">${escapeHTML(p.question)}</div>` : ''}
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="space-y-3">
-                            ${p.options.map((opt, i) => { 
-                                const v = p.votes[i]||0; const per = total>0?Math.round(v/total*100):0; 
-                                if (canVote) return `<div id="opt-container-${i}" onclick="${isMulti ? `toggleLocalSelect(${i})` : `castVote(${i})`}" class="bg-white/5 border border-white/10 p-5 rounded-2xl cursor-pointer hover:border-cyan-500/50 flex justify-between items-center group"><span>${escapeHTML(opt)}</span><i class="fas fa-chevron-right text-slate-700"></i></div>`; 
-                                if (showRes) return `<div class="relative overflow-hidden bg-slate-900/50 p-5 rounded-2xl flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-cyan-500/10" style="width:${per}%"></div><span class="z-10 font-bold">${escapeHTML(opt)}</span><span class="z-10 font-black">${per}%</span></div>`; 
-                                return `<div class="bg-white/5 p-5 rounded-2xl opacity-50 flex justify-between"><span>${escapeHTML(opt)}</span><i class="fas fa-lock"></i></div>`; 
-                            }).join('')}
-                            ${canVote && isMulti ? `<button id="submitMultiVoteBtn" onclick="submitMultipleVotes()" class="w-full mt-4 bg-cyan-500 text-slate-900 font-black py-4 rounded-xl" style="display:none">投票する</button>` : ''}
+                            ${p.options.map((opt, i) => { const v = p.votes[i]||0; const per = total>0?Math.round(v/total*100):0; if (canVote) return `<div id="opt-container-${i}" onclick="${isMulti ? `toggleLocalSelect(${i})` : `castVote(${i})`}" class="bg-white/5 border border-white/10 p-5 rounded-2xl cursor-pointer hover:border-cyan-500/50 flex justify-between items-center group"><span>${escapeHTML(opt)}</span><i class="fas fa-chevron-right text-slate-700"></i></div>`; if (showRes) return `<div class="relative overflow-hidden bg-slate-900/50 p-5 rounded-2xl flex justify-between items-center"><div class="absolute inset-y-0 left-0 bg-cyan-500/10" style="width:${per}%"></div><span class="z-10 font-bold">${escapeHTML(opt)}</span><span class="z-10 font-black">${per}%</span></div>`; return `<div class="bg-white/5 p-5 rounded-2xl opacity-50 flex justify-between"><span>${escapeHTML(opt)}</span><i class="fas fa-lock"></i></div>`; }).join('')}${canVote && isMulti ? `<button id="submitMultiVoteBtn" onclick="submitMultipleVotes()" class="w-full mt-4 bg-cyan-500 text-slate-900 font-black py-4 rounded-xl" style="display:none">投票する</button>` : ''}
                         </div>
                         <div class="space-y-4">
                             ${showRes ? `
-                                <div class="flex gap-2 p-1 bg-slate-900 rounded-xl border border-white/5">
-                                    <button id="btnChartDoughnut" onclick="updateChartType('doughnut')" class="px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${currentChartType === 'doughnut' ? 'bg-cyan-500 text-slate-950' : 'bg-white/5 text-slate-400 hover:bg-white/10'}">DOUGHNUT</button>
-                                    <button id="btnChartBar" onclick="updateChartType('bar')" class="px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${currentChartType === 'bar' ? 'bg-cyan-500 text-slate-950' : 'bg-white/5 text-slate-400 hover:bg-white/10'}">BAR</button>
+                                <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
+                                    <div class="flex gap-2 p-1 bg-slate-900 rounded-xl border border-white/5">
+                                        <button id="btnChartDoughnut" onclick="updateChartType('doughnut')" class="px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${currentChartType === 'doughnut' ? 'bg-cyan-500 text-slate-950' : 'bg-white/5 text-slate-400 hover:bg-white/10'}">DOUGHNUT</button>
+                                        <button id="btnChartBar" onclick="updateChartType('bar')" class="px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${currentChartType === 'bar' ? 'bg-cyan-500 text-slate-950' : 'bg-white/5 text-slate-400 hover:bg-white/10'}">BAR</button>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="downloadResults()" class="p-2.5 rounded-xl bg-white/5 text-cyan-400 border border-white/5 hover:bg-cyan-500/10 hover:border-cyan-500/30 transition-all shadow-lg" title="Download Report"><i class="fas fa-download"></i></button>
+                                        <button onclick="shareOnX()" class="p-2.5 rounded-xl bg-white/5 text-white border border-white/5 hover:bg-white/10 transition-all shadow-lg" title="Share on X"><i class="fab fa-x-twitter"></i></button>
+                                        <button onclick="shareOnFacebook()" class="p-2.5 rounded-xl bg-white/5 text-[#1877F2] border border-white/5 hover:bg-white/10 transition-all shadow-lg" title="Share on Facebook"><i class="fab fa-facebook-f"></i></button>
+                                        <button onclick="copyPollLink()" class="p-2.5 rounded-xl bg-white/5 text-pink-400 border border-white/5 hover:bg-pink-500/10 hover:border-pink-500/30 transition-all shadow-lg" title="Copy Link"><i class="fas fa-link"></i></button>
+                                    </div>
                                 </div>
                                 <div class="h-[300px]"><canvas id="pollChart"></canvas></div>
                             ` : `<div class="glass h-[300px] flex items-center justify-center text-slate-600 uppercase text-[10px] font-bold">Vote to reveal results</div>`}
@@ -959,14 +1013,7 @@
             unsubscribeComments = onSnapshot(query(collection(db, ...POLLS_PATH, pid, 'comments'), orderBy('createdAt', 'desc')), (s) => {
                 const list = document.getElementById('commentsList'); if (!list) return;
                 list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : '';
-                s.docs.forEach(d => { 
-                    const c = d.data(); 
-                    const div = document.createElement('div'); 
-                    div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; 
-                    const displayAuthor = maskIdentifier(c.author);
-                    div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(displayAuthor)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; 
-                    list.appendChild(div); 
-                });
+                s.docs.forEach(d => { const c = d.data(); const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; const displayAuthor = maskIdentifier(c.author); div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(displayAuthor)}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; list.appendChild(div); });
             }, (err) => { if (err.code === 'failed-precondition') { unsubscribeComments = onSnapshot(collection(db, ...POLLS_PATH, pid, 'comments'), (s) => { const list = document.getElementById('commentsList'); if (!list) return; list.innerHTML = s.empty ? '<p class="text-center text-slate-700 py-10">No discussions yet.</p>' : ''; s.docs.forEach(d => { const c = d.data(); const div = document.createElement('div'); div.className = "p-4 rounded-xl bg-white/5 border border-white/5 mb-3"; div.innerHTML = `<div class="flex justify-between text-[10px] font-bold mb-1"><span class="text-cyan-400">${escapeHTML(maskIdentifier(c.author))}</span></div><p class="text-sm text-slate-300">${escapeHTML(c.text)}</p>`; list.appendChild(div); }); }); } });
         };
 
@@ -976,13 +1023,7 @@
             if (t.length > 100) return showMessage("エラー", "コメントは100文字以内で入力してください。");
             try { 
                 const authorToSave = maskIdentifier(currentUser.displayName || currentUser.email || 'Anonymous');
-                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { 
-                    author: authorToSave, 
-                    userId: currentUser.uid, 
-                    text: t, 
-                    createdAt: serverTimestamp() 
-                }); 
-                textarea.value = ''; 
+                await addDoc(collection(db, ...POLLS_PATH, currentPollId, 'comments'), { author: authorToSave, userId: currentUser.uid, text: t, createdAt: serverTimestamp() }); textarea.value = ''; 
             } catch (e) { console.error("Comment Error:", e); }
         };
 
@@ -1013,9 +1054,7 @@
             const dl = document.getElementById('pollDeadlineInput').value;
             const isMulti = document.getElementById('pollMultiChoiceInput').checked;
             if (!t || o.length < 2) { showMessage("Error", "タイトルと2つ以上の選択肢が必要です。"); return; }
-            
             const authorToSave = maskIdentifier(currentUser.displayName || currentUser.email || 'Guest');
-            
             const data = { title: t, question: document.getElementById('pollDescInput').value, category: cat, options: o, deadline: dl ? Timestamp.fromDate(new Date(dl)) : null, is_quiz: cat === "クイズ", isMultipleChoice: isMulti, updatedAt: serverTimestamp() };
             try { if (editMode && editPollId) { await updateDoc(doc(db, ...POLLS_PATH, editPollId), data); showMessage("Success", "アンケートを更新しました。"); } else { Object.assign(data, { author: authorToSave, authorID: currentUser.uid, createdAt: serverTimestamp(), votes: new Array(o.length).fill(0), deleted: false }); await addDoc(collection(db, ...POLLS_PATH), data); showMessage("Success", "新しいアンケートを作成しました。"); } document.getElementById('createModal').classList.add('hidden'); goHome(); } catch (e) { showMessage("Error", "保存に失敗しました。"); }
         };
@@ -1024,13 +1063,10 @@
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
         document.getElementById('agreeTosBtn').onclick = () => { localStorage.setItem('mixvote_agreed', 'true'); document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); setupCategoryMenu(); loadPolls(); };
         
-        // 新規作成ボタン：すべての入力内容を確実にリセット
         document.getElementById('openCreateBtn').onclick = () => { 
             if (currentUser && !currentUser.isAnonymous) { 
                 editMode = false; 
                 document.getElementById('modalTitle').textContent = "Create Poll";
-                
-                // 全フィールドのリセット
                 document.getElementById('pollTitleInput').value = "";
                 document.getElementById('pollDescInput').value = "";
                 document.getElementById('pollOptionsInput').value = "";
@@ -1039,21 +1075,14 @@
                 document.getElementById('deadlineDisplay').textContent = "Select";
                 document.getElementById('pollMultiChoiceInput').checked = false;
                 document.getElementById('pollExplanationInput').value = "";
-                
                 const catSelect = document.getElementById('pollCategoryInput');
                 if (catSelect.options.length > 0) catSelect.selectedIndex = 0;
-                
                 document.getElementById('createModal').classList.remove('hidden'); 
                 syncCorrectAnswerOptions(); 
             } 
         };
         document.getElementById('cancelCreateBtn').onclick = () => document.getElementById('createModal').classList.add('hidden');
-
-        document.getElementById('pollDeadlineInput').addEventListener('input', (e) => {
-            const val = e.target.value;
-            document.getElementById('deadlineDisplay').textContent = val ? new Date(val).toLocaleString() : "Select";
-        });
-
+        document.getElementById('pollDeadlineInput').addEventListener('input', (e) => { const val = e.target.value; document.getElementById('deadlineDisplay').textContent = val ? new Date(val).toLocaleString() : "Select"; });
         const dpc = document.getElementById('deadlinePickerContainer');
         if (dpc) dpc.onclick = () => { try { document.getElementById('pollDeadlineInput').showPicker(); } catch (e) { document.getElementById('pollDeadlineInput').focus(); } };
 
