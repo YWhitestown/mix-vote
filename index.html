@@ -510,6 +510,13 @@
         let cachedAllPolls = [];
         let isVoting = false; 
 
+        // 起動時にクエリパラメータ (?p=ID) があればハッシュ (#poll/ID) に自動変換
+        const urlParams = new URLSearchParams(window.location.search);
+        const pIdFromUrl = urlParams.get('p');
+        if (pIdFromUrl && !window.location.hash) {
+            window.location.hash = 'poll/' + pIdFromUrl;
+        }
+
         const DEFAULT_THEME = {
             bg: "#020617",
             text: "#f1f5f9",
@@ -831,10 +838,10 @@
             }
         };
 
-        // アンケート専用 URL を構築するヘルパー
+        // SNSシェア用のURL生成（ハッシュ無視対策のためクエリパラメータ形式を使用）
         const getShareUrl = () => {
-            const baseUrl = window.location.href.split('#')[0];
-            return `${baseUrl}#poll/${currentPollId}`;
+            const baseUrl = window.location.href.split(/[?#]/)[0];
+            return `${baseUrl}?p=${currentPollId}`;
         };
 
         window.shareOnX = () => {
@@ -859,7 +866,7 @@
                 el.select();
                 document.execCommand('copy');
                 document.body.removeChild(el);
-                showMessage("Copied!", "アンケートのリンクをコピーしました。Instagram等のストーリーズに貼り付けてシェアしてください！");
+                showMessage("Copied!", "アンケートのリンクをコピーしました。FacebookやInstagram等でシェアしてください！");
             } catch (err) { console.error("Copy error:", err); }
         };
 
@@ -1033,6 +1040,7 @@
         document.getElementById('loginBtn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) {} };
         document.getElementById('logoutBtn').onclick = () => auth.signOut();
         document.getElementById('agreeTosBtn').onclick = () => { localStorage.setItem('mixvote_agreed', 'true'); document.getElementById('tosModal').classList.add('hidden'); document.getElementById('appUI').classList.remove('hidden'); setupCategoryMenu(); loadPolls(); };
+        
         document.getElementById('openCreateBtn').onclick = () => { 
             if (currentUser && !currentUser.isAnonymous) { 
                 editMode = false; 
